@@ -1,0 +1,2 @@
+#define LED_ONLINE 16
+#define LED_PAIRING 14
