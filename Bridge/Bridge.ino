@@ -1,5 +1,9 @@
+#include "Hardware.h"
 #include <ESP8266WiFi.h>
+#include "WiFiController.h"
+
 WiFiServer server(80);
+WiFiController controller;
 
 bool is_pairing = false;
 
@@ -28,10 +32,10 @@ void ICACHE_RAM_ATTR ClickInterrupt() {
 
 void setup() {
   pinMode(12, INPUT_PULLUP);
-  pinMode(14, OUTPUT);
-  pinMode(16, OUTPUT);
-  digitalWrite(16, LOW);
-  digitalWrite(14, LOW);
+  pinMode(LED_PAIRING, OUTPUT);
+  pinMode(LED_ONLINE, OUTPUT);
+  digitalWrite(LED_ONLINE, LOW);
+  digitalWrite(LED_PAIRING, LOW);
 
   delay(500);
   attachInterrupt(digitalPinToInterrupt(12), ClickInterrupt, FALLING);
