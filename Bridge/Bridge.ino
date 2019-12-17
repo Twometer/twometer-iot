@@ -1,7 +1,9 @@
 #include "Hardware.h"
 #include "WiFiController.h"
+#include <ESP8266WebServer.h>
+#include <ArduinoJson.h>
 
-WiFiServer server(80);
+ESP8266WebServer httpServer(80);
 WiFiController controller;
 
 void ICACHE_RAM_ATTR ClickInterrupt() {
@@ -27,6 +29,13 @@ void setup() {
   delay(500);
   attachInterrupt(digitalPinToInterrupt(BTN_PAIR), ClickInterrupt, FALLING);
   controller.Initialize();
+
+  httpServer.on("/", HTTP_GET, []() {
+    httpServer.send(200, "text/html", "console here");
+  });
+
+  // TODO Rest APi
+
 }
 
 void loop() {
