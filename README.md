@@ -20,7 +20,7 @@ GET `/capabilities`
 Returns an array of capabilities
 
 PUT `/{capability}`
-{}
+{...}
 Updates the capability
 
 #### Example 1
@@ -71,7 +71,7 @@ GET `/capabilities`
 PUT `/state`
 
 ```json
-{ "state": "cinema" }
+{ "value": "cinema" }
 ```
 
 ### Bridge Server
@@ -85,10 +85,10 @@ Pairing mode is entered by pressing the pair button on the bridge. The bridge wi
 GET `/credentials`
 
 ```json
-{ "key": "x" }
+{ "key": "x", "token": "y" }
 ```
 
-Returns the key that is required to connect to the control WiFi. This endpoint is only active during pairing mode, and a request to this endpoints causes pairing mode to exit.
+Returns the key that is required to connect to the control WiFi, as well as the registration token. This endpoint is only active during pairing mode, and a request to this endpoint causes pairing mode to exit.
 
 
 
@@ -96,9 +96,13 @@ Returns the key that is required to connect to the control WiFi. This endpoint i
 
 POST `/register`
 
-Registers a device with the bridge. The bridge can reject the request, for example if the device in question is already registered (e.g. when a lightbulb tries to register again as a power socket, that doesn't seem valid). Registration is only required to be done after pairing.
+```json
+{ "token": "y" }
+```
 
-> Note: Only if this request is issued, the device appears in the configuration panel and can be used by the user.
+Registers a device with the bridge. The bridge only accepts tokens issued during pairing mode.
+
+> Note: Only if this request is issued, the device appears in the configuration panel and can therefore be used by the user.
 
 
 
@@ -118,9 +122,15 @@ The authentication token should be included in the Authentication header thereaf
 
 **Available REST endpoints:**
 
+>  🚧 This section is still under construction 🚧
+
+
+
 > Note: Admin-only endpoints are marked with ⚠️, public ones with ✔️
 
-✔️ GET `/commands`
+✔️ POST `/{command-name}`
+
+⚠️ GET `/commands`
 
 ⚠️ PUT `/commands/{command-name}`
 
@@ -144,6 +154,8 @@ The authentication token should be included in the Authentication header thereaf
 
 
 
+
+
 ## Web Interface
 
 The bridge hosts a web console on port 80 under `/` . Internally, it uses the REST API to communicate with the bridge. It requires administrative login, and it has the following features:
@@ -163,3 +175,66 @@ The bridge hosts a web console on port 80 under `/` . Internally, it uses the RE
 - View and regenerate encryption keys
 
   >  Note: Key regeneration is always done after a device was kicked
+
+
+
+## SDK
+
+>  🚧 This section is still under construction, the API might change in the future 🚧
+
+An easy-to-use yet powerful C++ programming interface is provided, which allows makers to easily make their device Twometer IoT compatible.
+
+### Example 1
+
+```c++
+#include <TwometerIoT.h>
+
+TwometerIoT iot;
+
+void setup() {
+    iot.prop("color")
+       .intVal("r", 0, 255)
+       .intVal("g", 0, 255)
+       .intVal("b", 0, 255)
+       .handle([](Request &req) {
+           int r = req.intVal("r");
+           int g = req.intVal("g");
+           int b = req.intVal("b");
+           
+           // TODO Update rgb outputs
+       });
+        
+    iot.begin();
+}
+
+void loop() {
+    iot.update();
+}
+```
+
+
+
+### Example 2
+
+```cpp
+#include <TwometerIoT.h>
+
+TwometerIoT iot;
+
+void setup() {
+    iot.prop("state")
+       .enumVal("state", { "cinema", "bluetooth" })
+       .handle([](Request &req) {
+          String &val = req.enumVal();
+          
+          // TODO switch outputs
+       });
+    
+    iot.begin();
+}
+
+void loop() {
+    iot.update();
+}
+```
+
