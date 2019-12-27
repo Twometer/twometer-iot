@@ -203,7 +203,7 @@ void setup() {
        .intVal("r", 0, 255)
        .intVal("g", 0, 255)
        .intVal("b", 0, 255)
-       .handle([](Request &req) {
+       .handle([](const Request &req) {
            int r = req.intVal("r");
            int g = req.intVal("g");
            int b = req.intVal("b");
@@ -231,7 +231,7 @@ TwometerIoT iot;
 void setup() {
     iot.prop("state")
        .enumVal("state", { "cinema", "bluetooth" })
-       .handle([](Request &req) {
+       .handle([](const Request &req) {
           String &val = req.enumVal();
           
           // TODO switch outputs
