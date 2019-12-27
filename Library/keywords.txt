@@ -1,0 +1,32 @@
+#######################################
+# Syntax Coloring Map For TwometerIoT
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+TwometerIoT	KEYWORD1
+Request		KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+prop	KEYWORD2
+intVal	KEYWORD2
+enumVal	KEYWORD2
+describe	KEYWORD2
+
+#######################################
+# Instances (KEYWORD2)
+#######################################
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+
+TYPE_LIGHT_GENERIC	LITERAL1
+TYPE_LIGHT_STRIPE	LITERAL1
+TYPE_SWITCH	LITERAL1
+TYPE_MULTISWITCH	LITERAL1
