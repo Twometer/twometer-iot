@@ -1,11 +1,7 @@
 #include <ESP8266WebServer.h>
 #include <ArduinoJson.h>
 #include "Property.h"
-
-#define TYPE_LIGHT_GENERIC "lights/generic"
-#define TYPE_LIGHT_STRIPE "lights/strip"
-#define TYPE_SWITCH "switch/simple"
-#define TYPE_MULTISWITCH "switch/multi"
+#include "Constants.h"
 
 #define MIME_JSON "application/json"
 
@@ -23,25 +19,17 @@ class TwometerIoT {
 
     std::vector<Property*> properties;
 
+    bool online = false;
 
-    void badRequest() {
-      server->send(400, MIME_JSON, "{\"status\": \"bad_request\"}");
-    }
-
-    Property *findProperty(String name)
-    {
-      for (Property *prop : properties)
-        if (prop->name == name)
-          return prop;
-
-      return NULL;
-    }
   public:
     void describe(DeviceDescriptor desc) {
       this->desc = desc;
     }
 
     void begin() {
+      if (online) return;
+      online = true;
+
       this->server = new ESP8266WebServer(80);
 
       server->on("/", HTTP_GET, [&]() {
@@ -54,43 +42,35 @@ class TwometerIoT {
       });
 
       server->on("/ping", HTTP_GET, [&]() {
-        server->send(200, MIME_JSON, "{\"status\": \"ok\"}");
+        ok();
       });
 
-
       server->on("/prop", HTTP_GET, [&]() {
-        // Example: http://(ip)/prop?name=color&r=5&g=151&b=39
+        int capacity = JSON_OBJECT_SIZE(properties.size());
+        DynamicJsonDocument doc(capacity);
+        for (Property* prop : properties)
+          doc.add(prop->name);
 
-        int totalArgs = server->args();
+        server->send(200, MIME_JSON, doc.as<String>());
+      });
 
-        if (totalArgs == 0) {
-          int capacity = JSON_OBJECT_SIZE(properties.size());
-          DynamicJsonDocument doc(capacity);
-          for (Property* prop : properties)
-            doc.add(prop->name);
+      for (const Property* prop : properties) {
+        server->on("/" + prop->name, HTTP_PUT, [&]() {
+          String body = server->arg("plain");
+          StaticJsonDocument<200> doc;
+          DeserializationError err = deserializeJson(doc, body);
 
-          server->send(200, MIME_JSON, doc.as<String>());
-        } else {
-          if (!server->hasArg("name")) {
+          if (err != DeserializationError::Ok) {
             badRequest();
             return;
           }
 
-          String propName = server->arg("name");
-          Property *property = findProperty(propName);
-
-          if (property == NULL) {
-            badRequest();
-            return;
-          }
+          JsonObject obj = doc.as<JsonObject>();
 
           std::vector<Arg> args;
-          for (int i = 0; i < totalArgs; i++) {
-            String key = server->argName(i);
-            if (key == "name") continue; // The name property is reserved
-
-            String val = server->arg(i);
-            
+          for (JsonPair p : obj) {
+            String key = String(p.key().c_str());
+            JsonVariant val = p.value();
             args.push_back(Arg(key, val));
           }
 
@@ -98,7 +78,7 @@ class TwometerIoT {
           bool result = false;
 
           try {
-            property->handler(request);
+            result = prop->handler(request);
           } catch (const std::runtime_error &e) {
             server->send(500, MIME_JSON, "{\"status\": \"server_error\"}");
             return;
@@ -112,9 +92,10 @@ class TwometerIoT {
             return;
           }
 
-          server->send(200, MIME_JSON, "{\"status\": \"ok\"}");
-        }
-      });
+          ok();
+
+        });
+      }
 
       server->begin();
     }
@@ -129,5 +110,12 @@ class TwometerIoT {
       server->handleClient();
     }
 
+  private:
+    void badRequest() {
+      server->send(400, MIME_JSON, "{\"status\": \"bad_request\"}");
+    }
 
+    void ok() {
+      server->send(200, MIME_JSON, "{\"status\": \"ok\"}");
+    }
 };

@@ -11,33 +11,37 @@ To let the bridge know about the capabilities of a certain device, there is a JS
 ### Device server
 
 GET `/`
-Returns general information about the device
+Returns general information about the device, such as name, type and manufacturer
 
 GET `/ping`
-Returns a pong
+Returns a pong: `{"state": "ok"}`
 
-GET `/capabilities`
-Returns an array of capabilities
+GET `/prop`
+Returns an array of properties
 
-PUT `/{capability}`
+PUT `/{prop}`
 {...}
-Updates the capability
+Updates the property
+
+#### Device types
+
+Device type identifiers consist of two parts, and are formatted `{group}/{device}`. The complete list can be found in `Library/Constants.h`.
 
 #### Example 1
 GET `/`
 
 ```json
-{ "name": "led_strip", "manufacturer": "Twometer Engineering" }
+{ "name": "led_strip", "type": "lights/stripe", "manufacturer": "Twometer Engineering" }
 ```
 
 
 
-GET `/capabilities`
+GET `/prop`
 
 ```json
 [{
 	"name": "color",
-	"props": [ {"name": "r", "type": "int", "min": 0, "max": 255}, ... ]
+	"values": [ {"name": "r", "type": "int", "min": 0, "max": 255}, ... ]
 }, ...] 
 ```
 
@@ -57,12 +61,12 @@ PUT `/color`
 
 
 #### Example 2
-GET `/capabilities`
+GET `/prop`
 
 ```json
 [{
 	"name": "state",
-	"props": [ {"type": "enum", "values": ["cinema", "bluetooth"]} ]
+	"values": [ {"name": "value", "type": "enum", "values": ["cinema", "bluetooth"]} ]
 }, ...]
 ```
 
@@ -192,6 +196,9 @@ An easy-to-use yet powerful C++ programming interface is provided, which allows 
 TwometerIoT iot;
 
 void setup() {
+    // First the name, then the type and finally the manufacturer
+    iot.describe({"GlowTec LED Strip", TYPE_LIGHT_STRIPE, "GlowTec Industries"});
+    
     iot.prop("color")
        .intVal("r", 0, 255)
        .intVal("g", 0, 255)
