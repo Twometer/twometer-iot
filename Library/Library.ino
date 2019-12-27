@@ -6,15 +6,23 @@ void setup() {
   iot.describe({"GlowTec LED Strip", TYPE_LIGHT_STRIPE, "GlowTec Industries"});
 
   iot.prop("color")
-  .intVal("r", 0, 255)
-  .intVal("g", 0, 255)
-  .intVal("b", 0, 255)
   .handle([](const Request & req) {
-   // int r = req.intVal("r");
-   // int g = req.intVal("g");
-  // int b = req.intVal("b");
+    int r = req.intVal("r", 0, 255);
+    int g = req.intVal("g", 0, 255);
+    int b = req.intVal("b", 0, 255);
 
     // TODO Update rgb outputs
+
+    return b == 42;
+  });
+
+  iot.prop("state")
+  .handle([](const Request & req) {
+    String val = req.enumVal("value", { "cinema", "bluetooth" });
+
+    // TODO Update switch outputs
+
+    return b == "cinema";
   });
 
   iot.begin();
