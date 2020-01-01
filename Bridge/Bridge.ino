@@ -31,7 +31,7 @@ void setup() {
   controller.Initialize();
 
   httpServer.on("/", HTTP_GET, []() {
-    httpServer.send(200, "text/html", "console here");
+    httpServer.send(200, "application/json", "{penis}");
   });
 
   // TODO Rest APi
