@@ -227,6 +227,7 @@ A simple yet powerful C++ SDK is provided, which allows easy creation of compati
 ```cpp
 #include <TwometerIoT.h>
 
+// Should be unique and random
 const String DEVICE_ID = "55ef1248-6460-4a33-a54b-1faa0d929e7e";
 
 TwometerIoT iot;
@@ -263,3 +264,9 @@ void loop() {
 - `ColorRgbw colorRgbwVal()`: Gets a R, G, B and W value in a color struct
 - `ColorRgb2w colorRgb2wVal()`: Gets a R, G, B, CW, and WW value in a color struct
 - `JsonVariant customVal(String key)`: Gets a custom key from the request
+
+
+
+
+
+To use the SDK, the ArduinoJson library is required.
