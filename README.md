@@ -27,8 +27,6 @@ Endpoints listed below that don't explicitly specify a response use this default
 
 
 
-
-
 ### Devices
 
 #### Device Descriptor
@@ -156,8 +154,6 @@ Returns general public information about the bridge so that `/` does not result 
 
 
 
-
-
 #### Available REST Endpoints
 
 > Note: Endpoints requiring authorization are marked with 🔒, public ones with 🌐
@@ -217,4 +213,37 @@ Returns general public information about the bridge so that `/` does not result 
   }
   ```
 
-  
+
+
+### SDK
+A simple yet powerful C++ SDK is provided, which allows easy creation of compatible IoT devices.
+
+
+
+#### Example
+
+```cpp
+#include <TwometerIoT.h>
+
+const String DEVICE_ID = "55ef1248-6460-4a33-a54b-1faa0d929e7e";
+
+TwometerIoT iot;
+
+void setup() {
+    // First the id, the name, then the type and finally the manufacturer
+    iot.describe({DEVICE_ID, "GlowTec LED Stripe", TYPE_LIGHT_STRIPE, "GlowTec Industries"});
+    
+    iot.prop("color", DATA_COLOR_RGB)
+       .handle([](const Request &req) {
+           ColorRgb rgb = req.value();          
+           // TODO Update rgb outputs
+       });
+        
+    iot.begin();
+}
+
+void loop() {
+    iot.update();
+}
+```
+
