@@ -6,6 +6,7 @@
 #define MIME_JSON "application/json"
 
 struct DeviceDescriptor {
+  String uuid;
   String name;
   String type;
   String manufacturer;
@@ -33,8 +34,9 @@ class TwometerIoT {
       this->server = new ESP8266WebServer(80);
 
       server->on("/", HTTP_GET, [&]() {
-        const int capacity = JSON_OBJECT_SIZE(3);
+        const int capacity = JSON_OBJECT_SIZE(4);
         StaticJsonDocument<capacity> doc;
+        doc["uuid"] = desc.uuid;
         doc["name"] = desc.name;
         doc["type"] = desc.type;
         doc["manufacturer"] = desc.manufacturer;
@@ -46,10 +48,15 @@ class TwometerIoT {
       });
 
       server->on("/prop", HTTP_GET, [&]() {
-        int capacity = JSON_OBJECT_SIZE(properties.size());
+        int capacity = JSON_OBJECT_SIZE(properties.size()) + properties.size() * JSON_OBJECT_SIZE(2);
         DynamicJsonDocument doc(capacity);
         for (Property* prop : properties)
-          doc.add(prop->name);
+        {
+          JsonObject obj = doc.createNestedObject();
+          obj["name"] = prop->name;
+          obj["type"] = prop->dataType;
+          doc.add(obj);
+        }
 
         server->send(200, MIME_JSON, doc.as<String>());
       });
@@ -100,8 +107,8 @@ class TwometerIoT {
       server->begin();
     }
 
-    Property& prop(String name) {
-      Property* property = new Property(name);
+    Property& prop(String name, String type) {
+      Property* property = new Property(name, type);
       properties.push_back(property);
       return *property;
     }

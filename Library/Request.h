@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include "Color.h"
 
 struct Arg {
   String key;
@@ -24,25 +25,54 @@ class Request {
 
       throw std::invalid_argument("unknown arg");
     }
-    
+
   public:
     Request(std::vector<Arg> args) {
       this->args = args;
     }
 
-    int intVal(String key, int min, int max) const {
-      int r = findArg(key).as<int>();
-      if (r < min || r > max)
-        throw std::invalid_argument("bad arg");
-      return r;
+    int intVal() const {
+      return findArg("value").as<int>();
     }
 
-    String enumVal(String key, const std::vector<String> & values) const {
-      String val = findArg(key).as<String>();
-      for (String str : values)
-        if (str == val)
-          return val;
-      throw std::invalid_argument("bad arg");
+    bool boolVal() const {
+      return findArg("value").as<bool>();
+    }
+
+    float floatVal() const {
+      return findArg("value").as<float>();
+    }
+
+    String stringVal() const {
+      return findArg("value").as<String>();
+    }
+
+    ColorRgb colorRgbVal() const {
+      int r = findArg("r").as<int>();
+      int g = findArg("g").as<int>();
+      int b = findArg("b").as<int>();
+      return {r, g, b};
+    }
+
+    ColorRgbw colorRgbwVal() const {
+      int r = findArg("r").as<int>();
+      int g = findArg("g").as<int>();
+      int b = findArg("b").as<int>();
+      int w = findArg("w").as<int>();
+      return {r, g, b, w};
+    }
+
+    ColorRgb2w colorRgb2wVal() const {
+      int r = findArg("r").as<int>();
+      int g = findArg("g").as<int>();
+      int b = findArg("b").as<int>();
+      int cw = findArg("cw").as<int>();
+      int ww = findArg("ww").as<int>();
+      return {r, g, b, cw, ww};
+    }
+
+    JsonVariant customVal(String key) const {
+      return findArg(key);
     }
 
 };

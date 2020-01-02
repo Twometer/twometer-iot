@@ -1,28 +1,19 @@
 #include "TwometerIoT.h"
 
+const String DEVICE_ID = "55ef1248-6460-4a33-a54b-1faa0d929e7e";
+
 TwometerIoT iot;
 
 void setup() {
-  iot.describe({"GlowTec LED Strip", TYPE_LIGHT_STRIPE, "GlowTec Industries"});
+  iot.describe({DEVICE_ID, "GlowTec LED Stripe", TYPE_LIGHT_STRIPE, "GlowTec Industries"});
 
-  iot.prop("color")
+  iot.prop("color", DATA_COLOR_RGB)
   .handle([](const Request &req) {
-    int r = req.intVal("r", 0, 255);
-    int g = req.intVal("g", 0, 255);
-    int b = req.intVal("b", 0, 255);
+    ColorRgb rgb = req.colorRgbVal();
 
     // TODO Update rgb outputs
 
-    return b == 42;
-  });
-
-  iot.prop("state")
-  .handle([](const Request &req) {
-    String val = req.enumVal("value", { "cinema", "bluetooth" });
-
-    // TODO Update switch outputs
-
-    return val == "cinema";
+    return rgb.b == 42;
   });
 
   iot.begin();

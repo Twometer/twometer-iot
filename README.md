@@ -54,9 +54,11 @@ Endpoints listed below that don't explicitly specify a response use this default
 - `int`: Single integer value
 - `bool`: Single boolean value
 - `float`: Single floating-point value
+- `string`: Text value
 - `color/rgb`: RGB color
 - `color/rgbw`: RGBW color
 - `color/rgb2w`: RGBWWCW color
+- `custom`: A custom set of values
 
 #### Endpoints
 
@@ -235,8 +237,10 @@ void setup() {
     
     iot.prop("color", DATA_COLOR_RGB)
        .handle([](const Request &req) {
-           ColorRgb rgb = req.value();          
+           ColorRgb rgb = req.colorRgbVal();          
            // TODO Update rgb outputs
+           
+           return true; // Return false if request not valid
        });
         
     iot.begin();
@@ -247,3 +251,15 @@ void loop() {
 }
 ```
 
+
+
+##### `Request` API
+
+- `int intVal()`: Gets a single int value
+- `bool boolVal()`: Gets a single bool value
+- `float floatVal()`: Gets a single float value
+- `String stringVal()`: Gets a single string value
+- `ColorRgb colorRgbVal()`: Gets a R, G and B value in a color struct
+- `ColorRgbw colorRgbwVal()`: Gets a R, G, B and W value in a color struct
+- `ColorRgb2w colorRgb2wVal()`: Gets a R, G, B, CW, and WW value in a color struct
+- `JsonVariant customVal(String key)`: Gets a custom key from the request
