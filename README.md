@@ -173,7 +173,7 @@ Returns general public information about the bridge so that `/` does not result 
   ```json
   {
       "name": "",
-  	"actions": [
+      "actions": [
           { "device": "device-id", "properties": [] },
           { "group": "group-id", "properties": [] }
       ]
