@@ -1,247 +1,220 @@
 # Twometer IoT System
 
->  Note: The security of this protocol depends on the trustworthiness of the containing WiFi
+### Definitions
 
-## Protocol
+- Bridge: ESP8266 Controller hosting the command network
+- Device: A smart device connected to the command network
+- Property: Each device has properties, for example a color
+- Controller: User-operated device used to send commands (e.g. App)
 
-Communication is done using a REST protocol. Every device hosts a server on port 80 that allows the bridge to control the device. The bridge also has a server running on port 80 available from the outside WiFi that can be used to control the bridge. It has a REST API for programmatic access, but it also comes with a Web UI (internally using the API), on which you can see which devices are connected, and kick or control them if neccessary. Here, one can also configure the association with Alexa and manage the commands, scenes, rooms, etc.
 
-To let the bridge know about the capabilities of a certain device, there is a JSON file hosted on the device's server that describes endpoints, their capabilities and their possible values. The details of this communication are laid out in the following technical document.
 
-### Device server
+### Protocol
 
-GET `/`
-Returns general information about the device, such as name, type and manufacturer
+Communication is based on a simple REST protocol. Each device hosts a server on port 80 that allows the bridge to control the device. The bridge has such a server running as well, but with a different set of endpoints. This server can be used to control the smart network from the outside world.
 
-GET `/ping`
-Returns a pong: `{"state": "ok"}`
+Configuration of the bridge etc. is done using the Android App.
 
-GET `/prop`
-Returns an array of properties
-
-PUT `/{prop}`
-{...}
-Updates the property
-
-#### Device types
-
-Device type identifiers consist of two parts, and are formatted `{group}/{device}`. The complete list can be found in `Library/Constants.h`.
-
-#### Example 1
-GET `/`
+#### Standard responses
 
 ```json
-{ "name": "led_strip", "type": "lights/stripe", "manufacturer": "Twometer Engineering" }
+{
+    "status": "ok|bad_request|forbidden|error"
+}
+```
+
+Endpoints listed below that don't explicitly specify a response use this default response.
+
+
+
+
+
+### Devices
+
+#### Device Descriptor
+
+```json
+{
+    "uuid": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+    "type": "lights/stripe",
+    "name": "GlowTec LED Stripe",
+    "manufacturer": "GlowTec Industries"
+}
+```
+
+#### Allowed device types
+
+- `lights/generic`: A generic single-bulb light
+- `lights/stripe`: A light stripe
+- `switch/generic`: A generic on-off switch
+- `switch/multi`: A switch with multiple outputs
+- `button/generic`: A generic momentary button
+- `button/multi`: A momentary button with multiple outputs
+
+#### Allowed data types
+
+- `int`: Single integer value
+- `bool`: Single boolean value
+- `float`: Single floating-point value
+- `color/rgb`: RGB color
+- `color/rgbw`: RGBW color
+- `color/rgb2w`: RGBWWCW color
+
+#### Endpoints
+
+**`GET /`**
+Returns the device descriptor, see above.
+
+
+
+**`GET /ping`**
+
+Used for testing if the device is online. The bridge calls this endpoint regularly to update the list of connected devices.
+
+```json
+{
+    "status": "ok"
+}
 ```
 
 
 
-GET `/prop`
+**`GET /prop`**
+
+Gets a list of properties.
 
 ```json
 [{
 	"name": "color",
-	"values": [ {"name": "r", "type": "int", "min": 0, "max": 255}, ... ]
+	"type": "color/rgbw"
 }, ...] 
 ```
 
 
 
-PUT `/color`
+**`PUT /{prop}`**
+
+Used for updating the given property
 
 ```json
 {
-	"r": 0,
-	"g": 12,
-	"b": 255,
-	"w": 15
+    "r": 255, "g": 0, "b": 0, "w": 128
 }
 ```
 
 
 
-#### Example 2
-GET `/prop`
+### Bridge
+
+The bridge has two modes, pairing mode and regular mode. Pairing mode is entered by pressing the pair button on the bridge. The bridge will then shut down the control WiFi and instead host an unencrypted pairing WiFi. If no device or controller connects to this WiFi within 3 minutes, pairing mode exits. Once a device connects, it can download the credentials for the control WiFi. Once a request to the credentials download endpoint happens, pairing mode will immediately exit. The device can then connect to the control WiFi and register using `/register`
+
+#### Pairing Mode
+
+**`GET /keys`**
+
+Gets the key required to connect to the control WiFi as well as the token required to register. Only active during pairing mode.
 
 ```json
-[{
-	"name": "state",
-	"values": [ {"name": "value", "type": "enum", "values": ["cinema", "bluetooth"]} ]
-}, ...]
-```
-
-
-
-PUT `/state`
-
-```json
-{ "value": "cinema" }
-```
-
-### Bridge Server
-
-The bridge calls each device's `/ping` endpoint regularly (~5 minutes) to update the list of actually connected devices.
-
-#### Pairing mode
-
-Pairing mode is entered by pressing the pair button on the bridge. The bridge will then shut down the control WiFi and instead host an unencrypted pairing WiFi. If no device connects to this WiFi within 3 minutes, pairing mode exits. Once a device connects, it can download the credentials for the control WiFi. Once a request to the credentials download endpoint happens, pairing mode will immediately exit. The device can then connect to the control WiFi and register using `/register`
-
-GET `/credentials`
-
-```json
-{ "key": "x", "token": "y" }
-```
-
-Returns the key that is required to connect to the control WiFi, as well as the registration token. This endpoint is only active during pairing mode, and a request to this endpoint causes pairing mode to exit.
-
-
-
-#### Regular mode
-
-POST `/register`
-
-```json
-{ "token": "y" }
-```
-
-Registers a device with the bridge. The bridge only accepts tokens issued during pairing mode.
-
-> Note: Only if this request is issued, the device appears in the configuration panel and can therefore be used by the user.
-
-
-
-POST `/admin`
-
-```json
-{"password": ""}
-```
-
-```
-{"status": "ok", "token": "~"}
-```
-
-The authentication token should be included in the Authentication header thereafter.  The scheme should be `Token`. This is only required for **admin** tasks.
-
-
-
-**Available REST endpoints:**
-
->  🚧 This section is still under construction 🚧
-
-
-
-> Note: Admin-only endpoints are marked with ⚠️, public ones with ✔️
-
-✔️ POST `/{command-name}`
-
-⚠️ GET `/commands`
-
-⚠️ PUT `/commands/{command-name}`
-
-⚠️ DELETE `/commands/{command-name}`
-
-
-
-✔️ GET `/rooms`
-
-⚠️ PUT `/rooms/{room-name}`
-
-⚠️ DELETE `/rooms/{room-name}`
-
-
-
-✔️ GET `/devices`
-
-✔️ PUT `/devices/{device-id}/{capability}`
-
-⚠️ DELETE `/devices/{device-id}`
-
-
-
-
-
-## Web Interface
-
-The bridge hosts a web console on port 80 under `/` . Internally, it uses the REST API to communicate with the bridge. It requires administrative login, and it has the following features:
-
-- See all registered (paired) devices, the last time an action was executed, and the last time they were online
-
-  - Kick devices off the network (Unpair)
-  - Rename devices (aliases)
-  - Send raw API requests (developer mode)
-
-- Configure commands for Alexa such as "Alexa, good night", and which actions to execute
-
-- Configure rooms
-
-- Change admin credentials
-
-- View and regenerate encryption keys
-
-  >  Note: Key regeneration is always done after a device was kicked
-
-
-
-## SDK
-
->  🚧 This section is still under construction, the API might change in the future 🚧
-
-An easy-to-use yet powerful C++ programming interface is provided, which allows makers to easily make their device Twometer IoT compatible.
-
-### Example 1
-
-```c++
-#include <TwometerIoT.h>
-
-TwometerIoT iot;
-
-void setup() {
-    // First the name, then the type and finally the manufacturer
-    iot.describe({"GlowTec LED Strip", TYPE_LIGHT_STRIPE, "GlowTec Industries"});
-    
-    iot.prop("color")
-       .intVal("r", 0, 255)
-       .intVal("g", 0, 255)
-       .intVal("b", 0, 255)
-       .handle([](const Request &req) {
-           int r = req.intVal("r");
-           int g = req.intVal("g");
-           int b = req.intVal("b");
-           
-           // TODO Update rgb outputs
-       });
-        
-    iot.begin();
+{
+    "key": "",
+    "token": ""
 }
+```
 
-void loop() {
-    iot.update();
+#### Regular Mode
+
+**`POST /register`**
+
+Registers a new device or controller with the bridge. The token in the request must match the token issued during pairing. For controllers, the bridge returns an access token that has to be passed in the Authorization Header. With this token, it can send commands to the bridge.
+
+```json
+{
+    "token": "",
+    "type": "controller|device"
+}
+```
+
+```json
+{
+    "status": "ok|reject",
+    "token": ""
 }
 ```
 
 
 
-### Example 2
+**`GET /`**
 
-```cpp
-#include <TwometerIoT.h>
+Returns general public information about the bridge so that `/` does not result in a 404. Makes it easier to identify the device as an IoT bridge.
 
-TwometerIoT iot;
-
-void setup() {
-    iot.prop("state")
-       .enumVal("state", { "cinema", "bluetooth" })
-       .handle([](const Request &req) {
-          String &val = req.enumVal();
-          
-          // TODO switch outputs
-       });
-    
-    iot.begin();
-}
-
-void loop() {
-    iot.update();
+```json
+{
+    "name": "Twometer IoT Bridge",
+    "version": "1.0.0"
 }
 ```
 
+
+
+
+
+#### Available REST Endpoints
+
+> Note: Endpoints requiring authorization are marked with 🔒, public ones with 🌐
+
+##### Commands
+
+- 🌐 `POST /commands?name={command-name}`: Executes the given command
+
+- 🌐 `GET /commands`: Get a list of commands
+
+- 🔒 `PUT /commands`: Add a new command
+
+  ```json
+  {
+      "name": "",
+  	"actions": [
+          { "device": "device-id", "properties": [] },
+          { "group": "group-id", "properties": [] }
+      ]
+  }
+  ```
+
+- 🔒 `DELETE /commands?name={command-name}`: Delete the given command
+
+
+
+##### Devices
+
+- 🌐 `GET /devices`: Get a list of devices
+
+- 🌐 `GET /devices?id={device-id}`: Get a list of properties of the given device
+
+- 🌐 `POST /devices?id={device-id}&prop={property-name}`: Update a property of a given device
+
+  ```json
+  {
+      "r": 255, "g": 0, "b": 0, "w": 128
+  }
+  ```
+
+- 🔒 `DELETE /devices?id={device-id}`: Kick the given device off the network. Also invalidates its tokens.
+
+
+
+##### Groups
+
+- 🔒 `GET /groups`: Get a list of groups
+
+- 🔒 `GET /groups?id={group-id}`: Get information about the group
+
+- 🔒 `PUT /groups`: Create a new group
+
+  ```json
+  {
+      "name": "",
+      "devices": []
+  }
+  ```
+
+  
