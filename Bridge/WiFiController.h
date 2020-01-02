@@ -1,5 +1,6 @@
 #include <EEPROM.h>
 #include "Hardware.h"
+#include "Utils.h"
 #include <ESP8266WiFi.h>
 
 const char* WIFI_NAME_PAIR = "Twometer IoT Pair"; // The Pairing WiFi
@@ -10,20 +11,12 @@ class WiFiController {
     const char* key;
     bool isPairing;
 
-    const char* GenKey(int len) {
-      char* key = new char[len];
-      for (int i = 0; i < len; i++) {
-        char c = 'a' + rand() * ('z' - 'a');
-        key[i] = c;
-      }
-      return key;
-    }
-
   public:
     void Initialize() {
       WiFi.softAPdisconnect(true);
       WiFi.softAP(WIFI_NAME_CTRL, key);
       digitalWrite(LED_ONLINE, HIGH);
+      key = GenerateKey(32);
     }
 
     void BeginPair() {

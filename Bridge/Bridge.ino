@@ -1,22 +1,46 @@
 #include "Hardware.h"
 #include "WiFiController.h"
+#include "Utils.h"
 #include <ESP8266WebServer.h>
 #include <ArduinoJson.h>
 
+const String NAME = "Twometer IoT Bridge";
+const String VERSION = "0.1.0";
+
+std::vector<String> registrationTokens;
 ESP8266WebServer httpServer(80);
 WiFiController controller;
 
 void ICACHE_RAM_ATTR ClickInterrupt() {
   static unsigned long lastInterrupt = 500;
   unsigned long now = millis();
-  if (now - lastInterrupt > 200)
-  {
+  if (now - lastInterrupt > 200) {
     if (!controller.IsPairing())
       controller.BeginPair();
     else
       controller.EndPair();
   }
   lastInterrupt = now;
+}
+
+void ok() {
+  httpServer.send(200, "application/json", "{\"status\": \"ok\"}");
+}
+
+void ok(String val) {
+  httpServer.send(200, "application/json", val);
+}
+
+void badRequest() {
+  httpServer.send(400, "application/json", "{\"status\": \"bad_request\"}");
+}
+
+void forbidden() {
+  httpServer.send(403, "application/json", "{\"status\": \"forbidden\"}");
+}
+
+void serverError() {
+  httpServer.send(500, "application/json", "{\"status\": \"error\"}");
 }
 
 void setup() {
@@ -31,13 +55,29 @@ void setup() {
   controller.Initialize();
 
   httpServer.on("/", HTTP_GET, []() {
-    httpServer.send(200, "application/json", "{penis}");
+    StaticJsonDocument<JSON_OBJECT_SIZE(2)> doc;
+    doc["name"] = NAME;
+    doc["version"] = VERSION;
+    ok(doc.as<String>());
   });
 
-  // TODO Rest APi
+  httpServer.on("/keys", HTTP_GET, []() {
+    if (!controller.IsPairing()) {
+      forbidden();
+      return;
+    }
+
+    String token = GenerateKey(32);
+    registrationTokens.push_back(token);
+
+    StaticJsonDocument<JSON_OBJECT_SIZE(2)> doc;
+    doc["key"] = controller.GetKey();
+    doc["token"] = token;
+    ok(doc.as<String>());
+  });
 
 }
 
 void loop() {
-
+  httpServer.handleClient();
 }
