@@ -43,6 +43,13 @@ void serverError() {
   httpServer.send(500, "application/json", "{\"status\": \"error\"}");
 }
 
+bool checkToken(String token) {
+  for (String & test : registrationTokens)
+    if (token == test)
+      return true;
+  return false;
+}
+
 void setup() {
   pinMode(BTN_PAIR, INPUT_PULLUP);
   pinMode(LED_PAIRING, OUTPUT);
@@ -76,6 +83,22 @@ void setup() {
     ok(doc.as<String>());
 
     controller.EndPair();
+  });
+
+  httpServer.on("/register", HTTP_POST, []() {
+    String body = server.arg("body");
+    StaticJsonDocument<JSON_OBJECT_SIZE(2)> doc;
+    DeserializationError err = deserializeJson(doc, body);
+    if (err != DeserializationError::Ok) {
+      badRequest();
+      return;
+    }
+
+    String token = doc["token"];
+    if (!checkToken(token)) {
+      forbidden()
+      return;
+    }
   });
 
 }
