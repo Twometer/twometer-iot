@@ -74,6 +74,8 @@ void setup() {
     doc["key"] = controller.GetKey();
     doc["token"] = token;
     ok(doc.as<String>());
+
+    controller.EndPair();
   });
 
 }
