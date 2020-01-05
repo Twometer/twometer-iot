@@ -81,11 +81,20 @@ bool checkToken(String token) {
 }
 
 void setup() {
+  Serial.begin(9600);
+  Serial.print(NAME);
+  Serial.print("  v");
+  Serial.println(VERSION);
+  Serial.println("Connecting to WiFi...");
+  
   WiFi.persistent(true);
   WiFi.begin(WIFI_SSID, WIFI_PASS);
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
   }
+
+  Serial.print("Online at: ");
+  Serial.println(WiFi.localIP());
 
   pinMode(BTN_PAIR, INPUT_PULLUP);
   pinMode(LED_PAIRING, OUTPUT);
@@ -183,6 +192,8 @@ void setup() {
   httpServer.on("/devices", HTTP_GET, []() {
     ok();
   });
+
+  httpServer.begin();
 
 }
 

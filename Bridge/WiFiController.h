@@ -14,9 +14,9 @@ class WiFiController {
   public:
     void Initialize() {
       WiFi.softAPdisconnect(true);
+      key = GenerateKey(32);
       WiFi.softAP(WIFI_NAME_CTRL, key);
       digitalWrite(LED_ONLINE, HIGH);
-      key = GenerateKey(32);
     }
 
     void BeginPair() {
