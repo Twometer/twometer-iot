@@ -123,6 +123,18 @@ Gets the key required to connect to the control WiFi as well as the token requir
 
 #### Regular Mode
 
+**``POST /login``**
+
+Notifies the bridge of a device that has come back online.
+
+```json
+{
+    "uuid": ""
+}
+```
+
+
+
 **`POST /register`**
 
 Registers a new device or controller with the bridge. The token in the request must match the token issued during pairing. For controllers, the bridge returns an access token that has to be passed in the Authorization Header. With this token, it can send commands to the bridge.
@@ -136,7 +148,7 @@ Registers a new device or controller with the bridge. The token in the request m
 
 ```json
 {
-    "status": "ok|reject",
+    "status": "ok|forbidden",
     "token": ""
 }
 ```

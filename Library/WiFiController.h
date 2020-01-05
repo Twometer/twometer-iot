@@ -16,32 +16,46 @@ class WiFiController {
 
   public:
 
-    void Connect() {
+    void Connect(DeviceDescriptor& desc) {
       WiFi.persistent(false); // We handle the reconnect ourselves
 
       EEPROM.begin(512);
 
-      WifiData data;     
-
+      WifiData data;
       EEPROM.get(0, data);
 
       if (!data.hasKeys) {
         TryPair();
       } else {
-        int tries = 0;
-        WiFi.begin(data.ssid, data.key);
-        while (WiFi.status() != WL_CONNECTED) {
-          tries++;
-          delay(500);
-          if (tries > 5) {
-            TryPair();
-            break;
-          }
-        }
+        ConnectToWifi(data);
+        Login(desc.uuid);
       }
     }
 
   private:
+    void Login(String uuid) {
+      String bridgeIp = WiFi.gatewayIP().toString();
+      String url = "http://" + bridgeIp + "/login";
+
+      HTTPClient http;
+      http.begin(url);
+      http.POST("{\"uuid\": \"" + uuid + "\"}");
+      http.end();
+    }
+
+    void ConnectToWifi(WifiData& data) {
+      int tries = 0;
+      WiFi.begin(data.ssid, data.key);
+      while (WiFi.status() != WL_CONNECTED) {
+        tries++;
+        delay(500);
+        if (tries > 5) {
+          TryPair();
+          break;
+        }
+      }
+    }
+
     void TryPair() {
       WiFi.begin(WIFI_NAME_PAIR);
       while (WiFi.status() != WL_CONNECTED) {
@@ -72,13 +86,13 @@ class WiFiController {
         WifiData data;
         data.hasKeys = true;
         data.ssid = WIFI_NAME_CTRL,
-        data.key = key;
+             data.key = key;
         data.token = token;
 
         EEPROM.put(0, data);
         EEPROM.commit();
 
-        Connect();
+        ConnectToWifi(data);
         Register(data.token);
       }
     }

@@ -1,6 +1,7 @@
 #include "Hardware.h"
 #include "WiFiController.h"
 #include "Utils.h"
+#include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
 #include <ESP8266HTTPClient.h>
 #include <ArduinoJson.h>
@@ -19,17 +20,6 @@ std::vector<ConnectedDevice> connectedDevices;
 ESP8266WebServer httpServer(80);
 WiFiController controller;
 
-String request(String url) {
-  HTTPClient http;
-  http.begin(url);
-
-  int code = http.GET();
-  if (code == 0) return "";
-  String payload = http.getString();
-  http.end();
-  return payload;
-}
-
 void ICACHE_RAM_ATTR ClickInterrupt() {
   static unsigned long lastInterrupt = 500;
   unsigned long now = millis();
@@ -40,6 +30,23 @@ void ICACHE_RAM_ATTR ClickInterrupt() {
       controller.EndPair();
   }
   lastInterrupt = now;
+}
+
+ConnectedDevice* findDevice(String id) {
+  for (ConnectedDevice& dev : connectedDevices)
+    if (dev.uuid == id)
+      return &dev;
+
+  return NULL;
+}
+
+bool isOk(String reply) {
+  if (reply == "") return false;
+  StaticJsonDocument<JSON_OBJECT_SIZE(1)> doc;
+  DeserializationError err = deserializeJson(doc, reply);
+  if (err != DeserializationError::Ok || doc["state"] != "ok")
+    return false;
+  return true;
 }
 
 void ok() {
@@ -62,6 +69,10 @@ void serverError() {
   httpServer.send(500, "application/json", "{\"status\": \"error\"}");
 }
 
+void badGateway(String data) {
+  httpServer.send(502, "application/json", data);
+}
+
 bool checkToken(String token) {
   for (String & test : registrationTokens)
     if (token == test)
@@ -75,7 +86,6 @@ void setup() {
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
   }
-
 
   pinMode(BTN_PAIR, INPUT_PULLUP);
   pinMode(LED_PAIRING, OUTPUT);
@@ -106,9 +116,25 @@ void setup() {
     StaticJsonDocument<JSON_OBJECT_SIZE(2)> doc;
     doc["key"] = controller.GetKey();
     doc["token"] = token;
-    ok(doc.as<String>());
-
     controller.EndPair();
+
+    ok(doc.as<String>());
+  });
+
+  httpServer.on("/login", HTTP_POST, []() {
+    String body = httpServer.arg("plain");
+    StaticJsonDocument<JSON_OBJECT_SIZE(1)> doc;
+    DeserializationError err = deserializeJson(doc, body);
+    if (err != DeserializationError::Ok) {
+      badRequest();
+      return;
+    }
+
+    String uuid = doc["uuid"];
+    String ip = httpServer.client().remoteIP().toString();
+    connectedDevices.push_back({ uuid, ip });
+
+    ok();
   });
 
   httpServer.on("/register", HTTP_POST, []() {
@@ -126,12 +152,36 @@ void setup() {
       return;
     }
 
-    registrationTokens.erase(token);
+    remove(registrationTokens, token);
 
-    String deviceUrl = "http://" + httpServer.client().remoteIP() + "/";
+    String deviceUrl = "http://" + httpServer.client().remoteIP().toString() + "/";
     String deviceData = request(deviceUrl);
     DeviceDescriptor descriptor = parseDeviceDescriptor(deviceData);
     devices.push_back(descriptor);
+    ok();
+  });
+
+  httpServer.on("/devices", HTTP_POST, []() {
+    if (!httpServer.hasArg("id") || !httpServer.hasArg("prop")) {
+      badRequest();
+      return;
+    }
+
+    String devId = httpServer.arg("id");
+    String prop = httpServer.arg("prop");
+    String payload = httpServer.arg("plain");
+
+    ConnectedDevice* dev = findDevice(devId);
+    String url = "http://" + dev->ip + "/" + prop;
+    String response = request(url);
+    if (isOk(response))
+      ok();
+    else
+      badGateway(response);
+  });
+
+  httpServer.on("/devices", HTTP_GET, []() {
+    ok();
   });
 
 }
@@ -142,18 +192,18 @@ void loop() {
 
   unsigned long long now = millis();
   if (now - lastCheck > 30000) {
-    std::vector<ConnectedDevice&> offlineDevs;
+    std::vector<ConnectedDevice> offlineDevs;
     for (ConnectedDevice& device : connectedDevices) {
       String url = "http://" + device.ip + "/ping";
-      String response = request(url);
-      StaticJsonDocument<JSON_OBJECT_SIZE(1)> doc;
-      DeserializationError err = deserializeJson(doc, body);
-      if (err != DeserializationError::Ok || doc["state"] != "ok")
+      String reply = request(url);
+      if (!isOk(reply))
         offlineDevs.push_back(device);
     }
 
-    for (ConnectedDevice& device : offlineDevs)
-      connectedDevices.erase(device);
+    for (int i = 0; i < offlineDevs.size(); i++) {
+      ConnectedDevice& device = offlineDevs[i];
+      remove(connectedDevices, device);
+    }
 
     lastCheck = now;
   }

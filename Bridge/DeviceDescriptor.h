@@ -3,11 +3,20 @@ struct DeviceDescriptor {
   String name;
   String type;
   String manufacturer;
+  String role;
+
+  bool operator==(const DeviceDescriptor& b) {
+    return this->uuid == b.uuid;
+  }
 };
 
 struct ConnectedDevice {
   String uuid;
   String ip;
+
+  bool operator==(const ConnectedDevice& b) {
+    return this->uuid == b.uuid;
+  }
 };
 
 DeviceDescriptor parseDeviceDescriptor(String str) {

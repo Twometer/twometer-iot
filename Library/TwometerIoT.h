@@ -2,16 +2,11 @@
 #include <ArduinoJson.h>
 #include "Property.h"
 #include "Constants.h"
+#include "Device.h"
 #include "WiFiController.h"
-
 #define MIME_JSON "application/json"
 
-struct DeviceDescriptor {
-  String uuid;
-  String name;
-  String type;
-  String manufacturer;
-};
+
 
 class TwometerIoT {
   private:
@@ -34,7 +29,7 @@ class TwometerIoT {
       if (online) return;
       online = true;
 
-      wifi.Connect();
+      wifi.Connect(desc);
 
       this->server = new ESP8266WebServer(80);
 
