@@ -3,8 +3,7 @@
 #include "Utils.h"
 #include <ESP8266WiFi.h>
 
-const String WIFI_SSID = "";
-const String WIFI_PASS = "";
+#include "WiFiSettings.h"
 
 const char* WIFI_NAME_PAIR = "Twometer IoT Pair"; // The Pairing WiFi
 const char* WIFI_NAME_CTRL = "Twometer IoT"; // The Control WiFi
