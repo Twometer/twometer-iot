@@ -3,23 +3,44 @@
 #include "Utils.h"
 #include <ESP8266WiFi.h>
 
+const String WIFI_SSID = "";
+const String WIFI_PASS = "";
+
 const char* WIFI_NAME_PAIR = "Twometer IoT Pair"; // The Pairing WiFi
 const char* WIFI_NAME_CTRL = "Twometer IoT"; // The Control WiFi
 
 class WiFiController {
   private:
-    const char* key;
     bool isPairing;
 
   public:
     void Initialize() {
+      Serial.println("Starting access point...");
       WiFi.softAPdisconnect(true);
-      key = GenerateKey(32);
-      WiFi.softAP(WIFI_NAME_CTRL, key);
+      if (STORAGE.wifiKey == "")
+      {
+        STORAGE.wifiKey = GenerateKey(32);
+        storage_write();
+      }
+      WiFi.softAP(WIFI_NAME_CTRL, STORAGE.wifiKey);
+      Connect();
+
       digitalWrite(LED_ONLINE, HIGH);
     }
 
+    void Connect() {
+      Serial.println("Connecting to WiFi...");
+      WiFi.persistent(true);
+      WiFi.begin(WIFI_SSID, WIFI_PASS);
+      while (WiFi.status() != WL_CONNECTED) {
+        delay(500);
+      }
+      Serial.print("Online at: ");
+      Serial.println(WiFi.localIP());
+    }
+
     void BeginPair() {
+      Serial.println("Entering pair mode");
       WiFi.softAPdisconnect(true);
       WiFi.softAP(WIFI_NAME_PAIR);
       digitalWrite(LED_PAIRING, HIGH);
@@ -27,6 +48,7 @@ class WiFiController {
     }
 
     void EndPair() {
+      Serial.println("Exiting pair mode");
       Initialize();
       digitalWrite(LED_PAIRING, LOW);
       isPairing = false;
@@ -34,10 +56,6 @@ class WiFiController {
 
     bool IsPairing() {
       return isPairing;
-    }
-
-    const char* GetKey() {
-      return key;
     }
 
 };

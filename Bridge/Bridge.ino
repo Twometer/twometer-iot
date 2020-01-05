@@ -1,21 +1,18 @@
+#include <ArduinoJson.h>
 #include "Hardware.h"
+#include "DeviceDescriptor.h"
+#include "Storage.h"
+
 #include "WiFiController.h"
 #include "Utils.h"
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
 #include <ESP8266HTTPClient.h>
-#include <ArduinoJson.h>
-#include "DeviceDescriptor.h"
 
-const String NAME = "Twometer IoT Bridge";
-const String VERSION = "0.1.0";
+const char* NAME = "Twometer IoT Bridge";
+const char* VERSION = "0.1.0";
 
-const String WIFI_SSID = "";
-const String WIFI_PASS = "";
-
-std::vector<String> registrationTokens;
-std::vector<DeviceDescriptor> devices;
-std::vector<ConnectedDevice> connectedDevices;
+bool schedule_exit_pair = false;
 
 ESP8266WebServer httpServer(80);
 WiFiController controller;
@@ -33,7 +30,7 @@ void ICACHE_RAM_ATTR ClickInterrupt() {
 }
 
 ConnectedDevice* findDevice(String id) {
-  for (ConnectedDevice& dev : connectedDevices)
+  for (ConnectedDevice& dev : STORAGE.connectedDevices)
     if (dev.uuid == id)
       return &dev;
 
@@ -74,7 +71,7 @@ void badGateway(String data) {
 }
 
 bool checkToken(String token) {
-  for (String & test : registrationTokens)
+  for (String & test : STORAGE.registrationTokens)
     if (token == test)
       return true;
   return false;
@@ -82,19 +79,13 @@ bool checkToken(String token) {
 
 void setup() {
   Serial.begin(9600);
+  Serial.println("");
+
   Serial.print(NAME);
   Serial.print("  v");
   Serial.println(VERSION);
-  Serial.println("Connecting to WiFi...");
-  
-  WiFi.persistent(true);
-  WiFi.begin(WIFI_SSID, WIFI_PASS);
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-  }
-
-  Serial.print("Online at: ");
-  Serial.println(WiFi.localIP());
+  Serial.println("Loading settings...");
+  storage_read();
 
   pinMode(BTN_PAIR, INPUT_PULLUP);
   pinMode(LED_PAIRING, OUTPUT);
@@ -104,9 +95,41 @@ void setup() {
 
   delay(500);
   attachInterrupt(digitalPinToInterrupt(BTN_PAIR), ClickInterrupt, FALLING);
+
+  if (digitalRead(BTN_PAIR) == LOW) {
+    Serial.println("Entering erase mode..");
+    for (int i = 0; i < (3000 / 100); i++) {
+      digitalWrite(LED_ONLINE, LOW);
+      digitalWrite(LED_PAIRING, LOW);
+      delay(50);
+      digitalWrite(LED_ONLINE, HIGH);
+      digitalWrite(LED_PAIRING, HIGH);
+      delay(50);
+      if (digitalRead(BTN_PAIR) != LOW) break;
+    }
+
+    if (digitalRead(BTN_PAIR) == LOW) {
+      Serial.println("Erase confirmed. Erasing ...");
+      digitalWrite(LED_ONLINE, HIGH);
+      digitalWrite(LED_PAIRING, HIGH);
+      delay(50);
+      storage_erase();
+      Serial.println("Erase complete, waiting for user to let go...");
+      digitalWrite(LED_ONLINE, LOW);
+      digitalWrite(LED_PAIRING, LOW);
+      while (digitalRead(BTN_PAIR) == LOW) delay(100);
+      Serial.println("Rebooting");
+      ESP.restart();
+      return;
+    }
+
+    digitalWrite(LED_ONLINE, LOW);
+    digitalWrite(LED_PAIRING, LOW);
+  }
+
   controller.Initialize();
 
-  httpServer.on("/", HTTP_GET, []() {
+  httpServer.on("/", HTTP_ANY , []() {
     StaticJsonDocument<JSON_OBJECT_SIZE(2)> doc;
     doc["name"] = NAME;
     doc["version"] = VERSION;
@@ -114,20 +137,23 @@ void setup() {
   });
 
   httpServer.on("/keys", HTTP_GET, []() {
-    if (!controller.IsPairing()) {
+    if (!controller.IsPairing() || schedule_exit_pair) {
       forbidden();
       return;
     }
 
     String token = GenerateKey(32);
-    registrationTokens.push_back(token);
+    STORAGE.registrationTokens.push_back(token);
+    storage_write();
 
     StaticJsonDocument<JSON_OBJECT_SIZE(2)> doc;
-    doc["key"] = controller.GetKey();
-    doc["token"] = token;
-    controller.EndPair();
-
+    doc["key"] = STORAGE.wifiKey.c_str();
+    doc["token"] = token.c_str();
     ok(doc.as<String>());
+
+    Serial.println("Scheduling Pair Mode Shutdown");
+
+    schedule_exit_pair = true;
   });
 
   httpServer.on("/login", HTTP_POST, []() {
@@ -141,14 +167,16 @@ void setup() {
 
     String uuid = doc["uuid"];
     String ip = httpServer.client().remoteIP().toString();
-    connectedDevices.push_back({ uuid, ip });
+    STORAGE.connectedDevices.push_back({ uuid, ip });
+    storage_write();
 
     ok();
   });
 
   httpServer.on("/register", HTTP_POST, []() {
     String body = httpServer.arg("plain");
-    StaticJsonDocument<JSON_OBJECT_SIZE(2)> doc;
+
+    DynamicJsonDocument doc(JSON_OBJECT_SIZE(2) + 60);
     DeserializationError err = deserializeJson(doc, body);
     if (err != DeserializationError::Ok) {
       badRequest();
@@ -161,12 +189,14 @@ void setup() {
       return;
     }
 
-    remove(registrationTokens, token);
+    remove(STORAGE.registrationTokens, token);
 
     String deviceUrl = "http://" + httpServer.client().remoteIP().toString() + "/";
     String deviceData = request(deviceUrl);
     DeviceDescriptor descriptor = parseDeviceDescriptor(deviceData);
-    devices.push_back(descriptor);
+    STORAGE.devices.push_back(descriptor);
+
+    storage_write();
     ok();
   });
 
@@ -204,7 +234,7 @@ void loop() {
   unsigned long long now = millis();
   if (now - lastCheck > 30000) {
     std::vector<ConnectedDevice> offlineDevs;
-    for (ConnectedDevice& device : connectedDevices) {
+    for (ConnectedDevice& device : STORAGE.connectedDevices) {
       String url = "http://" + device.ip + "/ping";
       String reply = request(url);
       if (!isOk(reply))
@@ -213,9 +243,17 @@ void loop() {
 
     for (int i = 0; i < offlineDevs.size(); i++) {
       ConnectedDevice& device = offlineDevs[i];
-      remove(connectedDevices, device);
+      remove(STORAGE.connectedDevices, device);
     }
+    if (offlineDevs.size() > 0)
+      storage_write();
 
     lastCheck = now;
+  }
+
+  if (schedule_exit_pair) {
+    schedule_exit_pair = false;
+    delay(10000);
+    controller.EndPair();
   }
 }

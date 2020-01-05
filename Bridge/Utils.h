@@ -6,13 +6,13 @@
 /**
  * Generate a random key of given length
  */
-const char* GenerateKey(int len) {
-  char* key = new char[len];
+String GenerateKey(int len) {
+  String output;
   for (int i = 0; i < len; i++) {
     char c = 'a' + random('z' - 'a');
-    key[i] = c;
+    output += c;
   }
-  return key;
+  return output;
 }
 
 /**
