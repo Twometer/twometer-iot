@@ -1,0 +1,19 @@
+{
+  "name": "Twometer IoT",
+  "description": "A library to easily create Twometer IoT compatible devices",
+  "keywords": "iot, twometer-iot",
+  "authors":
+  {
+    "name": "Twometer"
+  },
+  "repository":
+  {
+    "type": "git",
+    "url": "https://github.com/Twometer/twometer-iot"
+  },
+  "version": "1.0.0",
+  "frameworks": [
+        "esp8266"
+  ],
+  "platforms": "esp8266"
+}
