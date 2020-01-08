@@ -220,7 +220,16 @@ void setup() {
   });
 
   httpServer.on("/devices", HTTP_GET, []() {
-    ok();
+    DynamicJsonDocument doc(1024);
+    for (DeviceDescriptor& device : STORAGE.devices) {
+      JsonObject obj = doc.createNestedObject();
+      obj["uuid"] = device.uuid;
+      obj["name"] = device.name;
+      obj["type"] = device.type;
+      obj["manufacturer"] = device.manufacturer;
+      doc.add(obj);
+    }
+    ok(doc.as<String>());
   });
 
   httpServer.begin();

@@ -4,8 +4,8 @@
 #include <ESP8266HTTPClient.h>
 
 /**
- * Generate a random key of given length
- */
+   Generate a random key of given length
+*/
 String GenerateKey(int len) {
   String output;
   for (int i = 0; i < len; i++) {
@@ -16,8 +16,8 @@ String GenerateKey(int len) {
 }
 
 /**
- * Remove an item from a vector
- */
+   Remove an item from a vector
+*/
 template <typename T>
 void remove(std::vector<T>& vec, T& v) {
   for (int i = 0; i < vec.size(); i++) {
@@ -30,8 +30,8 @@ void remove(std::vector<T>& vec, T& v) {
 }
 
 /**
- * Do an HTTP request
- */
+   Do an HTTP request
+*/
 String request(String url) {
   HTTPClient http;
   http.begin(url);
