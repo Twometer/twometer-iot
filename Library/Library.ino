@@ -2,7 +2,7 @@
 
 TwometerIoT iot;
 
-void setup() { 
+void setup() {  
   iot.describe({"LED Stripe", TYPE_LIGHT_STRIPE, "Twometer Industries"});
 
   iot.prop("color", DATA_COLOR_RGB)

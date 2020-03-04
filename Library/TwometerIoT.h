@@ -30,6 +30,10 @@ class TwometerIoT {
       if (online) return;
       online = true;
 
+      Serial.begin(9600);
+      Serial.println("Twometer IoT client library init");
+      Serial.println("Device ID: " + this->desc.uuid);
+
       wifi.Connect(desc);
 
       this->server = new ESP8266WebServer(80);
