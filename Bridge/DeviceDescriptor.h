@@ -9,6 +9,7 @@ struct DeviceDescriptor {
   String type;
   String manufacturer;
   String role;
+  String friendlyName;
 
   void write(StorageBuf& buf) {
     buf.write_string(uuid);
@@ -55,5 +56,14 @@ DeviceDescriptor parseDeviceDescriptor(String str) {
   String type = doc["type"];
   String manufacturer = doc["manufacturer"];
 
-  return { uuid, name, type, manufacturer };
+  return { uuid, name, type, manufacturer, "", "" };
+}
+
+DeviceDescriptor parseDeviceDescriptor(DynamicJsonDocument doc) {
+  String uuid = doc["uuid"];
+  String name = doc["name"];
+  String type = doc["type"];
+  String manufacturer = doc["manufacturer"];
+
+  return { uuid, name, type, manufacturer, "", "" };
 }

@@ -15,6 +15,7 @@
 const char* NAME = "Twometer IoT Bridge";
 const char* VERSION = "0.1.0";
 
+unsigned long long lastCheck = 0;
 bool schedule_exit_pair = false;
 char udp_incoming[255];
 
@@ -69,6 +70,10 @@ void forbidden() {
 
 void serverError() {
   httpServer.send(500, "application/json", "{\"status\": \"error\"}");
+}
+
+void notFound() {
+  httpServer.send(404, "application/json", "{\"status\": \"not_found\"}");
 }
 
 void badGateway(String data) {
@@ -160,6 +165,21 @@ void setup() {
     ok(doc.as<String>());
   });
 
+  httpServer.on("/debug", HTTP_GET, []() {
+    StaticJsonDocument<JSON_OBJECT_SIZE(10)> doc;
+    doc["name"] = NAME;
+    doc["version"] = VERSION;
+    doc["registry_token_count"] = STORAGE.registrationTokens.size();
+    doc["connected_device_count"] = STORAGE.connectedDevices.size();
+    doc["registered_device_count"] = STORAGE.devices.size();
+    doc["mode"] = controller.IsPairing() ? "pair" : "regular";
+    doc["wifi"] = WiFi.SSID();
+    doc["system_time"] = millis();
+    doc["last_ping_stime"] = lastCheck;
+    doc["pair_shutdown_sched"] = schedule_exit_pair;
+    ok(doc.as<String>());
+  });
+
   httpServer.on("/keys", HTTP_GET, []() {
     if (!controller.IsPairing() || schedule_exit_pair) {
       forbidden();
@@ -182,7 +202,7 @@ void setup() {
 
   httpServer.on("/login", HTTP_POST, []() {
     String body = httpServer.arg("plain");
-    StaticJsonDocument<JSON_OBJECT_SIZE(1)> doc;
+    StaticJsonDocument < JSON_OBJECT_SIZE(1) + 50 > doc;
     DeserializationError err = deserializeJson(doc, body);
     if (err != DeserializationError::Ok) {
       badRequest();
@@ -205,7 +225,7 @@ void setup() {
   httpServer.on("/register", HTTP_POST, []() {
     String body = httpServer.arg("plain");
 
-    DynamicJsonDocument doc(JSON_OBJECT_SIZE(2) + 60);
+    DynamicJsonDocument doc(JSON_OBJECT_SIZE(5) + 150);
     DeserializationError err = deserializeJson(doc, body);
     if (err != DeserializationError::Ok) {
       badRequest();
@@ -220,10 +240,33 @@ void setup() {
 
     remove(STORAGE.registrationTokens, token);
 
-    String deviceUrl = "http://" + httpServer.client().remoteIP().toString() + "/";
-    String deviceData = request(deviceUrl);
-    DeviceDescriptor descriptor = parseDeviceDescriptor(deviceData);
+    DeviceDescriptor descriptor = parseDeviceDescriptor(doc);
     STORAGE.devices.push_back(descriptor);
+
+    storage_write();
+    ok();
+  });
+
+  httpServer.on("/name", HTTP_POST, []() {
+    if (!httpServer.hasArg("id") || !httpServer.hasArg("name")) {
+      badRequest();
+      return;
+    }
+
+    String devId = httpServer.arg("id");
+    String name = httpServer.arg("name");
+    bool found = false;
+
+    for (DeviceDescriptor &desc : STORAGE.devices)
+      if (desc.uuid == devId) {
+        desc.friendlyName = name;
+        found = true;
+      }
+
+    if (!found) {
+      notFound();
+      return;
+    }
 
     storage_write();
     ok();
@@ -240,6 +283,10 @@ void setup() {
     String payload = httpServer.arg("plain");
 
     ConnectedDevice* dev = findDevice(devId);
+    if (dev == NULL) {
+      badGateway("{\"status\": \"device_offline\"}");
+      return;
+    }
     String url = "http://" + dev->ip + "/" + prop;
     String response = request(url);
     if (isOk(response))
@@ -248,15 +295,38 @@ void setup() {
       badGateway(response);
   });
 
+  httpServer.on("/device", HTTP_POST, []() {
+    if (!httpServer.hasArg("id")) {
+      badRequest();
+      return;
+    }
+
+    String devId = httpServer.arg("id");
+    String payload = httpServer.arg("plain");
+
+    ConnectedDevice* dev = findDevice(devId);
+    if (dev == NULL) {
+      badGateway("{\"status\": \"device_offline\"}");
+      return;
+    }
+    String url = "http://" + dev->ip + "/";
+    String response = request(url);
+    if (isOk(response))
+      ok();
+    else
+      badGateway(response);
+  });
+
   httpServer.on("/devices", HTTP_GET, []() {
-    DynamicJsonDocument doc(1024);
+    DynamicJsonDocument doc(2048);
     for (DeviceDescriptor& device : STORAGE.devices) {
       JsonObject obj = doc.createNestedObject();
       obj["uuid"] = device.uuid;
       obj["name"] = device.name;
       obj["type"] = device.type;
       obj["manufacturer"] = device.manufacturer;
-      doc.add(obj);
+      if (device.friendlyName != "")
+        obj["friendly_name"] = device.friendlyName;
     }
     ok(doc.as<String>());
   });
@@ -277,7 +347,6 @@ void updateDeviceList() {
   storage_write();
 }
 
-unsigned long long lastCheck = 0;
 void loop() {
   httpServer.handleClient();
 

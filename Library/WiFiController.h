@@ -27,9 +27,9 @@ class WiFiController {
       if (!data.hasKeys) {
         TryPair();
       } else {
-        ConnectToWifi(data);
-        Login(desc.uuid);
+        ConnectToWifi(data, 5);
       }
+      Login(desc.uuid);
     }
 
   private:
@@ -43,13 +43,13 @@ class WiFiController {
       http.end();
     }
 
-    void ConnectToWifi(WifiData& data) {
+    void ConnectToWifi(WifiData& data, int maxTries) {
       int tries = 0;
       WiFi.begin(data.ssid, data.key);
       while (WiFi.status() != WL_CONNECTED) {
         tries++;
         delay(500);
-        if (tries > 5) {
+        if (tries > maxTries) {
           TryPair();
           break;
         }
@@ -92,7 +92,7 @@ class WiFiController {
         EEPROM.put(0, data);
         EEPROM.commit();
 
-        ConnectToWifi(data);
+        ConnectToWifi(data, -1); // Try indefinitely
         Register(data.token);
       }
     }
