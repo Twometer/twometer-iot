@@ -20,12 +20,11 @@ String GenerateKey(int len) {
 */
 template <typename T>
 void remove(std::vector<T>& vec, T& v) {
-  for (int i = 0; i < vec.size(); i++) {
-    T& t = vec[i];
-    if (t == v) {
-      vec.erase(vec.begin() + i);
-      return;
-    }
+  typename std::vector<T>::iterator it = vec.begin();
+  while (it != vec.end()) {
+    if (*it == v)
+      it = vec.erase(it);
+    else ++it;
   }
 }
 
@@ -38,6 +37,19 @@ String request(String url) {
 
   int code = http.GET();
   if (code == 0) return "";
+  String payload = http.getString();
+  http.end();
+  return payload;
+}
+
+String requestWithTimeout(String url, int timeout)
+{
+  HTTPClient http;
+  http.begin(url);
+  http.setTimeout(timeout);
+
+  int code = http.GET();
+  if (code <= 0) return "";
   String payload = http.getString();
   http.end();
   return payload;

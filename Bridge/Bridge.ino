@@ -78,26 +78,34 @@ bool checkToken(String token) {
 }
 
 void setup() {
+  // Serial init
   Serial.begin(9600);
   Serial.println("");
-
   Serial.print(NAME);
   Serial.print("  v");
   Serial.println(VERSION);
-  Serial.println("Loading settings...");
-  storage_read();
 
+  // Hardware init
   pinMode(BTN_PAIR, INPUT_PULLUP);
   pinMode(LED_PAIRING, OUTPUT);
   pinMode(LED_ONLINE, OUTPUT);
   digitalWrite(LED_ONLINE, LOW);
   digitalWrite(LED_PAIRING, LOW);
 
+  Serial.println("Loading settings...");
+  storage_read();
+
+  // Register click interrupt
   delay(500);
   attachInterrupt(digitalPinToInterrupt(BTN_PAIR), ClickInterrupt, FALLING);
 
+  // If pair button is presed at startup, enter erase mode
+  // This will factory reset the device
   if (digitalRead(BTN_PAIR) == LOW) {
     Serial.println("Entering erase mode..");
+
+    // Blink LEDs for 3 seconds while the user
+    // holds down the reset button
     for (int i = 0; i < (3000 / 100); i++) {
       digitalWrite(LED_ONLINE, LOW);
       digitalWrite(LED_PAIRING, LOW);
@@ -108,6 +116,7 @@ void setup() {
       if (digitalRead(BTN_PAIR) != LOW) break;
     }
 
+    // If still held, reset and restart
     if (digitalRead(BTN_PAIR) == LOW) {
       Serial.println("Erase confirmed. Erasing ...");
       digitalWrite(LED_ONLINE, HIGH);
@@ -127,8 +136,10 @@ void setup() {
     digitalWrite(LED_PAIRING, LOW);
   }
 
+  // Setup WiFi connection
   controller.Initialize();
 
+  // Register endpoints
   httpServer.on("/", HTTP_ANY , []() {
     StaticJsonDocument<JSON_OBJECT_SIZE(2)> doc;
     doc["name"] = NAME;
@@ -236,27 +247,27 @@ void setup() {
 
 }
 
+void updateDeviceList() {
+  std::vector<ConnectedDevice>::iterator it = STORAGE.connectedDevices.begin();
+  while (it != STORAGE.connectedDevices.end()) {
+    String url = "http://" + it->ip + "/ping";
+    String reply = requestWithTimeout(url, 750);
+    if (!isOk(reply))
+      it = STORAGE.connectedDevices.erase(it);
+    else ++it;
+  }
+  storage_write();
+}
+
 unsigned long long lastCheck = 0;
 void loop() {
   httpServer.handleClient();
 
-  unsigned long long now = millis();
-  if (now - lastCheck > 30000) {
-    std::vector<ConnectedDevice>::iterate it = STORAGE.connectedDevices.begin();
-    while (it != STORAGE.connectedDevices.end()) {
-        String url = "http://" + device.ip + "/ping";
-        String reply = request(url);
-        if (!isOk(reply))
-            it = STORAGE.connectedDevices.erase(it);
-        else ++it;
-    }
-
-    if (offlineDevs.size() > 0)
-      storage_write();
-
-    lastCheck = now;
+  if (millis() - lastCheck > 30000) {
+    updateDeviceList();
+    lastCheck = millis();
   }
-
+  
   if (schedule_exit_pair) {
     schedule_exit_pair = false;
     delay(10000);

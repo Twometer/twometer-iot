@@ -3,6 +3,9 @@
 
 #include <EEPROM.h>
 
+/**
+   A buffer for writing and reading binary data
+*/
 class StorageBuf {
 
   private:

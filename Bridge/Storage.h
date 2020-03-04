@@ -1,7 +1,7 @@
 #ifndef storage_h
 #define storage_h
 
-#define EEPROM_INIT_MAGIC 42
+#define EEPROM_INIT_MAGIC 42    // Magic header value to detect with a single byte read if any settings are present
 
 #include "StorageBuf.h"
 #include <EEPROM.h>

@@ -1,5 +1,8 @@
 #include "StorageBuf.h"
 
+/**
+   Describes a registered device
+*/
 struct DeviceDescriptor {
   String uuid;
   String name;
@@ -28,6 +31,9 @@ struct DeviceDescriptor {
   }
 };
 
+/**
+   Describes a connected device
+*/
 struct ConnectedDevice {
   String uuid;
   String ip;
@@ -37,6 +43,9 @@ struct ConnectedDevice {
   }
 };
 
+/**
+   Parses a device descriptor from JSON
+*/
 DeviceDescriptor parseDeviceDescriptor(String str) {
   StaticJsonDocument<JSON_OBJECT_SIZE(4)> doc;
   deserializeJson(doc, str);
