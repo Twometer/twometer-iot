@@ -1,11 +1,9 @@
 #include "TwometerIoT.h"
 
-const String DEVICE_ID = "55ef1248-6460-4a33-a54b-1faa0d929e7e";
-
 TwometerIoT iot;
 
 void setup() {
-  iot.describe({DEVICE_ID, "GlowTec LED Stripe", TYPE_LIGHT_STRIPE, "GlowTec Industries"});
+  iot.describe({"GlowTec LED Stripe", TYPE_LIGHT_STRIPE, "GlowTec Industries"});
 
   iot.prop("color", DATA_COLOR_RGB)
   .handle([](const Request &req) {

@@ -23,6 +23,7 @@ class TwometerIoT {
   public:
     void describe(DeviceDescriptor desc) {
       this->desc = desc;
+      this->desc.uuid = String(ESP.getChipId(), HEX);
     }
 
     void begin() {

@@ -1,6 +1,6 @@
 struct DeviceDescriptor {
-  String uuid;
   String name;
   String type;
   String manufacturer;
+  String uuid;
 };
