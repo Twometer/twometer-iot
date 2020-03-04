@@ -8,14 +8,19 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
 #include <ESP8266HTTPClient.h>
+#include <WiFiUdp.h>
+
+#define UDP_PORT 38711
 
 const char* NAME = "Twometer IoT Bridge";
 const char* VERSION = "0.1.0";
 
 bool schedule_exit_pair = false;
+char udp_incoming[255];
 
 ESP8266WebServer httpServer(80);
 WiFiController controller;
+WiFiUDP udp;
 
 void ICACHE_RAM_ATTR ClickInterrupt() {
   static unsigned long lastInterrupt = 500;
@@ -145,6 +150,7 @@ void setup() {
 
   // Setup WiFi connection
   controller.Initialize();
+  udp.begin(UDP_PORT);
 
   // Register endpoints
   httpServer.on("/", HTTP_ANY , []() {
@@ -284,5 +290,21 @@ void loop() {
     schedule_exit_pair = false;
     delay(10000);
     controller.EndPair();
+  }
+
+  int packetSize = udp.parsePacket();
+  if (packetSize)
+  {
+    int len = udp.read(udp_incoming, 255);
+    if (len > 0)
+      udp_incoming[len] = 0;
+
+    if (udp_incoming[0] == 0x00 && udp_incoming[1] == 0x42 && udp_incoming[2] == 0x69)
+    {
+      String myIp = WiFi.localIP().toString();
+      udp.beginPacket(udp.remoteIP(), udp.remotePort());
+      udp.print(myIp);
+      udp.endPacket();
+    }
   }
 }
