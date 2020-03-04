@@ -85,8 +85,8 @@ class WiFiController {
 
         WifiData data;
         data.hasKeys = true;
-        data.ssid = WIFI_NAME_CTRL,
-             data.key = key;
+        data.ssid = WIFI_NAME_CTRL;
+        data.key = key;
         data.token = token;
 
         EEPROM.put(0, data);

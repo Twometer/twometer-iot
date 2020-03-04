@@ -77,6 +77,13 @@ bool checkToken(String token) {
   return false;
 }
 
+bool deviceExists(String uuid) {
+  for (DeviceDescriptor& desc : STORAGE.devices)
+    if (desc.uuid == uuid)
+      return true;
+  return false;
+}
+
 void setup() {
   // Serial init
   Serial.begin(9600);
@@ -177,6 +184,11 @@ void setup() {
     }
 
     String uuid = doc["uuid"];
+    if (!deviceExists(uuid)) {
+      forbidden();
+      return;
+    }
+
     String ip = httpServer.client().remoteIP().toString();
     STORAGE.connectedDevices.push_back({ uuid, ip });
     storage_write();
@@ -267,7 +279,7 @@ void loop() {
     updateDeviceList();
     lastCheck = millis();
   }
-  
+
   if (schedule_exit_pair) {
     schedule_exit_pair = false;
     delay(10000);
