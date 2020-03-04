@@ -242,18 +242,15 @@ void loop() {
 
   unsigned long long now = millis();
   if (now - lastCheck > 30000) {
-    std::vector<ConnectedDevice> offlineDevs;
-    for (ConnectedDevice& device : STORAGE.connectedDevices) {
-      String url = "http://" + device.ip + "/ping";
-      String reply = request(url);
-      if (!isOk(reply))
-        offlineDevs.push_back(device);
+    std::vector<ConnectedDevice>::iterate it = STORAGE.connectedDevices.begin();
+    while (it != STORAGE.connectedDevices.end()) {
+        String url = "http://" + device.ip + "/ping";
+        String reply = request(url);
+        if (!isOk(reply))
+            it = STORAGE.connectedDevices.erase(it);
+        else ++it;
     }
 
-    for (int i = 0; i < offlineDevs.size(); i++) {
-      ConnectedDevice& device = offlineDevs[i];
-      remove(STORAGE.connectedDevices, device);
-    }
     if (offlineDevs.size() > 0)
       storage_write();
 
