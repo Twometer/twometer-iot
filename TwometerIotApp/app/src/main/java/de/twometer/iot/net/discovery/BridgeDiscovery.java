@@ -11,15 +11,13 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.Objects;
 
-import de.twometer.iot.model.Bridge;
-
 public class BridgeDiscovery {
 
     private static final byte[] DISCOVERY_PAYLOAD = {0x00, 0x42, 0x69};
 
     private static final int DISCOVERY_PORT = 38711;
 
-    public static Bridge discover(Context context) throws IOException {
+    public static String discover(Context context) throws IOException {
         InetAddress broadcastAddress = getBroadcastAddress(context);
         InetSocketAddress address = new InetSocketAddress(broadcastAddress, DISCOVERY_PORT);
 
@@ -31,9 +29,7 @@ public class BridgeDiscovery {
         byte[] data = new byte[128];
         DatagramPacket reply = new DatagramPacket(data, data.length);
         socket.receive(reply);
-
-        String ip = new String(data).trim();
-        return new Bridge(ip, "", "");
+        return new String(data).trim();
     }
 
     private static InetAddress getBroadcastAddress(Context context) throws IOException {
@@ -41,7 +37,6 @@ public class BridgeDiscovery {
         DhcpInfo dhcp = Objects.requireNonNull(wifi).getDhcpInfo();
         if (dhcp == null)
             return null;
-        // handle null somehow
 
         int broadcast = (dhcp.ipAddress & dhcp.netmask) | ~dhcp.netmask;
         byte[] quads = new byte[4];

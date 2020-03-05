@@ -10,7 +10,6 @@ import org.junit.runner.RunWith;
 
 import java.io.IOException;
 
-import de.twometer.iot.model.Bridge;
 import de.twometer.iot.net.discovery.BridgeDiscovery;
 
 import static org.junit.Assert.assertEquals;
@@ -20,8 +19,8 @@ public class DiscoveryTest {
     @Test
     public void discoverBridge() throws IOException {
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        Bridge bridge = BridgeDiscovery.discover(appContext);
+        String bridgeIp = BridgeDiscovery.discover(appContext);
 
-        assertEquals("192.168.2.115", bridge.getIp());
+        assertEquals("192.168.2.115", bridgeIp);
     }
 }

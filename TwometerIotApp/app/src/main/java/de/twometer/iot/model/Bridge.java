@@ -8,10 +8,8 @@ public class Bridge {
 
     private String version;
 
-    public Bridge(String ip, String name, String version) {
+    public Bridge(String ip) {
         this.ip = ip;
-        this.name = name;
-        this.version = version;
     }
 
     public String getIp() {
