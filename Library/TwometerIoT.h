@@ -11,7 +11,7 @@
 class TwometerIoT {
   private:
     WiFiController wifi;
-  
+
     DeviceDescriptor desc;
 
     ESP8266WebServer* server;
@@ -53,21 +53,21 @@ class TwometerIoT {
       });
 
       server->on("/prop", HTTP_GET, [&]() {
-        int capacity = JSON_OBJECT_SIZE(properties.size()) + properties.size() * JSON_OBJECT_SIZE(2);
+        int capacity = JSON_OBJECT_SIZE(properties.size()) + properties.size() * (JSON_OBJECT_SIZE(2) + 64);
         DynamicJsonDocument doc(capacity);
         for (Property* prop : properties)
         {
           JsonObject obj = doc.createNestedObject();
           obj["name"] = prop->name;
           obj["type"] = prop->dataType;
-          doc.add(obj);
         }
 
         server->send(200, MIME_JSON, doc.as<String>());
       });
 
       for (const Property* prop : properties) {
-        server->on("/" + prop->name, HTTP_PUT, [&]() {
+        server->on("/" + prop->name, HTTP_PUT, [this,prop]() {
+          Serial.println("Deserializing call to property " + prop->name);
           String body = server->arg("plain");
           StaticJsonDocument<200> doc;
           DeserializationError err = deserializeJson(doc, body);
@@ -77,6 +77,7 @@ class TwometerIoT {
             return;
           }
 
+          Serial.println("Parsing args");
           JsonObject obj = doc.as<JsonObject>();
 
           std::vector<Arg> args;
@@ -85,7 +86,7 @@ class TwometerIoT {
             JsonVariant val = p.value();
             args.push_back(Arg(key, val));
           }
-
+          
           Request request(args);
           bool result = false;
 
@@ -120,6 +121,7 @@ class TwometerIoT {
 
     void update() {
       server->handleClient();
+      wifi.Update();
     }
 
   private:

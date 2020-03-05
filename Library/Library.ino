@@ -11,6 +11,8 @@ void setup() {
 
     // TODO Update rgb outputs
 
+    Serial.println(" Color update: r=" + String(rgb.r) + " g=" + String(rgb.g) + " b=" + String(rgb.b));
+
     return rgb.b == 42;
   });
 

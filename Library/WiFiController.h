@@ -2,6 +2,7 @@
 #include <ESP8266HTTPClient.h>
 #include <EEPROM.h>
 #include "StorageBuf.h"
+#include "HttpLib.h"
 
 #define EEPROM_INIT_MAGIC 42
 
@@ -26,7 +27,7 @@ class WiFiController
         wifiKey = buf.read_string();
         WiFi.begin(WIFI_NAME_CTRL, wifiKey);
 
-        Serial.println("WiFi key: " + wifiKey);
+        Serial.println("Device id: " + String(ESP.getChipId(), HEX));
 
         AwaitConnected();
 
@@ -48,11 +49,31 @@ class WiFiController
       }
 
       Serial.println("WiFi setup complete");
+      initComplete = true;
+    }
+
+    void Update() {
+      if (initComplete) {
+        if (lastWifiState != WL_CONNECTED && WiFi.status() == WL_CONNECTED)
+        {
+          delay(1000);
+          Serial.println("WiFi Connection regained, authenticating with bridge...");
+          Login();
+          Serial.println("Done");
+        }
+        if (lastWifiState == WL_CONNECTED && WiFi.status() != WL_CONNECTED) {
+          Serial.println("WiFi Connection lost");
+        }
+
+        lastWifiState = WiFi.status();
+      }
     }
 
   private:
     String wifiKey;
     String registerToken;
+    int lastWifiState = WL_CONNECTED;
+    bool initComplete = false;
 
     void Login() {
       Serial.println("Login...");
@@ -60,29 +81,34 @@ class WiFiController
       String bridgeIp = WiFi.gatewayIP().toString();
       String url = "http://" + bridgeIp + "/login";
 
-      WiFiClient wifi;
-      HTTPClient http;
-      http.begin(wifi, url);
-      http.POST("{\"uuid\": \"" + String(ESP.getChipId(), HEX) + "\"}");
-      http.end();
+      HttpResponse response;
+      do {
+        response = http_post(url, "{\"uuid\": \"" + String(ESP.getChipId(), HEX) + "\"}");
+        if (response.code == 403)
+        {
+          // 403 forbidden
+          // Registration has changed, clear and reboot
+          Serial.println("Bridge does not know this device but key is correct, resetting...");
+          for (int i = 0; i < 256; i++)
+            EEPROM.write(i, 255);
+          EEPROM.commit();
+          ESP.restart();
+          return;
+        }
+      } while (response.code != 200);
     }
 
     void GetKey() {
       Serial.println("Authenticating...");
 
       String bridgeIp = WiFi.gatewayIP().toString();
-      String url = "http://" + bridgeIp + ":80/keys";
+      String url = "http://" + bridgeIp + "/keys";
 
-      WiFiClient wifi;
-      HTTPClient http;
-      http.begin(wifi, url);
-
-      int code = http.GET();
-      if (code > 0) {
-        String payload = http.getString();
-
+      HttpResponse response = http_get(url);
+      if (response.code == 200)
+      {
         StaticJsonDocument < JSON_OBJECT_SIZE(2) + 90 > doc;
-        DeserializationError err = deserializeJson(doc, payload);
+        DeserializationError err = deserializeJson(doc, response.data);
         if (err != DeserializationError::Ok) {
           return;
         }
@@ -91,39 +117,45 @@ class WiFiController
         this->wifiKey = obj["key"].as<String>();
         this->registerToken = obj["token"].as<String>();
 
+        Serial.println("Wifi key: " + this->wifiKey);
+        Serial.println("Register token: " + this->registerToken);
+
         StorageBuf buf;
         buf.write_byte(EEPROM_INIT_MAGIC);
         buf.write_string(this->wifiKey);
         EEPROM.commit();
       }
-      http.end();
     }
 
     void Register(DeviceDescriptor& desc) {
       Serial.println("Registering...");
 
-      StaticJsonDocument < JSON_OBJECT_SIZE(5) > doc;
+      int strLen = desc.name.length() + 1 + desc.type.length() + 1 + desc.manufacturer.length() + 1 + this->registerToken.length() + 1 + 30;
+      DynamicJsonDocument doc(JSON_OBJECT_SIZE(5) + strLen);
       doc["uuid"] = desc.uuid;
       doc["name"] = desc.name;
       doc["type"] = desc.type;
       doc["manufacturer"] = desc.manufacturer;
-      doc["token"] = registerToken;
-      String payload = doc.as<String>();
+      doc["token"] = this->registerToken;
+      String payload;
+      serializeJson(doc, payload);
+
+      Serial.println(payload);
+
+
 
       String bridgeIp = WiFi.gatewayIP().toString();
-      String url = "http://" + bridgeIp + ":80/register";
+      String url = "http://" + bridgeIp + "/register";
 
-      WiFiClient wifi;
-      HTTPClient http;
-      http.begin(wifi, url);
-      http.addHeader("Content-Type", "application/json");
-
-      http.POST(payload);
-      http.end();
+      HttpResponse response;
+      do {
+        response = http_post(url, payload);
+        Serial.println("Reply: " + String(response.code));
+      } while (response.code != 200);
     }
 
     void AwaitConnected() {
-      Serial.println("Connecting...");
+      Serial.println("Connecting to " + WiFi.SSID() + " ...");
       while (WiFi.status() != WL_CONNECTED) {
         delay(500);
       }

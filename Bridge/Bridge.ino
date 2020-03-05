@@ -9,6 +9,7 @@
 #include <ESP8266WebServer.h>
 #include <ESP8266HTTPClient.h>
 #include <WiFiUdp.h>
+#include "HttpLib.h"
 
 #define UDP_PORT 38711
 
@@ -45,9 +46,9 @@ ConnectedDevice* findDevice(String id) {
 
 bool isOk(String reply) {
   if (reply == "") return false;
-  StaticJsonDocument<JSON_OBJECT_SIZE(1)> doc;
+  StaticJsonDocument<JSON_OBJECT_SIZE(1) + 32> doc;
   DeserializationError err = deserializeJson(doc, reply);
-  if (err != DeserializationError::Ok || doc["state"] != "ok")
+  if (err != DeserializationError::Ok || doc["status"] != "ok")
     return false;
   return true;
 }
@@ -157,7 +158,9 @@ void setup() {
   controller.Initialize();
   udp.begin(UDP_PORT);
 
-  // Register endpoints
+  /* Register endpoints */
+
+  // Info endpoint
   httpServer.on("/", HTTP_ANY , []() {
     StaticJsonDocument<JSON_OBJECT_SIZE(2)> doc;
     doc["name"] = NAME;
@@ -165,21 +168,24 @@ void setup() {
     ok(doc.as<String>());
   });
 
+  // Debug endpoint
   httpServer.on("/debug", HTTP_GET, []() {
-    StaticJsonDocument<JSON_OBJECT_SIZE(10)> doc;
+    StaticJsonDocument < JSON_OBJECT_SIZE(11) + 32 > doc;
     doc["name"] = NAME;
     doc["version"] = VERSION;
     doc["registry_token_count"] = STORAGE.registrationTokens.size();
     doc["connected_device_count"] = STORAGE.connectedDevices.size();
     doc["registered_device_count"] = STORAGE.devices.size();
-    doc["mode"] = controller.IsPairing() ? "pair" : "regular";
-    doc["wifi"] = WiFi.SSID();
+    doc["mode"] = controller.IsPairing() ? "pairing" : "regular";
+    doc["wifi_ssid"] = WiFi.SSID();
+    doc["wifi_rssi"] = WiFi.RSSI();
     doc["system_time"] = millis();
     doc["last_ping_stime"] = lastCheck;
     doc["pair_shutdown_sched"] = schedule_exit_pair;
     ok(doc.as<String>());
   });
 
+  // Authorization
   httpServer.on("/keys", HTTP_GET, []() {
     if (!controller.IsPairing() || schedule_exit_pair) {
       forbidden();
@@ -200,6 +206,7 @@ void setup() {
     schedule_exit_pair = true;
   });
 
+  // Logging in
   httpServer.on("/login", HTTP_POST, []() {
     String body = httpServer.arg("plain");
     StaticJsonDocument < JSON_OBJECT_SIZE(1) + 50 > doc;
@@ -219,9 +226,12 @@ void setup() {
     STORAGE.connectedDevices.push_back({ uuid, ip });
     storage_write();
 
+    Serial.println(ip + " logged in");
+
     ok();
   });
 
+  // Registering
   httpServer.on("/register", HTTP_POST, []() {
     String body = httpServer.arg("plain");
 
@@ -247,6 +257,7 @@ void setup() {
     ok();
   });
 
+  // Setting name
   httpServer.on("/name", HTTP_POST, []() {
     if (!httpServer.hasArg("id") || !httpServer.hasArg("name")) {
       badRequest();
@@ -272,7 +283,8 @@ void setup() {
     ok();
   });
 
-  httpServer.on("/devices", HTTP_POST, []() {
+  // Set property on a device
+  httpServer.on("/set", HTTP_POST, []() {
     if (!httpServer.hasArg("id") || !httpServer.hasArg("prop")) {
       badRequest();
       return;
@@ -288,14 +300,16 @@ void setup() {
       return;
     }
     String url = "http://" + dev->ip + "/" + prop;
-    String response = request(url);
-    if (isOk(response))
+    HttpResponse response = http_put(url, payload);
+
+    if (response.code == 200)
       ok();
     else
-      badGateway(response);
+      badGateway(response.data);
   });
 
-  httpServer.on("/device", HTTP_POST, []() {
+  // Get device properties
+  httpServer.on("/prop", HTTP_GET, []() {
     if (!httpServer.hasArg("id")) {
       badRequest();
       return;
@@ -309,16 +323,22 @@ void setup() {
       badGateway("{\"status\": \"device_offline\"}");
       return;
     }
-    String url = "http://" + dev->ip + "/";
+    String url = "http://" + dev->ip + "/prop";
     String response = request(url);
+    if (response == "") {
+      badGateway("{\"status\": \"device_offline\"}");
+      return;
+    }
+
     if (isOk(response))
-      ok();
+      ok(response);
     else
       badGateway(response);
   });
 
+  // List all devices
   httpServer.on("/devices", HTTP_GET, []() {
-    DynamicJsonDocument doc(2048);
+    DynamicJsonDocument doc(200 * STORAGE.devices.size());
     for (DeviceDescriptor& device : STORAGE.devices) {
       JsonObject obj = doc.createNestedObject();
       obj["uuid"] = device.uuid;
@@ -336,15 +356,18 @@ void setup() {
 }
 
 void updateDeviceList() {
+  Serial.println("* Begin Device list update *");
   std::vector<ConnectedDevice>::iterator it = STORAGE.connectedDevices.begin();
   while (it != STORAGE.connectedDevices.end()) {
     String url = "http://" + it->ip + "/ping";
     String reply = requestWithTimeout(url, 750);
+    Serial.println("Reply: " + reply);
     if (!isOk(reply))
       it = STORAGE.connectedDevices.erase(it);
     else ++it;
   }
   storage_write();
+  Serial.println("* End device list update *");
 }
 
 void loop() {
@@ -368,6 +391,8 @@ void loop() {
     if (len > 0)
       udp_incoming[len] = 0;
 
+    // Trigger sequence 0x00 0x42 0x69
+    // Very mature I know
     if (udp_incoming[0] == 0x00 && udp_incoming[1] == 0x42 && udp_incoming[2] == 0x69)
     {
       String myIp = WiFi.localIP().toString();

@@ -32,8 +32,9 @@ void remove(std::vector<T>& vec, T& v) {
    Do an HTTP request
 */
 String request(String url) {
+  WiFiClient wifi;
   HTTPClient http;
-  http.begin(url);
+  http.begin(wifi, url);
 
   int code = http.GET();
   if (code == 0) return "";
@@ -44,11 +45,13 @@ String request(String url) {
 
 String requestWithTimeout(String url, int timeout)
 {
+  WiFiClient wifi;
   HTTPClient http;
-  http.begin(url);
+  http.begin(wifi, url);
   http.setTimeout(timeout);
 
   int code = http.GET();
+  Serial.println("Code: " + String(code));
   if (code <= 0) return "";
   String payload = http.getString();
   http.end();
