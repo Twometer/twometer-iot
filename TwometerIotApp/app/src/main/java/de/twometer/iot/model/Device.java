@@ -1,12 +1,14 @@
 package de.twometer.iot.model;
 
+import org.jetbrains.annotations.NotNull;
+
 public class Device {
 
     private String uuid;
 
     private String name;
 
-    private String type;
+    private DeviceType type;
 
     private String manufacturer;
 
@@ -15,7 +17,7 @@ public class Device {
     public Device(String uuid, String name, String type, String manufacturer, String friendlyName) {
         this.uuid = uuid;
         this.name = name;
-        this.type = type;
+        this.type = DeviceType.fromString(type);
         this.manufacturer = manufacturer;
         this.friendlyName = friendlyName;
     }
@@ -28,7 +30,7 @@ public class Device {
         return name;
     }
 
-    public String getType() {
+    public DeviceType getType() {
         return type;
     }
 
@@ -44,6 +46,7 @@ public class Device {
         return friendlyName == null || friendlyName.isEmpty() ? name : friendlyName;
     }
 
+    @NotNull
     @Override
     public String toString() {
         return "Device{" +

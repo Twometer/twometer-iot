@@ -13,6 +13,8 @@ import java.util.List;
 import de.twometer.iot.model.Bridge;
 import de.twometer.iot.model.DebugInfo;
 import de.twometer.iot.model.Device;
+import de.twometer.iot.model.Property;
+import de.twometer.iot.model.values.Value;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -64,10 +66,6 @@ public class ApiClient {
         }
     }
 
-    public boolean renameDevice(Device device, String newName) {
-        return renameDevice(device.getUuid(), newName);
-    }
-
     public boolean renameDevice(String deviceId, String newName) {
         try {
             return isOk(doPost(String.format("%s?id=%s&name=%s", getBridgeEndpoint("name"), urlEncode(deviceId), urlEncode(newName)), ""));
@@ -99,6 +97,36 @@ public class ApiClient {
         }
     }
 
+    public List<Property> getProperties(String deviceId) {
+        try {
+            JSONArray properties = new JSONArray(doGet(String.format("%s?id=%s", getBridgeEndpoint("prop"), deviceId)));
+            List<Property> result = new ArrayList<>();
+            for (int i = 0; i < properties.length(); i++) {
+                JSONObject prop = (JSONObject) properties.get(i);
+
+                result.add(new Property(
+                        prop.getString("name"),
+                        prop.getString("type")
+                ));
+            }
+            return result;
+        } catch (JSONException | IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public boolean setProperty(String deviceId, String property, Value value) {
+        String payload = value.toJsonObject().toString();
+        String url = String.format("%s?id=%s&prop=%s", getBridgeEndpoint("set"), deviceId, property);
+        try {
+            return isOk(doPost(url, payload));
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     private boolean isOk(String response) {
         try {
             return new JSONObject(response).getString("status").equalsIgnoreCase("ok");
@@ -111,7 +139,7 @@ public class ApiClient {
         return String.format("http://%s/%s", bridge.getIp(), ep);
     }
 
-    private String doGet(String url) throws IOException, JSONException {
+    private String doGet(String url) throws IOException {
         Request request = new Request.Builder()
                 .url(url)
                 .build();
