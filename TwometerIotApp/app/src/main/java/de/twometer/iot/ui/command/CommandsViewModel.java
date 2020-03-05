@@ -1,19 +1,19 @@
-package de.twometer.iot.ui.tools;
+package de.twometer.iot.ui.command;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-public class ToolsViewModel extends ViewModel {
+public class CommandsViewModel extends ViewModel {
 
     private MutableLiveData<String> mText;
 
-    public ToolsViewModel() {
+    public CommandsViewModel() {
         mText = new MutableLiveData<>();
-        mText.setValue("This is tools fragment");
+        mText.setValue("This is commands fragment");
     }
 
-    public LiveData<String> getText() {
+    LiveData<String> getText() {
         return mText;
     }
 }

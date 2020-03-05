@@ -12,32 +12,21 @@
         tools:layout="@layout/fragment_home" />
 
     <fragment
-        android:id="@+id/nav_gallery"
-        android:name="de.twometer.iot.ui.gallery.GalleryFragment"
+        android:id="@+id/nav_devices"
+        android:name="de.twometer.iot.ui.devices.DevicesFragment"
         android:label="@string/menu_gallery"
-        tools:layout="@layout/fragment_gallery" />
+        tools:layout="@layout/fragment_devices" />
 
     <fragment
-        android:id="@+id/nav_slideshow"
-        android:name="de.twometer.iot.ui.slideshow.SlideshowFragment"
+        android:id="@+id/nav_commands"
+        android:name="de.twometer.iot.ui.command.CommandsFragment"
         android:label="@string/menu_slideshow"
-        tools:layout="@layout/fragment_slideshow" />
+        tools:layout="@layout/fragment_commands" />
 
     <fragment
-        android:id="@+id/nav_tools"
-        android:name="de.twometer.iot.ui.tools.ToolsFragment"
+        android:id="@+id/nav_bridge"
+        android:name="de.twometer.iot.ui.bridge.BridgeFragment"
         android:label="@string/menu_tools"
-        tools:layout="@layout/fragment_tools" />
+        tools:layout="@layout/fragment_bridge" />
 
-    <fragment
-        android:id="@+id/nav_share"
-        android:name="de.twometer.iot.ui.share.ShareFragment"
-        android:label="@string/menu_share"
-        tools:layout="@layout/fragment_share" />
-
-    <fragment
-        android:id="@+id/nav_send"
-        android:name="de.twometer.iot.ui.send.SendFragment"
-        android:label="@string/menu_send"
-        tools:layout="@layout/fragment_send" />
 </navigation>
