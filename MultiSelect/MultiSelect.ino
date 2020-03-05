@@ -1,13 +1,10 @@
 #include <TwometerIoT.h>
 
-// Should be unique and random
-const String DEVICE_ID = "e5c096a2-30f1-4f39-813f-22f52af82aa1";
-
 TwometerIoT iot;
 
 void setup() {
-  // First the id, the name, then the type and finally the manufacturer
-  iot.describe({DEVICE_ID, "Multi Button Selector", TYPE_BUTTON_MULTI, "Twometer Electronics"});
+  // First the name, then the type and finally the manufacturer
+  iot.describe({"Multi Button Selector", TYPE_BUTTON_MULTI, "Twometer Electronics"});
 
   iot.prop("output", DATA_INT)
   .handle([](const Request & req) {
