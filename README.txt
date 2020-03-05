@@ -57,3 +57,9 @@ Returns a list of properties and their data types
 PUT /{prop}
 Sets the value of the property to the value supplied in body formatted
 as JSON.
+
+Discovery:
+==========
+To discover a bridge in the network, send a UDP broadcast to your subnet (e.g. 192.168.1.255)
+consisting of the bytes "0x00 0x42 0x69". The bridge will reply to you with it's IP address
+formatted in ASCII string.
