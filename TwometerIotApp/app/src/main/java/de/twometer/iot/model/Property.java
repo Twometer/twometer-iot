@@ -1,5 +1,7 @@
 package de.twometer.iot.model;
 
+import org.jetbrains.annotations.NotNull;
+
 public class Property {
 
     private String name;
@@ -18,4 +20,12 @@ public class Property {
         return type;
     }
 
+    @NotNull
+    @Override
+    public String toString() {
+        return "Property{" +
+                "name='" + name + '\'' +
+                ", type=" + type +
+                '}';
+    }
 }

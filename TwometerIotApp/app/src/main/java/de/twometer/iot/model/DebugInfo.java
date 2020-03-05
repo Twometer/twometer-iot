@@ -1,5 +1,7 @@
 package de.twometer.iot.model;
 
+import org.jetbrains.annotations.NotNull;
+
 public class DebugInfo {
 
     private String name;
@@ -70,5 +72,23 @@ public class DebugInfo {
 
     public boolean isPairShutdownScheduled() {
         return pairShutdownScheduled;
+    }
+
+    @NotNull
+    @Override
+    public String toString() {
+        return "DebugInfo{" +
+                "name='" + name + '\'' +
+                ", version='" + version + '\'' +
+                ", registryTokenCount=" + registryTokenCount +
+                ", connectedDeviceCount=" + connectedDeviceCount +
+                ", registeredDeviceCount=" + registeredDeviceCount +
+                ", mode='" + mode + '\'' +
+                ", ssid='" + ssid + '\'' +
+                ", rssi=" + rssi +
+                ", systemTime=" + systemTime +
+                ", lastPingTime=" + lastPingTime +
+                ", pairShutdownScheduled=" + pairShutdownScheduled +
+                '}';
     }
 }
