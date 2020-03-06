@@ -1,3 +1,6 @@
+#ifndef devicedescriptor_h
+#define devicedescriptor_h
+
 struct DeviceDescriptor {
     
     String deviceId;
@@ -7,3 +10,5 @@ struct DeviceDescriptor {
     String type;
 
 };
+
+#endif

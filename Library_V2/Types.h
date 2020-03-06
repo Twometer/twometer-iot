@@ -1,5 +1,7 @@
 /* Device types per the Amazon Alexa IoT definition */
 /* https://developer.amazon.com/en-US/docs/alexa/device-apis/alexa-discovery.html#display-categories */
+#ifndef types_h
+#define types_h
 
 #define TYPE_ACTIVITY_TRIGGER 	"ACTIVITY_TRIGGER"
 #define TYPE_CAMERA 			"CAMERA"
@@ -35,3 +37,5 @@
 #define TYPE_THERMOSTAT 		"THERMOSTAT"
 #define TYPE_TV 				"TV"
 #define TYPE_WEARABLE 			"WEARABLE"
+
+#endif

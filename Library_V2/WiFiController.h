@@ -1,3 +1,6 @@
+#ifndef wificontroller_h
+#define wificontroller_h
+
 #include <ESP8266WiFi.h>
 #include <ESP8266HTTPClient.h>
 #include <ArduinoJson.h>
@@ -26,7 +29,7 @@ class WiFiController {
             EEPROM.begin(256);
             bool hasData = loadStorage();
 
-            Serial.println("Appliance id: " + desc.applianceId);
+            Serial.println("Device id: " + desc.deviceId);
 
             if (hasData) {
                 Serial.println("EEPROM has data, connecting...");
@@ -59,7 +62,7 @@ class WiFiController {
             if (lastWifiState != WL_CONNECTED && WiFi.status() == WL_CONNECTED) {
                 delay(1000);
                 Serial.println("WiFi Connection regained, reporting to bridge...");
-                Login();
+                login();
                 Serial.println("Done");
             } else if (lastWifiState == WL_CONNECTED && WiFi.status() != WL_CONNECTED) {
                 Serial.println("WiFi Connection lost");
@@ -176,3 +179,5 @@ class WiFiController {
             EEPROM.commit();
         }
 };
+
+#endif

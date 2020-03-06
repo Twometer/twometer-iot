@@ -1,3 +1,6 @@
+#ifndef httplib_h
+#define httplib_h
+
 struct HttpResponse {
     bool ok;
     int code;
@@ -53,3 +56,5 @@ HttpResponse http_get(String endpoint) {
     }
     return { false };
 }
+
+#endif
