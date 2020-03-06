@@ -164,6 +164,7 @@ class WiFiController {
                 return false;
 
             this->wifiKey = buf.read_string();
+            return true;
         }
 
         void saveStorage() {
