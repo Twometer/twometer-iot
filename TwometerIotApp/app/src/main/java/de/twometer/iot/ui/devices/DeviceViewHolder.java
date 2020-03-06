@@ -12,11 +12,13 @@ import de.twometer.iot.model.Device;
 
 class DeviceViewHolder extends RecyclerView.ViewHolder {
 
+    private View itemView;
     private TextView deviceNameLabel;
     private ImageView deviceImage;
 
     DeviceViewHolder(@NonNull View itemView) {
         super(itemView);
+        this.itemView = itemView;
         deviceNameLabel = itemView.findViewById(R.id.device_name_label);
         deviceImage = itemView.findViewById(R.id.device_image);
     }
@@ -26,4 +28,7 @@ class DeviceViewHolder extends RecyclerView.ViewHolder {
         deviceImage.setImageResource(device.getType().getImageRes());
     }
 
+    View getItemView() {
+        return itemView;
+    }
 }

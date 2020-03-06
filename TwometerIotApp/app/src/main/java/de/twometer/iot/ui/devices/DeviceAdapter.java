@@ -11,8 +11,12 @@ import java.util.List;
 
 import de.twometer.iot.R;
 import de.twometer.iot.model.Device;
+import de.twometer.iot.ui.util.OnItemClickListener;
+import de.twometer.iot.ui.util.OnItemClickListenerWrapper;
 
 public class DeviceAdapter extends RecyclerView.Adapter<DeviceViewHolder> {
+
+    private OnItemClickListenerWrapper<Device> listenerWrapper = new OnItemClickListenerWrapper<>();
 
     private List<Device> dataset;
 
@@ -27,8 +31,10 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull DeviceViewHolder holder, int position) {
         Device device = dataset.get(position);
-        if (device != null)
+        if (device != null) {
             holder.configure(device);
+            listenerWrapper.bind(holder.getItemView(), device);
+        }
     }
 
     @Override
@@ -39,6 +45,10 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceViewHolder> {
     void setDataset(List<Device> dataset) {
         this.dataset = dataset;
         notifyDataSetChanged();
+    }
+
+    void setOnItemClickListener(OnItemClickListener<Device> listener) {
+        listenerWrapper.set(listener);
     }
 
 }
