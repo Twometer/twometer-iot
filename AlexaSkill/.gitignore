@@ -1,0 +1,6 @@
+__pycache__/
+certifi/
+chardet/
+idna/
+requests/
+urllib3/
