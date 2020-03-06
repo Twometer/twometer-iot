@@ -12,7 +12,7 @@ public class RelayClient {
     private static final String UPSTREAM_TOKEN = "Rcddvfdnctvl8LU9a9LKOrilcfL859pSpnsRF11M";
 
     public static void main(String[] args) throws URISyntaxException, InterruptedException {
-        UpstreamClient upstreamClient = new UpstreamClient(new URI("ws://localhost:38668"));
+        UpstreamClient upstreamClient = new UpstreamClient(new URI("wss://iot.twometer.de/websocket"));
         upstreamClient.connect();
 
         upstreamClient.disconnectListener = () -> {

@@ -4,7 +4,7 @@ import json
 import uuid
 import requests
 
-RELAIS_SERVER = "https://iot.twometer.de/api/relais/"
+RELAIS_SERVER = "https://iot.twometer.de/api/relay/"
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
