@@ -116,7 +116,7 @@ class WiFiController {
         void registerDevice(DeviceDescriptor& desc) {
             Serial.println("Registering...");
 
-            int strLen =  desc.applianceId.length() + 1
+            int strLen =  desc.deviceId.length() + 1
                         + desc.modelName.length() + 1
                         + desc.manufacturer.length() + 1 
                         + desc.description.length() + 1 
@@ -125,8 +125,8 @@ class WiFiController {
                         + 64;
 
             DynamicJsonDocument doc(JSON_OBJECT_SIZE(5) + strLen);
-            doc["applianceId"] = desc.uuid;
-            doc["modelName"] = desc.name;
+            doc["deviceId"] = desc.deviceId;
+            doc["modelName"] = desc.modelName;
             doc["manufacturer"] = desc.manufacturer;
             doc["description"] = desc.description;
             doc["type"] = desc.type;

@@ -1,6 +1,6 @@
 struct DeviceDescriptor {
     
-    String applianceId;
+    String deviceId;
     String modelName;
     String manufacturer;
     String description;
