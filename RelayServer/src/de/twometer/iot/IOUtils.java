@@ -1,9 +1,9 @@
 package de.twometer.iot;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import com.sun.net.httpserver.HttpExchange;
+
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 
 public class IOUtils {
 
@@ -14,6 +14,18 @@ public class IOUtils {
         while ((line = reader.readLine()) != null)
             builder.append(line).append("\n");
         return builder.toString();
+    }
+
+    public static String wrapJsonResponse(String data) {
+        return "{\"status\": \"" + data + "\"}";
+    }
+
+    public static void send(HttpExchange e, int code, String data) throws IOException {
+        byte[] payload = data.getBytes(StandardCharsets.UTF_8);
+        e.sendResponseHeaders(code, payload.length);
+        OutputStream stream = e.getResponseBody();
+        stream.write(payload);
+        stream.close();
     }
 
 }
