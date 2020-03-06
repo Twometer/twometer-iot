@@ -2,6 +2,7 @@ package de.twometer.iot;
 
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.URI;
@@ -11,7 +12,7 @@ public class RelayClient {
 
     private static final String UPSTREAM_TOKEN = "Rcddvfdnctvl8LU9a9LKOrilcfL859pSpnsRF11M";
 
-    public static void main(String[] args) throws URISyntaxException, InterruptedException {
+    public static void main(String[] args) throws URISyntaxException {
         UpstreamClient upstreamClient = new UpstreamClient(new URI("wss://iot.twometer.de/websocket"));
         upstreamClient.connect();
 
@@ -24,7 +25,7 @@ public class RelayClient {
             }
             try {
                 main(args);
-            } catch (URISyntaxException | InterruptedException e) {
+            } catch (URISyntaxException e) {
                 e.printStackTrace();
             }
         };
@@ -34,7 +35,33 @@ public class RelayClient {
         System.out.println("Handling message:");
         System.out.println(" " + message);
 
-        return message;
+        try {
+            JSONObject object = new JSONObject(message).getJSONObject("directive");
+            JSONObject header = object.getJSONObject("header");
+
+            String namespace = header.getString("namespace");
+            String name = header.getString("name");
+            String payloadVersion = header.getString("payloadVersion");
+
+            if (!payloadVersion.equals("3")) {
+                System.err.println(" ERR: Invalid payload version " + payloadVersion);
+                return "";
+            }
+
+            return handleMessage(namespace, name, object.getJSONObject("payload"));
+
+        } catch (JSONException e) {
+            System.out.println(" ERR: Message was malformed");
+            e.printStackTrace();
+            return "{\"error\": \"malformed_request\"}";
+        }
+    }
+
+    private static String handleMessage(String namespace, String name, JSONObject payload) {
+        if (namespace.equals("Alexa.Discovery") && name.equals("Discover")) {
+            // TODO Discovery reply
+        }
+        return null;
     }
 
     private static class UpstreamClient extends WebSocketClient {
