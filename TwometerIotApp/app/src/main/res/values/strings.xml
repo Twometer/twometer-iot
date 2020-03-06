@@ -23,5 +23,12 @@
     <string name="item_sys_time">System time</string>
     <string name="item_last_ping">Last ping wave</string>
     <string name="item_pair_exit_req">Pair shutdown scheduled</string>
+
+    <string name="device_lights_generic">Generic light</string>
+    <string name="device_lights_stripe">LED stripe</string>
+    <string name="device_switch_generic">Generic switch</string>
+    <string name="device_switch_multi">Multi switch bar</string>
+    <string name="device_button_generic">Generic button</string>
+    <string name="device_button_multi">Multi button bar</string>
 </resources>
 
