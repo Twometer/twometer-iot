@@ -67,3 +67,18 @@ Discovery:
 To discover a bridge in the network, send a UDP broadcast to your subnet (e.g. 192.168.1.255)
 on port 38711 consisting of the bytes "0x00 0x42 0x69". The bridge will reply to you with its
 IP address formatted as an ASCII string (e.g. 192.168.1.123).
+
+
+Alexa Integration:
+==================
+
+Alexa integration is done using the relay and the AlexaSkill. Communication is as following:
+
+Alexa => AlexaSkill (AWS Lambda) => RelayServer (Dedicated Server) => RelayClient (Translator
+ within IoT network) => Bridge (ESP8266)
+
+Reasons for this complicated stuff:
+- The AWS lambda is required because Alexa skills REQUIRE an AWS Lambda as backend
+- The RelayServer is required to avoid port forwarding in the local network
+- The RelayClient is required because I can't run it directly on the ESP8266 because it does
+  not have enough cores for a server and a client (single-core system)
