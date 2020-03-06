@@ -1,5 +1,7 @@
 package de.twometer.iot;
 
+import de.twometer.iot.handler.DiscoveryHandler;
+import de.twometer.iot.handler.IHandler;
 import de.twometer.iot.net.BridgeClient;
 import de.twometer.iot.net.BridgeDiscovery;
 import org.java_websocket.client.WebSocketClient;
@@ -10,6 +12,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Objects;
 
 public class RelayClient {
 
@@ -18,6 +21,10 @@ public class RelayClient {
     private static String bridgeUrl;
 
     private static BridgeClient client;
+
+    private static IHandler[] handlers = new IHandler[]{
+            new DiscoveryHandler()
+    };
 
     public static void main(String[] args) throws URISyntaxException, IOException {
         if (bridgeUrl == null) {
@@ -72,10 +79,13 @@ public class RelayClient {
     }
 
     private static String handleMessage(String namespace, String name, JSONObject payload) {
-        if (namespace.equals("Alexa.Discovery") && name.equals("Discover")) {
-            // TODO Discovery reply
+        for (IHandler handler : handlers) {
+            if (Objects.equals(handler.getNamespace(), namespace)) {
+                return handler.handle(name, payload, client);
+            }
         }
-        return null;
+        System.out.println("Couldn't figure out how to handle " + namespace + "::" + name);
+        return "{\"error\": \"unknown_action\"}";
     }
 
     private static class UpstreamClient extends WebSocketClient {
