@@ -31,6 +31,9 @@ public class RelayClient {
     }
 
     private static String handleMessage(String message) {
+        System.out.println("Handling message:");
+        System.out.println(" " + message);
+
         return message;
     }
 
@@ -65,8 +68,6 @@ public class RelayClient {
                 replyObject.put("response", reply);
                 send(replyObject.toString());
             }
-
-            System.out.println("message: " + s);
         }
 
         @Override
