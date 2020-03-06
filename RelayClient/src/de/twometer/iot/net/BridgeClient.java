@@ -2,6 +2,7 @@ package de.twometer.iot.net;
 
 import de.twometer.iot.json.JSONDeserializer;
 import de.twometer.iot.model.Device;
+import de.twometer.iot.model.IValue;
 import okhttp3.*;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -39,6 +40,14 @@ public class BridgeClient {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public IValue getProperty(String deviceId, String property) {
+
+    }
+
+    public void setProperty(String deviceId, String property, IValue value) {
+
     }
 
     private String doGet(String url) throws IOException {
