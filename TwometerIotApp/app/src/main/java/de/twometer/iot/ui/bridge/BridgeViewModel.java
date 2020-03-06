@@ -15,14 +15,24 @@ public class BridgeViewModel extends ViewModel {
 
     public BridgeViewModel() {
         bridgeData = new MutableLiveData<>();
-        new DataFetcher().execute();
+        refresh();
     }
 
     LiveData<DebugInfo> getBridgeData() {
         return bridgeData;
     }
 
-    private class DataFetcher extends AsyncTask<Void, Void, DebugInfo> {
+    void refresh() {
+        new DataFetcher(bridgeData).execute();
+    }
+
+    private static class DataFetcher extends AsyncTask<Void, Void, DebugInfo> {
+
+        private MutableLiveData<DebugInfo> bridgeData;
+
+        DataFetcher(MutableLiveData<DebugInfo> bridgeData) {
+            this.bridgeData = bridgeData;
+        }
 
         @Override
         protected DebugInfo doInBackground(Void... voids) {

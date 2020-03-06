@@ -35,7 +35,9 @@ public class IoTContext {
 
         backgroundHandler.post(() -> {
             try {
+                Log.i(TAG, "Discovering bridge...");
                 bridge = new Bridge(BridgeDiscovery.discover(context));
+                Log.i(TAG, "Discovered. Connecting...");
                 client = new ApiClient(bridge);
                 client.loadBridgeInfo();
                 Log.i(TAG, "Connected to IoT bridge");

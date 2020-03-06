@@ -17,6 +17,7 @@ struct DeviceDescriptor {
     buf.write_string(type);
     buf.write_string(manufacturer);
     buf.write_string(role);
+    buf.write_string(friendlyName);
   }
 
   void read(StorageBuf& buf) {
@@ -25,6 +26,7 @@ struct DeviceDescriptor {
     type = buf.read_string();
     manufacturer = buf.read_string();
     role = buf.read_string();
+    friendlyName = buf.read_string();
   }
 
   bool operator==(const DeviceDescriptor& b) {

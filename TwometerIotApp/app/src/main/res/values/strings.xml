@@ -11,6 +11,17 @@
     <string name="menu_gallery">Devices</string>
     <string name="menu_slideshow">Commands</string>
     <string name="menu_tools">Bridge</string>
-    <string name="menu_share">Share</string>
-    <string name="menu_send">Send</string>
+
+    <string name="item_name">Name</string>
+    <string name="item_version">Version</string>
+    <string name="item_registry_tokens">Registry tokens</string>
+    <string name="item_connected_devices">Connected devices</string>
+    <string name="item_registered_devices">Registered devices</string>
+    <string name="item_mode">Mode</string>
+    <string name="item_wifi_ssid">WiFi SSID</string>
+    <string name="item_wifi_rssi">WiFi RSSI</string>
+    <string name="item_sys_time">System time</string>
+    <string name="item_last_ping">Last ping wave</string>
+    <string name="item_pair_exit_req">Pair shutdown scheduled</string>
 </resources>
+
