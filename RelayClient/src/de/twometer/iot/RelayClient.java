@@ -1,10 +1,12 @@
 package de.twometer.iot;
 
+import de.twometer.iot.net.BridgeDiscovery;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -12,7 +14,15 @@ public class RelayClient {
 
     private static final String UPSTREAM_TOKEN = "Rcddvfdnctvl8LU9a9LKOrilcfL859pSpnsRF11M";
 
-    public static void main(String[] args) throws URISyntaxException {
+    private static String bridgeUrl;
+
+    public static void main(String[] args) throws URISyntaxException, IOException {
+        if (bridgeUrl == null) {
+            System.out.println("Discovering IoT bridge...");
+            bridgeUrl = String.format("http://%s/", BridgeDiscovery.discover());
+            System.out.println("Discovered: " + bridgeUrl);
+        }
+
         UpstreamClient upstreamClient = new UpstreamClient(new URI("wss://iot.twometer.de/websocket"));
         upstreamClient.connect();
 
@@ -25,7 +35,7 @@ public class RelayClient {
             }
             try {
                 main(args);
-            } catch (URISyntaxException e) {
+            } catch (URISyntaxException | IOException e) {
                 e.printStackTrace();
             }
         };
