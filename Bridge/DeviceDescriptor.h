@@ -4,33 +4,33 @@
    Describes a registered device
 */
 struct DeviceDescriptor {
-  String uuid;
-  String name;
-  String type;
+  String deviceId;
+  String modelName;
   String manufacturer;
-  String role;
+  String description;
+  String type;
   String friendlyName;
 
   void write(StorageBuf& buf) {
-    buf.write_string(uuid);
-    buf.write_string(name);
-    buf.write_string(type);
+    buf.write_string(deviceId);
+    buf.write_string(modelName);
     buf.write_string(manufacturer);
-    buf.write_string(role);
+    buf.write_string(description);
+    buf.write_string(type);
     buf.write_string(friendlyName);
   }
 
   void read(StorageBuf& buf) {
-    uuid = buf.read_string();
-    name = buf.read_string();
-    type = buf.read_string();
+    deviceId = buf.read_string();
+    modelName = buf.read_string();
     manufacturer = buf.read_string();
-    role = buf.read_string();
+    description = buf.read_string();
+    type = buf.read_string();
     friendlyName = buf.read_string();
   }
 
   bool operator==(const DeviceDescriptor& b) {
-    return this->uuid == b.uuid;
+    return this->deviceId == b.deviceId;
   }
 };
 
@@ -53,19 +53,21 @@ DeviceDescriptor parseDeviceDescriptor(String str) {
   StaticJsonDocument<JSON_OBJECT_SIZE(4)> doc;
   deserializeJson(doc, str);
 
-  String uuid = doc["uuid"];
-  String name = doc["name"];
-  String type = doc["type"];
+  String deviceId = doc["deviceId"];
+  String modelName = doc["modelName"];
   String manufacturer = doc["manufacturer"];
+  String description = doc["description"];
+  String type = doc["type"];
 
-  return { uuid, name, type, manufacturer, "", "" };
+  return { deviceId, modelName, manufacturer, description, type, "" };
 }
 
 DeviceDescriptor parseDeviceDescriptor(DynamicJsonDocument doc) {
-  String uuid = doc["uuid"];
-  String name = doc["name"];
-  String type = doc["type"];
+  String deviceId = doc["deviceId"];
+  String modelName = doc["modelName"];
   String manufacturer = doc["manufacturer"];
+  String description = doc["description"];
+  String type = doc["type"];
 
-  return { uuid, name, type, manufacturer, "", "" };
+  return { deviceId, modelName, manufacturer, description, type, "" };
 }

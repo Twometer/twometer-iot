@@ -46,7 +46,7 @@ ConnectedDevice* findDevice(String id) {
 
 bool isOk(String reply) {
   if (reply == "") return false;
-  StaticJsonDocument<JSON_OBJECT_SIZE(1) + 32> doc;
+  StaticJsonDocument < JSON_OBJECT_SIZE(1) + 32 > doc;
   DeserializationError err = deserializeJson(doc, reply);
   if (err != DeserializationError::Ok || doc["status"] != "ok")
     return false;
@@ -90,7 +90,7 @@ bool checkToken(String token) {
 
 bool deviceExists(String uuid) {
   for (DeviceDescriptor& desc : STORAGE.devices)
-    if (desc.uuid == uuid)
+    if (desc.deviceId == uuid)
       return true;
   return false;
 }
@@ -269,7 +269,7 @@ void setup() {
     bool found = false;
 
     for (DeviceDescriptor &desc : STORAGE.devices)
-      if (desc.uuid == devId) {
+      if (desc.deviceId == devId) {
         desc.friendlyName = name;
         found = true;
       }
@@ -299,7 +299,7 @@ void setup() {
       badGateway("{\"status\": \"device_offline\"}");
       return;
     }
-    String url = "http://" + dev->ip + "/" + prop;
+    String url = "http://" + dev->ip + "/set?prop=" + prop;
     HttpResponse response = http_put(url, payload);
 
     if (response.code == 200)
@@ -308,8 +308,32 @@ void setup() {
       badGateway(response.data);
   });
 
-  // Get device properties
-  httpServer.on("/prop", HTTP_GET, []() {
+  // Get a property from a device
+  httpServer.on("/get", HTTP_GET, []() {
+    if (!httpServer.hasArg("id") || !httpServer.hasArg("prop")) {
+      badRequest();
+      return;
+    }
+
+    String devId = httpServer.arg("id");
+    String prop = httpServer.arg("prop");
+
+    ConnectedDevice* dev = findDevice(devId);
+    if (dev == NULL) {
+      badGateway("{\"status\": \"device_offline\"}");
+      return;
+    }
+    String url = "http://" + dev->ip + "/get?prop=" + prop;
+    HttpResponse response = http_get(url);
+
+    if (response.code == 200)
+      ok();
+    else
+      badGateway(response.data);
+  });
+
+  // Get device capabilities
+  httpServer.on("/capabilities", HTTP_GET, []() {
     if (!httpServer.hasArg("id")) {
       badRequest();
       return;
@@ -323,7 +347,7 @@ void setup() {
       badGateway("{\"status\": \"device_offline\"}");
       return;
     }
-    String url = "http://" + dev->ip + "/prop";
+    String url = "http://" + dev->ip + "/capabilities";
     String response = request(url);
     if (response == "") {
       badGateway("{\"status\": \"device_offline\"}");
@@ -338,15 +362,19 @@ void setup() {
 
   // List all devices
   httpServer.on("/devices", HTTP_GET, []() {
-    DynamicJsonDocument doc(200 * STORAGE.devices.size());
+    DynamicJsonDocument doc(256 * STORAGE.devices.size());
     for (DeviceDescriptor& device : STORAGE.devices) {
       JsonObject obj = doc.createNestedObject();
-      obj["uuid"] = device.uuid;
-      obj["name"] = device.name;
-      obj["type"] = device.type;
+      obj["deviceId"] = device.deviceId;
+      obj["modelName"] = device.modelName;
       obj["manufacturer"] = device.manufacturer;
+      obj["description"] = device.description;
+      obj["type"] = device.type;
       if (device.friendlyName != "")
         obj["friendly_name"] = device.friendlyName;
+        
+      bool isOnline = findDevice(device.deviceId) != NULL;
+      obj["online"] = isOnline;
     }
     ok(doc.as<String>());
   });
