@@ -14,7 +14,7 @@
 #define UDP_PORT 38711
 
 const char* NAME = "Twometer IoT Bridge";
-const char* VERSION = "0.1.0";
+const char* VERSION = "2.0.1";
 
 unsigned long long lastCheck = 0;
 bool schedule_exit_pair = false;
@@ -235,7 +235,7 @@ void setup() {
   httpServer.on("/register", HTTP_POST, []() {
     String body = httpServer.arg("plain");
 
-    DynamicJsonDocument doc(JSON_OBJECT_SIZE(5) + 150);
+    DynamicJsonDocument doc(JSON_OBJECT_SIZE(6) + 256);
     DeserializationError err = deserializeJson(doc, body);
     if (err != DeserializationError::Ok) {
       badRequest();
@@ -300,10 +300,10 @@ void setup() {
       return;
     }
     String url = "http://" + dev->ip + "/set?prop=" + prop;
-    HttpResponse response = http_put(url, payload);
+    HttpResponse response = http_post(url, payload);
 
     if (response.code == 200)
-      ok();
+      ok(response.data);
     else
       badGateway(response.data);
   });
@@ -327,7 +327,7 @@ void setup() {
     HttpResponse response = http_get(url);
 
     if (response.code == 200)
-      ok();
+      ok(response.data);
     else
       badGateway(response.data);
   });
@@ -348,16 +348,13 @@ void setup() {
       return;
     }
     String url = "http://" + dev->ip + "/capabilities";
-    String response = request(url);
-    if (response == "") {
+    HttpResponse response = http_get(url);
+    if (response.code != 200) {
       badGateway("{\"status\": \"device_offline\"}");
       return;
     }
 
-    if (isOk(response))
-      ok(response);
-    else
-      badGateway(response);
+    ok(response.data);
   });
 
   // List all devices
