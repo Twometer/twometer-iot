@@ -1,5 +1,6 @@
 package de.twometer.iot;
 
+import de.twometer.iot.net.BridgeClient;
 import de.twometer.iot.net.BridgeDiscovery;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
@@ -16,10 +17,13 @@ public class RelayClient {
 
     private static String bridgeUrl;
 
+    private static BridgeClient client;
+
     public static void main(String[] args) throws URISyntaxException, IOException {
         if (bridgeUrl == null) {
             System.out.println("Discovering IoT bridge...");
-            bridgeUrl = String.format("http://%s/", BridgeDiscovery.discover());
+            bridgeUrl = "http://" + BridgeDiscovery.discover();
+            client = new BridgeClient(bridgeUrl);
             System.out.println("Discovered: " + bridgeUrl);
         }
 

@@ -19,6 +19,9 @@ public class Device {
     @JSONName("type")
     private String type;
 
+    @JSONName("online")
+    private boolean online;
+
     public String getDeviceId() {
         return deviceId;
     }
@@ -59,6 +62,14 @@ public class Device {
         this.type = type;
     }
 
+    public boolean isOnline() {
+        return online;
+    }
+
+    public void setOnline(boolean online) {
+        this.online = online;
+    }
+
     @Override
     public String toString() {
         return "Device{" +
@@ -67,7 +78,7 @@ public class Device {
                 ", manufacturer='" + manufacturer + '\'' +
                 ", description='" + description + '\'' +
                 ", type='" + type + '\'' +
+                ", online=" + online +
                 '}';
     }
-
 }

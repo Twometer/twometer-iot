@@ -6,8 +6,7 @@ import java.lang.reflect.Field;
 
 public class JSONDeserializer {
 
-    public static <T> T deserialize(Class<T> clazz, String json) {
-        JSONObject object = new JSONObject(json);
+    public static <T> T deserialize(Class<T> clazz, JSONObject object) {
         try {
             T obj = clazz.newInstance();
 
