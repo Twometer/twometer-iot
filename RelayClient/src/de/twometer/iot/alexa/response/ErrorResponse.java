@@ -1,6 +1,7 @@
 package de.twometer.iot.alexa.response;
 
 import de.twometer.iot.alexa.model.ErrorType;
+import de.twometer.iot.handler.Request;
 import org.json.JSONObject;
 
 import java.util.UUID;
@@ -14,9 +15,9 @@ public class ErrorResponse implements IResponse {
     private ErrorType errorType;
     private String errorMessage;
 
-    public ErrorResponse(String correlationToken, String endpointId, ErrorType errorType, String errorMessage) {
-        this.correlationToken = correlationToken;
-        this.endpointId = endpointId;
+    public ErrorResponse(Request request, ErrorType errorType, String errorMessage) {
+        this.correlationToken = request.getCorrelationToken();
+        this.endpointId = request.getEndpoint();
         this.errorType = errorType;
         this.errorMessage = errorMessage;
     }

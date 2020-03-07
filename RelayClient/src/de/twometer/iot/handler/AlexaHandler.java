@@ -29,7 +29,7 @@ public class AlexaHandler implements IHandler {
         }
 
         System.out.println("Cannot handle Alexa::" + request.getAction());
-        return new ErrorResponse(request.getCorrelationToken(), request.getEndpoint(), ErrorType.INVALID_DIRECTIVE, "Cannot handle directive Alexa::" + request.getAction());
+        return new ErrorResponse(request, ErrorType.INVALID_DIRECTIVE, "Cannot handle directive Alexa::" + request.getAction());
     }
 
     private Object unwrap(JSONObject object) {

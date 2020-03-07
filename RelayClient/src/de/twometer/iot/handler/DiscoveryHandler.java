@@ -42,7 +42,7 @@ public class DiscoveryHandler implements IHandler {
             return new GenericResponse(request.getCorrelationToken(), getNamespace(), "Discover.Response", newObject().put("endpoints", new JSONArray(new ObjectMapper().writeValueAsString(endpoints))).object());
         } catch (JsonProcessingException e) {
             e.printStackTrace();
-            return new ErrorResponse(request.getCorrelationToken(), request.getEndpoint(), ErrorType.INTERNAL_ERROR, e.toString());
+            return new ErrorResponse(request, ErrorType.INTERNAL_ERROR, e.toString());
         }
 
 

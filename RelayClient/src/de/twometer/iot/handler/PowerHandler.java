@@ -18,7 +18,7 @@ public class PowerHandler implements IHandler {
         if (ok)
             return new StateResponse(request.getCorrelationToken(), getNamespace(), "powerState", newState);
         else
-            return new ErrorResponse(request.getCorrelationToken(), request.getEndpoint(), ErrorType.ENDPOINT_UNREACHABLE, "Failed to set value on endpoint");
+            return new ErrorResponse(request, ErrorType.ENDPOINT_UNREACHABLE, "Failed to set value on endpoint");
     }
 
     @Override

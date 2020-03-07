@@ -36,7 +36,7 @@ public abstract class SimpleHandler implements IHandler {
         if (ok)
             return new StateResponse(request.getCorrelationToken(), getNamespace(), alexaPropertyName, data);
         else
-            return new ErrorResponse(request.getCorrelationToken(), request.getEndpoint(), ErrorType.ENDPOINT_UNREACHABLE, "Failed to set value on endpoint");
+            return new ErrorResponse(request, ErrorType.ENDPOINT_UNREACHABLE, "Failed to set value on endpoint");
     }
 
     public enum ValueType {
