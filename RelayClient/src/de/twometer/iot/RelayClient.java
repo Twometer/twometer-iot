@@ -76,8 +76,8 @@ public class RelayClient {
                 return "";
             }
 
-            String epId = object.getJSONObject("endpoint").getString("endpointId");
-            Request request = new Request(name, epId, instance, corToken, object.getJSONObject("payload"));
+            String endpoint = object.has("endpoint") ? object.getJSONObject("endpoint").getString("endpointId") : "";
+            Request request = new Request(name, endpoint, instance, corToken, object.getJSONObject("payload"));
 
             return handleMessage(namespace, request);
 
