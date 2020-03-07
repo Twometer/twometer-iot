@@ -32,9 +32,6 @@ public class RelayClient {
             bridgeUrl = "http://" + BridgeDiscovery.discover();
             client = new BridgeClient(bridgeUrl);
             System.out.println("Discovered: " + bridgeUrl);
-
-            System.out.println(new DiscoveryHandler().handle(null, null, client).toJson().toString(4));
-
         }
 
         UpstreamClient upstreamClient = new UpstreamClient(new URI("wss://iot.twometer.de/websocket"));
