@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static de.twometer.iot.handler.PropertyMapper.getInterfaceName;
+import static de.twometer.iot.handler.PropertyMapper.getControllerName;
 import static de.twometer.iot.handler.PropertyMapper.getPropertyName;
 import static de.twometer.iot.json.JSONStatic.newObject;
 
@@ -46,7 +46,7 @@ public class DiscoveryHandler implements IHandler {
     private Capability convert(Property property) {
         Capability capability = new Capability();
         capability.setType("AlexaInterface");
-        capability.set_interface(getInterfaceName(property));
+        capability.set_interface(getControllerName(property));
         capability.setVersion("3");
         capability.setInstance(property.getName());
         capability.setProperties(new Capability.Properties(new Capability.Properties.SupportedProperty[]{new Capability.Properties.SupportedProperty(getPropertyName(property))}));

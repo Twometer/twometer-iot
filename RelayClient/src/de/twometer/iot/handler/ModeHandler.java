@@ -12,8 +12,10 @@ public class ModeHandler implements IHandler {
     @Override
     public IResponse handle(Request request, BridgeClient client) {
         String mode = request.getPayload().getString("mode");
-        boolean ok = client.setProperty(request.getEndpoint(), "TV.InputChannel", new SimpleValue<>("mode", mode));
-        if (ok) return new StateUpdateResponse(request.getCorrelationToken(), getNamespace(), "TV.InputChannel", mode);
+        boolean ok = client.setProperty(request.getEndpoint(), request.getInstance(), new SimpleValue<>("mode", mode));
+
+        if (ok)
+            return new StateUpdateResponse(request.getCorrelationToken(), getNamespace(), request.getInstance(), mode);
         else
             return new ErrorResponse(request.getCorrelationToken(), request.getEndpoint(), ErrorType.ENDPOINT_UNREACHABLE, "Failed to set value on endpoint");
     }

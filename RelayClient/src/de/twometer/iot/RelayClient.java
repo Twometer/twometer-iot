@@ -67,6 +67,7 @@ public class RelayClient {
             String name = header.getString("name");
             String payloadVersion = header.getString("payloadVersion");
             String corToken = header.optString("correlationToken");
+            String instance = header.optString("instance");
 
             if (!payloadVersion.equals("3")) {
                 System.err.println(" ERR: Invalid payload version " + payloadVersion);
@@ -74,7 +75,7 @@ public class RelayClient {
             }
 
             String epId = object.getJSONObject("endpoint").getString("endpointId");
-            Request request = new Request(name, epId, corToken, object.getJSONObject("payload"));
+            Request request = new Request(name, epId, instance, corToken, object.getJSONObject("payload"));
 
             return handleMessage(namespace, request);
 

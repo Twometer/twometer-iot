@@ -20,7 +20,7 @@ public class AlexaHandler implements IHandler {
             List<StateUpdateResponse.PropertyItem> values = new ArrayList<>();
             for (Property property : properties) {
                 JSONObject value = client.getProperty(request.getEndpoint(), property.getName());
-                String namespace = PropertyMapper.getInterfaceName(property);
+                String namespace = PropertyMapper.getControllerName(property);
                 String propName = PropertyMapper.getPropertyName(property);
                 values.add(new StateUpdateResponse.PropertyItem(namespace, propName, unwrap(value)));
             }
