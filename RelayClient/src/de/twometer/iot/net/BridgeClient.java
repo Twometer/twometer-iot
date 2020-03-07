@@ -77,12 +77,31 @@ public class BridgeClient {
         }
     }
 
-    public IValue getProperty(String deviceId, String property) {
-        return null;
+    public JSONObject getProperty(String deviceId, String property) {
+        try {
+            return new JSONObject(doGet(bridgeUrl + "/get?id=" + deviceId + "&prop=" + property));
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
-    public void setProperty(String deviceId, String property, IValue value) {
+    public boolean setProperty(String deviceId, String property, IValue value) {
+        try {
+            String url = bridgeUrl + "/set?id=" + deviceId + "&prop=" + property;
+            return isOk(doPost(url, value.toJson().toString()));
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 
+    private boolean isOk(String reply) {
+        try {
+            return new JSONObject(reply).getString("status").equals("ok");
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     private String doGet(String url) throws IOException {
