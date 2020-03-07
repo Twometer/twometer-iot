@@ -1,4 +1,4 @@
-package de.twometer.iot.model;
+package de.twometer.iot.bridge;
 
 public class Property {
 

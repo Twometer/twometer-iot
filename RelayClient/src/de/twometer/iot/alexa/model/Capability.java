@@ -1,4 +1,4 @@
-package de.twometer.iot.alexa;
+package de.twometer.iot.alexa.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

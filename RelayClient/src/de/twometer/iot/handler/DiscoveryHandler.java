@@ -2,10 +2,15 @@ package de.twometer.iot.handler;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.twometer.iot.alexa.*;
-import de.twometer.iot.model.Device;
-import de.twometer.iot.model.ModeProperty;
-import de.twometer.iot.model.Property;
+import de.twometer.iot.alexa.model.Capability;
+import de.twometer.iot.alexa.model.Endpoint;
+import de.twometer.iot.alexa.model.ErrorType;
+import de.twometer.iot.alexa.response.ErrorResponse;
+import de.twometer.iot.alexa.response.GenericResponse;
+import de.twometer.iot.alexa.response.IResponse;
+import de.twometer.iot.bridge.Device;
+import de.twometer.iot.bridge.ModeProperty;
+import de.twometer.iot.bridge.Property;
 import de.twometer.iot.net.BridgeClient;
 import org.json.JSONArray;
 
@@ -13,7 +18,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static de.twometer.iot.handler.PropertyMapper.getControllerName;
 import static de.twometer.iot.handler.PropertyMapper.getPropertyName;
 import static de.twometer.iot.json.JSONStatic.newObject;
 
@@ -46,7 +50,7 @@ public class DiscoveryHandler implements IHandler {
     private Capability convert(Property property) {
         Capability capability = new Capability();
         capability.setType("AlexaInterface");
-        capability.set_interface(getControllerName(property));
+        capability.set_interface(PropertyMapper.getPropertyNamespace(property));
         capability.setVersion("3");
         capability.setInstance(property.getName());
         capability.setProperties(new Capability.Properties(new Capability.Properties.SupportedProperty[]{new Capability.Properties.SupportedProperty(getPropertyName(property))}));

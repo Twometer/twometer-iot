@@ -1,10 +1,10 @@
 package de.twometer.iot.handler;
 
-import de.twometer.iot.alexa.ErrorResponse;
-import de.twometer.iot.alexa.ErrorType;
-import de.twometer.iot.alexa.IResponse;
-import de.twometer.iot.alexa.StateUpdateResponse;
-import de.twometer.iot.model.values.SimpleValue;
+import de.twometer.iot.alexa.model.ErrorType;
+import de.twometer.iot.alexa.response.ErrorResponse;
+import de.twometer.iot.alexa.response.IResponse;
+import de.twometer.iot.alexa.response.StateResponse;
+import de.twometer.iot.bridge.values.SimpleValue;
 import de.twometer.iot.net.BridgeClient;
 
 public class ModeHandler implements IHandler {
@@ -15,7 +15,7 @@ public class ModeHandler implements IHandler {
         boolean ok = client.setProperty(request.getEndpoint(), request.getInstance(), new SimpleValue<>("mode", mode));
 
         if (ok)
-            return new StateUpdateResponse(request.getCorrelationToken(), getNamespace(), request.getInstance(), mode);
+            return new StateResponse(request.getCorrelationToken(), getNamespace(), request.getInstance(), mode);
         else
             return new ErrorResponse(request.getCorrelationToken(), request.getEndpoint(), ErrorType.ENDPOINT_UNREACHABLE, "Failed to set value on endpoint");
     }

@@ -1,6 +1,6 @@
-package de.twometer.iot.model.values;
+package de.twometer.iot.bridge.values;
 
-import de.twometer.iot.model.IValue;
+import de.twometer.iot.bridge.IValue;
 import org.json.JSONObject;
 
 public class JsonValue implements IValue {

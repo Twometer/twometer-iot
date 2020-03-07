@@ -1,10 +1,10 @@
 package de.twometer.iot.net;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.twometer.iot.model.Device;
-import de.twometer.iot.model.IValue;
-import de.twometer.iot.model.ModeProperty;
-import de.twometer.iot.model.Property;
+import de.twometer.iot.bridge.Device;
+import de.twometer.iot.bridge.IValue;
+import de.twometer.iot.bridge.ModeProperty;
+import de.twometer.iot.bridge.Property;
 import okhttp3.*;
 import org.json.JSONArray;
 import org.json.JSONException;

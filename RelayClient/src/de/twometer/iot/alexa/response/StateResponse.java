@@ -1,4 +1,4 @@
-package de.twometer.iot.alexa;
+package de.twometer.iot.alexa.response;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -11,20 +11,20 @@ import java.util.TimeZone;
 
 import static de.twometer.iot.json.JSONStatic.newObject;
 
-public class StateUpdateResponse implements IResponse {
+public class StateResponse implements IResponse {
 
     private String correlationToken;
     private String eventName;
 
     private List<PropertyItem> itemList = new ArrayList<>();
 
-    public StateUpdateResponse(String correlationToken, String namespace, String propertyName, Object propertyValue) {
+    public StateResponse(String correlationToken, String namespace, String propertyName, Object propertyValue) {
         this.correlationToken = correlationToken;
         this.eventName = "Response"; // Default event name
         itemList.add(new PropertyItem(namespace, propertyName, propertyValue));
     }
 
-    public StateUpdateResponse(String correlationToken, String eventName, List<PropertyItem> itemList) {
+    public StateResponse(String correlationToken, String eventName, List<PropertyItem> itemList) {
         this.correlationToken = correlationToken;
         this.eventName = eventName;
         this.itemList = itemList;

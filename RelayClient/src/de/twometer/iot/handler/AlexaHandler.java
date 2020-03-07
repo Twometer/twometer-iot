@@ -1,10 +1,10 @@
 package de.twometer.iot.handler;
 
-import de.twometer.iot.alexa.ErrorResponse;
-import de.twometer.iot.alexa.ErrorType;
-import de.twometer.iot.alexa.IResponse;
-import de.twometer.iot.alexa.StateUpdateResponse;
-import de.twometer.iot.model.Property;
+import de.twometer.iot.alexa.model.ErrorType;
+import de.twometer.iot.alexa.response.ErrorResponse;
+import de.twometer.iot.alexa.response.IResponse;
+import de.twometer.iot.alexa.response.StateResponse;
+import de.twometer.iot.bridge.Property;
 import de.twometer.iot.net.BridgeClient;
 import org.json.JSONObject;
 
@@ -17,14 +17,14 @@ public class AlexaHandler implements IHandler {
     public IResponse handle(Request request, BridgeClient client) {
         if (request.getAction().equals("ReportState")) {
             List<Property> properties = client.getProperties(request.getEndpoint());
-            List<StateUpdateResponse.PropertyItem> values = new ArrayList<>();
+            List<StateResponse.PropertyItem> values = new ArrayList<>();
             for (Property property : properties) {
                 JSONObject value = client.getProperty(request.getEndpoint(), property.getName());
-                String namespace = PropertyMapper.getControllerName(property);
+                String namespace = PropertyMapper.getPropertyNamespace(property);
                 String propName = PropertyMapper.getPropertyName(property);
-                values.add(new StateUpdateResponse.PropertyItem(namespace, propName, unwrap(value)));
+                values.add(new StateResponse.PropertyItem(namespace, propName, unwrap(value)));
             }
-            return new StateUpdateResponse(request.getCorrelationToken(), "StateReport", values);
+            return new StateResponse(request.getCorrelationToken(), "StateReport", values);
         }
 
         System.out.println("Cannot handle Alexa::" + request.getAction());

@@ -1,7 +1,7 @@
 package de.twometer.iot.handler;
 
-import de.twometer.iot.model.ModeProperty;
-import de.twometer.iot.model.Property;
+import de.twometer.iot.bridge.ModeProperty;
+import de.twometer.iot.bridge.Property;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,11 +23,11 @@ public class PropertyMapper {
         return findMapping(property).alexaProperty;
     }
 
-    public static String getControllerName(Property property) {
+    public static String getPropertyNamespace(Property property) {
         if (property instanceof ModeProperty)
             return "Alexa.ModeController";
 
-        return findMapping(property).alexaController;
+        return findMapping(property).alexaNamespace;
     }
 
     private static Mapping findMapping(Property property) {
@@ -44,12 +44,12 @@ public class PropertyMapper {
 
     private static class Mapping {
         private String propertyName;
-        private String alexaController;
+        private String alexaNamespace;
         private String alexaProperty;
 
-        public Mapping(String propertyName, String alexaController, String alexaProperty) {
+        public Mapping(String propertyName, String alexaNamespace, String alexaProperty) {
             this.propertyName = propertyName;
-            this.alexaController = alexaController;
+            this.alexaNamespace = alexaNamespace;
             this.alexaProperty = alexaProperty;
         }
     }

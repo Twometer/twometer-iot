@@ -1,6 +1,6 @@
 package de.twometer.iot.handler;
 
-import de.twometer.iot.alexa.IResponse;
+import de.twometer.iot.alexa.response.IResponse;
 import de.twometer.iot.net.BridgeClient;
 
 public interface IHandler {

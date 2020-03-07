@@ -1,4 +1,4 @@
-package de.twometer.iot.alexa;
+package de.twometer.iot.alexa.response;
 
 import org.json.JSONObject;
 

@@ -1,5 +1,6 @@
-package de.twometer.iot.alexa;
+package de.twometer.iot.alexa.response;
 
+import de.twometer.iot.alexa.model.ErrorType;
 import org.json.JSONObject;
 
 import java.util.UUID;
