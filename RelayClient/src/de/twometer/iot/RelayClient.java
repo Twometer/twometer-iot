@@ -87,7 +87,7 @@ public class RelayClient {
                 return handler.handle(name, endpoint, payload, client).toJson().toString();
             }
         }
-        System.out.println("Couldn't figure out how to handle " + namespace + "::" + name);
+        System.out.println(" Couldn't figure out how to handle " + namespace + "::" + name);
         return "{\"error\": \"unknown_action\"}";
     }
 
@@ -116,6 +116,8 @@ public class RelayClient {
                 String messageId = object.getString("uuid");
                 String payload = object.getString("message");
                 String reply = handleMessage(payload);
+
+                System.out.println(" Sending reply: " + reply);
 
                 JSONObject replyObject = new JSONObject();
                 replyObject.put("uuid", messageId);

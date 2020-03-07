@@ -37,7 +37,7 @@ public class StateUpdateResponse implements IResponse {
                 .put("timeOfSample", getDateTime())
                 .put("uncertaintyInMilliseconds", 100)
                 .put("value", propertyValue)
-        )));
+        )).object());
 
         return responseTemplate;
     }

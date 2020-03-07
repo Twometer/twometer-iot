@@ -13,10 +13,8 @@ public class ColorHandler implements IHandler {
     public IResponse handle(String action, String endpoint, JSONObject payload, BridgeClient client) {
         JSONObject bridgePayload = payload.getJSONObject("color");
         boolean ok = client.setProperty(endpoint, "Lamp.Color", new JsonValue(bridgePayload));
-        if (ok) {
-            return new StateUpdateResponse(getNamespace(), "color", bridgePayload);
-        }
-        return new ErrorResponse(endpoint, ErrorType.ENDPOINT_UNREACHABLE, "Failed to set value on endpoint");
+        if (ok) return new StateUpdateResponse(getNamespace(), "color", bridgePayload);
+        else return new ErrorResponse(endpoint, ErrorType.ENDPOINT_UNREACHABLE, "Failed to set value on endpoint");
     }
 
     @Override

@@ -62,7 +62,7 @@ public class JSONStatic {
 
         private JSONArray array = new JSONArray();
 
-        public JSONStaticArray put(String key, JSONObject value) {
+        public JSONStaticArray put(JSONObject value) {
             array.put(value);
             return this;
         }
@@ -73,12 +73,12 @@ public class JSONStatic {
         }
 
         public JSONStaticArray put(JSONStaticArray array) {
-            this.array.put(array);
+            this.array.put(array.array);
             return this;
         }
 
         public JSONStaticArray put(JSONStaticObj obj) {
-            this.array.put(obj);
+            this.array.put(obj.object);
             return this;
         }
 
