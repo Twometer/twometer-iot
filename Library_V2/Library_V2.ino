@@ -24,6 +24,14 @@ void setup() {
         return true;
     });
 
+    iot.handle("Device.PowerState", [](const DynamicJsonDocument &payload) {
+        bool powerState = payload["powerState"];
+
+        Serial.println("Set power state to: " + String(powerState));
+
+        return true;
+    });
+
     iot.handleMode("TV.InputChannel", [](const DynamicJsonDocument &payload) {
         String mode = payload["mode"];
 

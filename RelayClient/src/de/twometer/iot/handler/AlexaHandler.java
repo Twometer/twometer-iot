@@ -6,6 +6,8 @@ import de.twometer.iot.alexa.response.IResponse;
 import de.twometer.iot.alexa.response.StateResponse;
 import de.twometer.iot.bridge.Property;
 import de.twometer.iot.handler.base.IHandler;
+import de.twometer.iot.handler.util.PropertyMapper;
+import de.twometer.iot.handler.util.PropertyProcessor;
 import de.twometer.iot.net.BridgeClient;
 import org.json.JSONObject;
 
@@ -34,7 +36,7 @@ public class AlexaHandler implements IHandler {
 
     private Object unwrap(JSONObject object) {
         if (object.length() == 1)
-            return object.get(object.keys().next());
+            return PropertyProcessor.process(object.get(object.keys().next()));
         else
             return object;
     }

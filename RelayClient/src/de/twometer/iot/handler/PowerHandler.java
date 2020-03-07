@@ -6,6 +6,7 @@ import de.twometer.iot.alexa.response.IResponse;
 import de.twometer.iot.alexa.response.StateResponse;
 import de.twometer.iot.bridge.values.SimpleValue;
 import de.twometer.iot.handler.base.IHandler;
+import de.twometer.iot.handler.util.PropertyProcessor;
 import de.twometer.iot.net.BridgeClient;
 
 public class PowerHandler implements IHandler {
@@ -16,7 +17,7 @@ public class PowerHandler implements IHandler {
         boolean ok = client.setProperty(request.getEndpoint(), "Device.PowerState", new SimpleValue<>("powerState", newState));
 
         if (ok)
-            return new StateResponse(request.getCorrelationToken(), getNamespace(), "powerState", newState);
+            return new StateResponse(request.getCorrelationToken(), getNamespace(), "powerState", PropertyProcessor.process(newState));
         else
             return new ErrorResponse(request, ErrorType.ENDPOINT_UNREACHABLE, "Failed to set value on endpoint");
     }

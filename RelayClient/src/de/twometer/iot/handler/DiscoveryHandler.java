@@ -12,6 +12,7 @@ import de.twometer.iot.bridge.Device;
 import de.twometer.iot.bridge.ModeProperty;
 import de.twometer.iot.bridge.Property;
 import de.twometer.iot.handler.base.IHandler;
+import de.twometer.iot.handler.util.PropertyMapper;
 import de.twometer.iot.net.BridgeClient;
 import org.json.JSONArray;
 
@@ -19,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static de.twometer.iot.handler.PropertyMapper.getPropertyName;
+import static de.twometer.iot.handler.util.PropertyMapper.getPropertyName;
 import static de.twometer.iot.json.JSONStatic.newObject;
 
 public class DiscoveryHandler implements IHandler {

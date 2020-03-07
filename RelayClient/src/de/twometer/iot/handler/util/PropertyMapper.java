@@ -1,4 +1,4 @@
-package de.twometer.iot.handler;
+package de.twometer.iot.handler.util;
 
 import de.twometer.iot.bridge.ModeProperty;
 import de.twometer.iot.bridge.Property;
