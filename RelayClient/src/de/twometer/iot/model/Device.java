@@ -1,26 +1,21 @@
 package de.twometer.iot.model;
 
-import de.twometer.iot.json.JSONName;
-
 public class Device {
 
-    @JSONName("deviceId")
     private String deviceId;
 
-    @JSONName("modelName")
     private String modelName;
 
-    @JSONName("manufacturer")
     private String manufacturer;
 
-    @JSONName("description")
     private String description;
 
-    @JSONName("type")
     private String type;
 
-    @JSONName("online")
+    private String friendlyName;
+
     private boolean online;
+
 
     public String getDeviceId() {
         return deviceId;
@@ -62,12 +57,24 @@ public class Device {
         this.type = type;
     }
 
+    public String getFriendlyName() {
+        return friendlyName;
+    }
+
+    public void setFriendlyName(String friendlyName) {
+        this.friendlyName = friendlyName;
+    }
+
     public boolean isOnline() {
         return online;
     }
 
     public void setOnline(boolean online) {
         this.online = online;
+    }
+
+    public String getPreferredName() {
+        return friendlyName != null && !friendlyName.isEmpty() ? friendlyName : modelName;
     }
 
     @Override

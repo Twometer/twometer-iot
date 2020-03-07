@@ -1,6 +1,6 @@
 package de.twometer.iot.net;
 
-import de.twometer.iot.json.JSONDeserializer;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import de.twometer.iot.model.Device;
 import de.twometer.iot.model.IValue;
 import de.twometer.iot.model.ModeProperty;
@@ -25,20 +25,16 @@ public class BridgeClient {
 
     private String bridgeUrl;
 
+    private ObjectMapper mapper = new ObjectMapper();
+
     public BridgeClient(String bridgeUrl) {
         this.bridgeUrl = bridgeUrl;
         this.client = new OkHttpClient();
     }
 
-    public List<Device> getDevices() {
+    public Device[] getDevices() {
         try {
-            JSONArray devices = new JSONArray(doGet(bridgeUrl + "/devices"));
-            List<Device> result = new ArrayList<>();
-            for (int i = 0; i < devices.length(); i++) {
-                JSONObject device = devices.getJSONObject(i);
-                result.add(JSONDeserializer.deserialize(Device.class, device));
-            }
-            return result;
+            return mapper.readValue(doGet(bridgeUrl + "/devices"), Device[].class);
         } catch (IOException | JSONException e) {
             e.printStackTrace();
             return null;

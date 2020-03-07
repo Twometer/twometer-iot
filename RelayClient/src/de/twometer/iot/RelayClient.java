@@ -32,6 +32,9 @@ public class RelayClient {
             bridgeUrl = "http://" + BridgeDiscovery.discover();
             client = new BridgeClient(bridgeUrl);
             System.out.println("Discovered: " + bridgeUrl);
+
+            System.out.println(new DiscoveryHandler().handle(null, null, client).toJson().toString(4));
+
         }
 
         UpstreamClient upstreamClient = new UpstreamClient(new URI("wss://iot.twometer.de/websocket"));
@@ -81,7 +84,7 @@ public class RelayClient {
     private static String handleMessage(String namespace, String name, JSONObject payload) {
         for (IHandler handler : handlers) {
             if (Objects.equals(handler.getNamespace(), namespace)) {
-                return handler.handle(name, payload, client);
+                return handler.handle(name, payload, client).toJson().toString();
             }
         }
         System.out.println("Couldn't figure out how to handle " + namespace + "::" + name);
