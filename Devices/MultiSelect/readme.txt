@@ -1,1 +1,0 @@
-Code for a smart device that can click two buttons based on its state
