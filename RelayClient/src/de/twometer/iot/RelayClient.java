@@ -1,5 +1,6 @@
 package de.twometer.iot;
 
+import de.twometer.iot.handler.BrightnessHandler;
 import de.twometer.iot.handler.ColorHandler;
 import de.twometer.iot.handler.DiscoveryHandler;
 import de.twometer.iot.handler.IHandler;
@@ -25,7 +26,8 @@ public class RelayClient {
 
     private static IHandler[] handlers = new IHandler[]{
             new DiscoveryHandler(),
-            new ColorHandler()
+            new ColorHandler(),
+            new BrightnessHandler()
     };
 
     public static void main(String[] args) throws URISyntaxException, IOException {

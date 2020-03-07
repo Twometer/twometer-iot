@@ -13,9 +13,9 @@ public class StateUpdateResponse implements IResponse {
 
     private String namespace;
     private String propertyName;
-    private JSONObject propertyValue;
+    private Object propertyValue;
 
-    public StateUpdateResponse(String namespace, String propertyName, JSONObject propertyValue) {
+    public StateUpdateResponse(String namespace, String propertyName, Object propertyValue) {
         this.namespace = namespace;
         this.propertyName = propertyName;
         this.propertyValue = propertyValue;

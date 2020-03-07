@@ -22,6 +22,11 @@ public class JSONStatic {
             return this;
         }
 
+        public JSONStaticObj put(String key, Object value) {
+            object.put(key, value);
+            return this;
+        }
+
         public JSONStaticObj put(String key, int value) {
             object.put(key, value);
             return this;
