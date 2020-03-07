@@ -1,9 +1,6 @@
 package de.twometer.iot;
 
-import de.twometer.iot.handler.BrightnessHandler;
-import de.twometer.iot.handler.ColorHandler;
-import de.twometer.iot.handler.DiscoveryHandler;
-import de.twometer.iot.handler.IHandler;
+import de.twometer.iot.handler.*;
 import de.twometer.iot.net.BridgeClient;
 import de.twometer.iot.net.BridgeDiscovery;
 import org.java_websocket.client.WebSocketClient;
@@ -27,7 +24,8 @@ public class RelayClient {
     private static IHandler[] handlers = new IHandler[]{
             new DiscoveryHandler(),
             new ColorHandler(),
-            new BrightnessHandler()
+            new BrightnessHandler(),
+            new ModeHandler()
     };
 
     public static void main(String[] args) throws URISyntaxException, IOException {

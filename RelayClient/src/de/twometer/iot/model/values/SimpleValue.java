@@ -3,12 +3,12 @@ package de.twometer.iot.model.values;
 import de.twometer.iot.model.IValue;
 import org.json.JSONObject;
 
-public class IntValue implements IValue {
+public class SimpleValue<T> implements IValue {
 
     private String name;
-    private int value;
+    private T value;
 
-    public IntValue(String name, int value) {
+    public SimpleValue(String name, T value) {
         this.name = name;
         this.value = value;
     }
