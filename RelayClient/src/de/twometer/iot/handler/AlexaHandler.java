@@ -21,9 +21,10 @@ public class AlexaHandler implements IHandler {
             for (Property property : properties) {
                 JSONObject value = client.getProperty(request.getEndpoint(), property.getName());
                 String namespace = PropertyMapper.getInterfaceName(property);
-                values.add(new StateUpdateResponse.PropertyItem(namespace, property.getName(), unwrap(value)));
+                String propName = PropertyMapper.getPropertyName(property);
+                values.add(new StateUpdateResponse.PropertyItem(namespace, propName, unwrap(value)));
             }
-            return new StateUpdateResponse("StateReport", values);
+            return new StateUpdateResponse(request.getCorrelationToken(), "StateReport", values);
         }
 
         System.out.println("Cannot handle Alexa::" + request.getAction());

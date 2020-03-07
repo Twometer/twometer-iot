@@ -24,7 +24,8 @@ public class StateUpdateResponse implements IResponse {
         itemList.add(new PropertyItem(namespace, propertyName, propertyValue));
     }
 
-    public StateUpdateResponse(String eventName, List<PropertyItem> itemList) {
+    public StateUpdateResponse(String correlationToken, String eventName, List<PropertyItem> itemList) {
+        this.correlationToken = correlationToken;
         this.eventName = eventName;
         this.itemList = itemList;
     }

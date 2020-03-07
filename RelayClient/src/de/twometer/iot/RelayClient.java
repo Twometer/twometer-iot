@@ -66,7 +66,7 @@ public class RelayClient {
             String namespace = header.getString("namespace");
             String name = header.getString("name");
             String payloadVersion = header.getString("payloadVersion");
-            String corToken = header.getString("correlationToken");
+            String corToken = header.optString("correlationToken");
 
             if (!payloadVersion.equals("3")) {
                 System.err.println(" ERR: Invalid payload version " + payloadVersion);
