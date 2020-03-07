@@ -9,12 +9,20 @@ public class JSONStatic {
         return new JSONStaticObj();
     }
 
+    public static JSONStaticArray newArray() {
+        return new JSONStaticArray();
+    }
 
     public static class JSONStaticObj {
 
         private JSONObject object = new JSONObject();
 
         public JSONStaticObj put(String key, String value) {
+            object.put(key, value);
+            return this;
+        }
+
+        public JSONStaticObj put(String key, int value) {
             object.put(key, value);
             return this;
         }

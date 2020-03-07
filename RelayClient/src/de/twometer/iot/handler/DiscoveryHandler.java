@@ -2,9 +2,7 @@ package de.twometer.iot.handler;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.twometer.iot.alexa.AlexaResponse;
-import de.twometer.iot.alexa.Capability;
-import de.twometer.iot.alexa.Endpoint;
+import de.twometer.iot.alexa.*;
 import de.twometer.iot.model.Device;
 import de.twometer.iot.model.ModeProperty;
 import de.twometer.iot.model.Property;
@@ -16,12 +14,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static de.twometer.iot.handler.PropertyMapper.getInterfaceName;
+import static de.twometer.iot.handler.PropertyMapper.getPropertyName;
 import static de.twometer.iot.json.JSONStatic.newObject;
 
 public class DiscoveryHandler implements IHandler {
 
     @Override
-    public AlexaResponse handle(String action, JSONObject payload, BridgeClient client) {
+    public IResponse handle(String action, String endpoint, JSONObject payload, BridgeClient client) {
         Device[] deviceList = client.getDevices();
         List<Endpoint> endpoints = new ArrayList<>();
         for (Device device : deviceList) {
@@ -35,10 +35,10 @@ public class DiscoveryHandler implements IHandler {
         }
 
         try {
-            return new AlexaResponse(getNamespace(), "Discover.Response", newObject().put("endpoints", new JSONArray(new ObjectMapper().writeValueAsString(endpoints))).object());
+            return new GenericResponse(getNamespace(), "Discover.Response", newObject().put("endpoints", new JSONArray(new ObjectMapper().writeValueAsString(endpoints))).object());
         } catch (JsonProcessingException e) {
             e.printStackTrace();
-            return null;
+            return new ErrorResponse(endpoint, ErrorType.INTERNAL_ERROR, e.toString());
         }
 
 
@@ -72,34 +72,7 @@ public class DiscoveryHandler implements IHandler {
         return capability;
     }
 
-    private String getPropertyName(Property property) {
-        if (property instanceof ModeProperty)
-            return "mode";
 
-        switch (property.getName()) {
-            case "Device.PowerState":
-                return "powerState";
-            case "Lamp.Brightness":
-                return "brightness";
-            case "Lamp.Color":
-                return "color";
-        }
-        return null;
-    }
-
-    private String getInterfaceName(Property property) {
-        if (property instanceof ModeProperty)
-            return "Alexa.ModeController";
-        switch (property.getName()) {
-            case "Device.PowerState":
-                return "Alexa.PowerController";
-            case "Lamp.Brightness":
-                return "Alexa.BrightnessController";
-            case "Lamp.Color":
-                return "Alexa.ColorController";
-        }
-        return null;
-    }
 
     @Override
     public String getNamespace() {

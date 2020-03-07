@@ -1,5 +1,6 @@
 package de.twometer.iot;
 
+import de.twometer.iot.handler.ColorHandler;
 import de.twometer.iot.handler.DiscoveryHandler;
 import de.twometer.iot.handler.IHandler;
 import de.twometer.iot.net.BridgeClient;
@@ -23,7 +24,8 @@ public class RelayClient {
     private static BridgeClient client;
 
     private static IHandler[] handlers = new IHandler[]{
-            new DiscoveryHandler()
+            new DiscoveryHandler(),
+            new ColorHandler()
     };
 
     public static void main(String[] args) throws URISyntaxException, IOException {
@@ -69,7 +71,8 @@ public class RelayClient {
                 return "";
             }
 
-            return handleMessage(namespace, name, object.getJSONObject("payload"));
+            String epId = object.getJSONObject("endpoint").getString("endpointId");
+            return handleMessage(namespace, name, epId, object.getJSONObject("payload"));
 
         } catch (JSONException e) {
             System.out.println(" ERR: Message was malformed");
@@ -78,10 +81,10 @@ public class RelayClient {
         }
     }
 
-    private static String handleMessage(String namespace, String name, JSONObject payload) {
+    private static String handleMessage(String namespace, String name, String endpoint, JSONObject payload) {
         for (IHandler handler : handlers) {
             if (Objects.equals(handler.getNamespace(), namespace)) {
-                return handler.handle(name, payload, client).toJson().toString();
+                return handler.handle(name, endpoint, payload, client).toJson().toString();
             }
         }
         System.out.println("Couldn't figure out how to handle " + namespace + "::" + name);
