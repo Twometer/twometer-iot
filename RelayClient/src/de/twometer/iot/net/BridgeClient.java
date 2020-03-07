@@ -3,6 +3,8 @@ package de.twometer.iot.net;
 import de.twometer.iot.json.JSONDeserializer;
 import de.twometer.iot.model.Device;
 import de.twometer.iot.model.IValue;
+import de.twometer.iot.model.ModeProperty;
+import de.twometer.iot.model.Property;
 import okhttp3.*;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -13,6 +15,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class BridgeClient {
 
@@ -32,7 +35,7 @@ public class BridgeClient {
             JSONArray devices = new JSONArray(doGet(bridgeUrl + "/devices"));
             List<Device> result = new ArrayList<>();
             for (int i = 0; i < devices.length(); i++) {
-                JSONObject device = (JSONObject) devices.get(i);
+                JSONObject device = devices.getJSONObject(i);
                 result.add(JSONDeserializer.deserialize(Device.class, device));
             }
             return result;
@@ -42,8 +45,40 @@ public class BridgeClient {
         }
     }
 
-    public IValue getProperty(String deviceId, String property) {
+    public List<Property> getProperties(String deviceId) {
+        try {
+            JSONArray properties = new JSONArray(doGet(bridgeUrl + "/capabilities?id=" + deviceId));
+            List<Property> result = new ArrayList<>();
+            for (int i = 0; i < properties.length(); i++) {
+                JSONObject property = properties.getJSONObject(i);
+                String name = property.getString("name");
+                String type = property.getString("type");
 
+                Property item;
+                if (Objects.equals(type, "regular")) {
+                    item = new Property(name, type);
+                } else if (Objects.equals(type, "mode")) {
+                    item = new ModeProperty(name, type, property.getString("friendlyName"));
+
+                    for (String key : property.keySet()) {
+                        if (!key.equals("name") && !key.equals("type") && !key.equals("friendlyName"))
+                            ((ModeProperty) item).getModes().put(key, property.getString(key));
+                    }
+                } else {
+                    throw new IllegalArgumentException("Unknown type " + type);
+                }
+
+                result.add(item);
+            }
+            return result;
+        } catch (IOException | JSONException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public IValue getProperty(String deviceId, String property) {
+        return null;
     }
 
     public void setProperty(String deviceId, String property, IValue value) {
