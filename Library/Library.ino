@@ -2,23 +2,50 @@
 
 TwometerIoT iot;
 
-void setup() {  
-  iot.describe({"LED Stripe", TYPE_LIGHT_STRIPE, "Twometer Industries"});
+void setup() {
+    iot.describe("Smart LED Stripe", "GlowTec Industries", "A smart, fancy and colorful LED stripe light", TYPE_LIGHT);
 
-  iot.prop("color", DATA_COLOR_RGB)
-  .handle([](const Request &req) {
-    ColorRgb rgb = req.colorRgbVal();
+    iot.handle("Lamp.Brightness", [](const DynamicJsonDocument &payload) {
+        // TODO
+        int brightness = payload["brightness"];
+        Serial.println("Set brightness to: " + String(brightness));
 
-    // TODO Update rgb outputs
+        return true;
+    });
 
-    Serial.println(" Color update: r=" + String(rgb.r) + " g=" + String(rgb.g) + " b=" + String(rgb.b));
+    iot.handle("Lamp.Color", [](const DynamicJsonDocument &payload) {
+        float hue = payload["hue"];
+        float saturation = payload["saturation"];
+        float brightness = payload["brightness"];
 
-    return rgb.b == 42;
-  });
+        Serial.println("Set color to: H=" + String(hue) + " S=" + String(saturation) + " B=" + String(brightness));
 
-  iot.begin();
+        // TODO
+        return true;
+    });
+
+    iot.handle("Device.PowerState", [](const DynamicJsonDocument &payload) {
+        bool powerState = payload["powerState"];
+
+        Serial.println("Set power state to: " + String(powerState));
+
+        return true;
+    });
+
+    iot.handleMode("TV.InputChannel", [](const DynamicJsonDocument &payload) {
+        String mode = payload["mode"];
+
+        Serial.println("Set input channel to: " + mode);
+        
+        return true;
+    })
+    .setFriendlyName("Kanal")
+    .addMode("InputChannel.Music", "Musik")
+    .addMode("InputChannel.Cinema", "Heimkino");
+
+    iot.begin();
 }
 
 void loop() {
-  iot.update();
+    iot.update();
 }

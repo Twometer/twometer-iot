@@ -1,4 +1,2 @@
-!!!! OLD AND INCOMPATIBLE; DO NOT USE !!!!
-
-
-This is the library for creating Twometer IoT devices
+This is the new alexa-compatible protocol v2 library for
+creating IoT client devices

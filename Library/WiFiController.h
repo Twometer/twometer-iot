@@ -1,164 +1,184 @@
+#ifndef wificontroller_h
+#define wificontroller_h
+
 #include <ESP8266WiFi.h>
 #include <ESP8266HTTPClient.h>
-#include <EEPROM.h>
-#include "StorageBuf.h"
+#include <ArduinoJson.h>
+#include "DeviceDescriptor.h"
+#include "StorageLib.h"
 #include "HttpLib.h"
 
 #define EEPROM_INIT_MAGIC 42
 
-const char* WIFI_NAME_PAIR = "Twometer IoT Pair"; // The Pairing WiFi
-const char* WIFI_NAME_CTRL = "Twometer IoT"; // The Control WiFi
+class WiFiController {
+    private:
+        const char* WIFI_NAME_PAIR = "Twometer IoT Pair";   // The Pairing WiFi
+        const char* WIFI_NAME_CTRL = "Twometer IoT";        // The Control WiFi
 
-class WiFiController
-{
-  public:
+        String wifiKey;
+        String registerToken;
 
-    void Connect(DeviceDescriptor& desc) {
-      WiFi.persistent(false); // We handle the reconnect ourselves
-      WiFi.mode(WIFI_STA);
+        int lastWifiState = WL_CONNECTED;
+        bool initComplete = false;
 
-      EEPROM.begin(256);
-      StorageBuf buf;
-      bool eeprom_has_data = buf.read_byte() == EEPROM_INIT_MAGIC;
+    public:
+        void connect(DeviceDescriptor& desc) {
+            WiFi.persistent(false);
+            WiFi.mode(WIFI_STA);
 
-      if (eeprom_has_data) {
-        Serial.println("EEPROM has data, connecting...");
+            EEPROM.begin(256);
+            bool hasData = loadStorage();
 
-        wifiKey = buf.read_string();
-        WiFi.begin(WIFI_NAME_CTRL, wifiKey);
+            Serial.println("Device id: " + desc.deviceId);
 
-        Serial.println("Device id: " + String(ESP.getChipId(), HEX));
+            if (hasData) {
+                Serial.println("EEPROM has data, connecting...");
+                WiFi.begin(WIFI_NAME_CTRL, wifiKey);
 
-        AwaitConnected();
+                awaitConnected();
+                login();
+            } else {
+                Serial.println("EEPROM has no data, registering...");
 
-        Login();
-      } else {
-        Serial.println("EEPROM has no data, registering...");
+                WiFi.begin(WIFI_NAME_PAIR);
+                awaitConnected();
 
-        WiFi.begin(WIFI_NAME_PAIR);
-        AwaitConnected();
+                getKeys();
+                WiFi.begin(WIFI_NAME_CTRL, wifiKey);
+                awaitConnected();
 
-        GetKey();
-        WiFi.begin(WIFI_NAME_CTRL, wifiKey);
-        AwaitConnected();
+                delay(5000);
 
-        delay(5000);
+                registerDevice(desc);
+                login();
+            }
 
-        Register(desc);
-        Login();
-      }
-
-      Serial.println("WiFi setup complete");
-      initComplete = true;
-    }
-
-    void Update() {
-      if (initComplete) {
-        if (lastWifiState != WL_CONNECTED && WiFi.status() == WL_CONNECTED)
-        {
-          delay(1000);
-          Serial.println("WiFi Connection regained, authenticating with bridge...");
-          Login();
-          Serial.println("Done");
-        }
-        if (lastWifiState == WL_CONNECTED && WiFi.status() != WL_CONNECTED) {
-          Serial.println("WiFi Connection lost");
+            Serial.println("WiFi setup complete");
+            initComplete = true;
         }
 
-        lastWifiState = WiFi.status();
-      }
-    }
-
-  private:
-    String wifiKey;
-    String registerToken;
-    int lastWifiState = WL_CONNECTED;
-    bool initComplete = false;
-
-    void Login() {
-      Serial.println("Login...");
-
-      String bridgeIp = WiFi.gatewayIP().toString();
-      String url = "http://" + bridgeIp + "/login";
-
-      HttpResponse response;
-      do {
-        response = http_post(url, "{\"uuid\": \"" + String(ESP.getChipId(), HEX) + "\"}");
-        if (response.code == 403)
-        {
-          // 403 forbidden
-          // Registration has changed, clear and reboot
-          Serial.println("Bridge does not know this device but key is correct, resetting...");
-          for (int i = 0; i < 256; i++)
-            EEPROM.write(i, 255);
-          EEPROM.commit();
-          ESP.restart();
-          return;
+        void update() {
+            if (!initComplete) return;
+            if (lastWifiState != WL_CONNECTED && WiFi.status() == WL_CONNECTED) {
+                delay(1000);
+                Serial.println("WiFi Connection regained, reporting to bridge...");
+                login();
+                Serial.println("Done");
+            } else if (lastWifiState == WL_CONNECTED && WiFi.status() != WL_CONNECTED) {
+                Serial.println("WiFi Connection lost");
+            }
+            lastWifiState = WiFi.status();
         }
-      } while (response.code != 200);
-    }
 
-    void GetKey() {
-      Serial.println("Authenticating...");
+    private:
+        void login() {
+            Serial.println("Login...");
 
-      String bridgeIp = WiFi.gatewayIP().toString();
-      String url = "http://" + bridgeIp + "/keys";
+            String bridgeIp = WiFi.gatewayIP().toString();
+            String url = "http://" + bridgeIp + "/login";
 
-      HttpResponse response = http_get(url);
-      if (response.code == 200)
-      {
-        StaticJsonDocument < JSON_OBJECT_SIZE(2) + 90 > doc;
-        DeserializationError err = deserializeJson(doc, response.data);
-        if (err != DeserializationError::Ok) {
-          return;
+            HttpResponse response;
+            do {
+                response = http_post(url, "{\"uuid\": \"" + String(ESP.getChipId(), HEX) + "\"}");
+                if (response.code == 403) {
+                    // 403 forbidden
+                    // Registration has changed, clear data and reboot
+
+                    clearStorage();
+                    ESP.restart();
+                    return;
+                }
+            } while (response.code != 200);
         }
-        JsonObject obj = doc.as<JsonObject>();
 
-        this->wifiKey = obj["key"].as<String>();
-        this->registerToken = obj["token"].as<String>();
+        void getKeys() {
+            Serial.println("Authenticating...");
 
-        Serial.println("Wifi key: " + this->wifiKey);
-        Serial.println("Register token: " + this->registerToken);
+            String bridgeIp = WiFi.gatewayIP().toString();
+            String url = "http://" + bridgeIp + "/keys";
 
-        StorageBuf buf;
-        buf.write_byte(EEPROM_INIT_MAGIC);
-        buf.write_string(this->wifiKey);
-        EEPROM.commit();
-      }
-    }
+            HttpResponse response = http_get(url);
+            if (response.code == 200) {
+                StaticJsonDocument < JSON_OBJECT_SIZE(2) + 90 > doc;
+                DeserializationError err = deserializeJson(doc, response.data);
+                if (err != DeserializationError::Ok) {
+                    return;
+                }
+                JsonObject obj = doc.as<JsonObject>();
 
-    void Register(DeviceDescriptor& desc) {
-      Serial.println("Registering...");
+                this->wifiKey = obj["key"].as<String>();
+                this->registerToken = obj["token"].as<String>();
 
-      int strLen = desc.name.length() + 1 + desc.type.length() + 1 + desc.manufacturer.length() + 1 + this->registerToken.length() + 1 + 30;
-      DynamicJsonDocument doc(JSON_OBJECT_SIZE(5) + strLen);
-      doc["uuid"] = desc.uuid;
-      doc["name"] = desc.name;
-      doc["type"] = desc.type;
-      doc["manufacturer"] = desc.manufacturer;
-      doc["token"] = this->registerToken;
-      String payload;
-      serializeJson(doc, payload);
+                // Serial.println("Wifi key: " + this->wifiKey);
+                // Serial.println("Register token: " + this->registerToken);
 
-      Serial.println(payload);
+                saveStorage();
+            }
+        }
 
+        void registerDevice(DeviceDescriptor& desc) {
+            Serial.println("Registering...");
 
+            int strLen =  desc.deviceId.length() + 1
+                        + desc.modelName.length() + 1
+                        + desc.manufacturer.length() + 1 
+                        + desc.description.length() + 1 
+                        + desc.type.length() + 1 
+                        + this->registerToken.length() + 1 
+                        + 64;
 
-      String bridgeIp = WiFi.gatewayIP().toString();
-      String url = "http://" + bridgeIp + "/register";
+            DynamicJsonDocument doc(JSON_OBJECT_SIZE(5) + strLen);
+            doc["deviceId"] = desc.deviceId;
+            doc["modelName"] = desc.modelName;
+            doc["manufacturer"] = desc.manufacturer;
+            doc["description"] = desc.description;
+            doc["type"] = desc.type;
+            doc["token"] = this->registerToken;
+            String payload;
+            serializeJson(doc, payload);
 
-      HttpResponse response;
-      do {
-        response = http_post(url, payload);
-        Serial.println("Reply: " + String(response.code));
-      } while (response.code != 200);
-    }
+            Serial.println(payload);
 
-    void AwaitConnected() {
-      Serial.println("Connecting to " + WiFi.SSID() + " ...");
-      while (WiFi.status() != WL_CONNECTED) {
-        delay(500);
-      }
-    }
+            String bridgeIp = WiFi.gatewayIP().toString();
+            String url = "http://" + bridgeIp + "/register";
+            HttpResponse response;
+            do {
+                response = http_post(url, payload);
+                Serial.println("Reply: " + String(response.code));
+            } while (response.code != 200);
+        }
 
+        /* WiFi util functions */
+        void awaitConnected() {
+            Serial.println("Connecting to " + WiFi.SSID() + " ...");
+            while (WiFi.status() != WL_CONNECTED) {
+                delay(500);
+            }
+        }
+
+        /* Storage util functions */
+        bool loadStorage() {
+            StorageBuf buf;
+            bool hasData = buf.read_byte() == EEPROM_INIT_MAGIC;
+            if (!hasData)
+                return false;
+
+            this->wifiKey = buf.read_string();
+            return true;
+        }
+
+        void saveStorage() {
+            StorageBuf buf;
+            buf.write_byte(EEPROM_INIT_MAGIC);
+            buf.write_string(this->wifiKey);
+            EEPROM.commit();
+        }
+
+        void clearStorage() {
+            for (int i = 0; i < 256; i++)
+                EEPROM.write(i, 255);
+            EEPROM.commit();
+        }
 };
+
+#endif

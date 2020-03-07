@@ -1,135 +1,166 @@
+#ifndef twometeriot_h
+#define twometeriot_h
+
+#include <Arduino.h>
 #include <ESP8266WebServer.h>
 #include <ArduinoJson.h>
-#include "Property.h"
-#include "Constants.h"
-#include "Device.h"
+#include "DeviceDescriptor.h"
 #include "WiFiController.h"
+#include "Property.h"
+#include "ModeProperty.h"
+#include "Types.h"
+
 #define MIME_JSON "application/json"
-
-
+#define LOCALE "de-DE"
 
 class TwometerIoT {
-  private:
+private:
     WiFiController wifi;
-
-    DeviceDescriptor desc;
+    DeviceDescriptor descriptor;
 
     ESP8266WebServer* server;
 
     std::vector<Property*> properties;
 
-    bool online = false;
+public:
+    void describe(String modelName, String manufacturer, String description, String type) {
+        String chipId = String(ESP.getChipId(), HEX);
+        this->descriptor = { chipId, modelName, manufacturer, description, type };
+    }
 
-  public:
-    void describe(DeviceDescriptor desc) {
-      this->desc = desc;
-      this->desc.uuid = String(ESP.getChipId(), HEX);
+    ModeProperty &handleMode(String name, std::function<bool(const DynamicJsonDocument&)> handler) {
+        ModeProperty *property = new ModeProperty();
+        property->propertyType = PROPERTY_MODE;
+        property->name = name;
+        property->handler = handler;
+        properties.push_back(property);
+        return *property;
+    }
+
+    Property &handle(String name, std::function<bool(const DynamicJsonDocument&)> handler) {
+        Property *property = new Property();
+        property->propertyType = PROPERTY_REGULAR;
+        property->name = name;
+        property->handler = handler;
+        properties.push_back(property);
+        return *property;
     }
 
     void begin() {
-      if (online) return;
-      online = true;
+        Serial.begin(9600);
+        Serial.println("Twometer IoT Client Library v2");
 
-      Serial.begin(9600);
-      Serial.println("Twometer IoT client library init");
-      Serial.println("Device ID: " + this->desc.uuid);
+        wifi.connect(this->descriptor);
+        this->server = new ESP8266WebServer(80);
 
-      wifi.Connect(desc);
-
-      this->server = new ESP8266WebServer(80);
-
-      server->on("/", HTTP_GET, [&]() {
-        const int capacity = JSON_OBJECT_SIZE(4);
-        StaticJsonDocument<capacity> doc;
-        doc["uuid"] = desc.uuid;
-        doc["name"] = desc.name;
-        doc["type"] = desc.type;
-        doc["manufacturer"] = desc.manufacturer;
-        server->send(200, MIME_JSON, doc.as<String>());
-      });
-
-      server->on("/ping", HTTP_GET, [&]() {
-        ok();
-      });
-
-      server->on("/prop", HTTP_GET, [&]() {
-        int capacity = JSON_OBJECT_SIZE(properties.size()) + properties.size() * (JSON_OBJECT_SIZE(2) + 64);
-        DynamicJsonDocument doc(capacity);
-        for (Property* prop : properties)
-        {
-          JsonObject obj = doc.createNestedObject();
-          obj["name"] = prop->name;
-          obj["type"] = prop->dataType;
-        }
-
-        server->send(200, MIME_JSON, doc.as<String>());
-      });
-
-      for (const Property* prop : properties) {
-        server->on("/" + prop->name, HTTP_PUT, [this,prop]() {
-          Serial.println("Deserializing call to property " + prop->name);
-          String body = server->arg("plain");
-          StaticJsonDocument<200> doc;
-          DeserializationError err = deserializeJson(doc, body);
-
-          if (err != DeserializationError::Ok) {
-            badRequest();
-            return;
-          }
-
-          Serial.println("Parsing args");
-          JsonObject obj = doc.as<JsonObject>();
-
-          std::vector<Arg> args;
-          for (JsonPair p : obj) {
-            String key = String(p.key().c_str());
-            JsonVariant val = p.value();
-            args.push_back(Arg(key, val));
-          }
-          
-          Request request(args);
-          bool result = false;
-
-          try {
-            result = prop->handler(request);
-          } catch (const std::runtime_error &e) {
-            server->send(500, MIME_JSON, "{\"status\": \"server_error\"}");
-            return;
-          } catch (const std::invalid_argument &e) {
-            badRequest();
-            return;
-          }
-
-          if (!result) {
-            badRequest();
-            return;
-          }
-
-          ok();
-
+        server->on("/ping", HTTP_GET, [&]() {
+            ok();
         });
-      }
 
-      server->begin();
-    }
+        server->on("/set", HTTP_POST, [&]() {
+            if (!server->hasArg("prop")) {
+                badRequest();
+                return;
+            }
 
-    Property& prop(String name, String type) {
-      Property* property = new Property(name, type);
-      properties.push_back(property);
-      return *property;
+            String key = server->arg("prop");
+            String data = server->arg("plain");
+
+            Property *property = getProperty(key);
+            if (property == NULL) {
+                notFound();
+                return;
+            }
+
+            DynamicJsonDocument *doc = new DynamicJsonDocument(256);
+            if (deserializeJson(*doc, data) != DeserializationError::Ok) {
+                badRequest();
+                return;
+            }
+
+            bool result = property->handler(*doc);
+
+            if (result) {
+                delete property->currentState;
+                property->currentState = doc;
+                ok();
+            } else {
+                delete doc;
+                badRequest();
+            }
+        });
+
+        server->on("/get", HTTP_GET, [&]() {
+            if (!server->hasArg("prop")) {
+                badRequest();
+                return;
+            }
+
+            String key = server->arg("prop");
+            Property *property = getProperty(key);
+            if (property == NULL) {
+                notFound();
+                return;
+            }
+
+            DynamicJsonDocument *doc = property->currentState;
+            if (doc == NULL) {
+                server->send(200, MIME_JSON, "{}");
+            } else {
+                server->send(200, MIME_JSON, doc->as<String>());
+            }
+        });
+
+        server->on("/capabilities", HTTP_GET, [&]() {
+            int capacity = JSON_OBJECT_SIZE(properties.size()) + properties.size() * (JSON_OBJECT_SIZE(2) + 64);
+            DynamicJsonDocument doc(capacity);
+            for (Property* prop : properties) {
+                if(prop->propertyType == PROPERTY_MODE) {
+                    ModeProperty* modeProp = (ModeProperty*) prop;
+
+                    JsonObject obj = doc.createNestedObject();
+                    obj["name"] = prop->name;
+                    obj["type"] = "mode";
+                    obj["friendlyName"] = modeProp->friendlyName;
+                    for (ModeEntry &entry : modeProp->entries)
+                        obj[entry.key] = entry.value;
+                } else {
+                    JsonObject obj = doc.createNestedObject();
+                    obj["name"] = prop->name;
+                    obj["type"] = "regular";
+                }
+            }
+
+            server->send(200, MIME_JSON, doc.as<String>());
+        });
+
+        server->begin();
     }
 
     void update() {
-      server->handleClient();
-      wifi.Update();
+        server->handleClient();
+        wifi.update();
     }
 
-  private:
-    void badRequest() {
-      server->send(400, MIME_JSON, "{\"status\": \"bad_request\"}");
+private:
+    Property* getProperty(String key) {
+        for (Property *prop : properties)
+            if (prop->name == key)
+                return prop;
+        return NULL;
     }
 
     void ok() {
-      server->send(200, MIME_JSON, "{\"status\": \"ok\"}");
+        server->send(200, MIME_JSON, "{\"status\": \"ok\"}");
+    }
+
+    void badRequest() {
+        server->send(400, MIME_JSON, "{\"status\": \"bad_request\"}");
+    }
+
+    void notFound() {
+        server->send(404, MIME_JSON, "{\"status\": \"not_found\"}");
     }
 };
+
+#endif

@@ -1,19 +1,21 @@
-#include "Request.h"
+#ifndef property_h
+#define property_h
+
+#define PROPERTY_REGULAR 1
+#define PROPERTY_MODE    2
 
 class Property {
-  public:
+public:
+    int propertyType;
+
     String name;
 
-    String dataType;
-  
-    std::function<bool(const Request&)> handler;
+    std::function<bool(const DynamicJsonDocument&)> handler;
 
-    Property(String name, String dataType) {
-      this->name = name;
-      this->dataType = dataType;
-    }
+    DynamicJsonDocument *currentState;
 
-    void handle(std::function<bool(const Request&)> handler) {
-      this->handler = handler;
-    }
+    virtual ~Property() = default;
+
 };
+
+#endif
