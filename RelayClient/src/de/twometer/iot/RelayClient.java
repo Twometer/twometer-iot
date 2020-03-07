@@ -27,7 +27,8 @@ public class RelayClient {
             new ColorHandler(),
             new BrightnessHandler(),
             new ModeHandler(),
-            new AlexaHandler()
+            new AlexaHandler(),
+            new PowerHandler()
     };
 
     public static void main(String[] args) throws URISyntaxException, IOException {
