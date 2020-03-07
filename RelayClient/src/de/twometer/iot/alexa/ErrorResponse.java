@@ -8,11 +8,13 @@ import static de.twometer.iot.json.JSONStatic.newObject;
 
 public class ErrorResponse implements IResponse {
 
+    private String correlationToken;
     private String endpointId;
     private ErrorType errorType;
     private String errorMessage;
 
-    public ErrorResponse(String endpointId, ErrorType errorType, String errorMessage) {
+    public ErrorResponse(String correlationToken, String endpointId, ErrorType errorType, String errorMessage) {
+        this.correlationToken = correlationToken;
         this.endpointId = endpointId;
         this.errorType = errorType;
         this.errorMessage = errorMessage;
@@ -21,7 +23,7 @@ public class ErrorResponse implements IResponse {
     @Override
     public JSONObject toJson() {
         return newObject().put("event", newObject()
-                .put("header", newObject().put("namespace", "Alexa").put("name", "ErrorResponse").put("payloadVersion", "3").put("messageId", UUID.randomUUID().toString()))
+                .put("header", newObject().put("namespace", "Alexa").put("name", "ErrorResponse").put("payloadVersion", "3").put("messageId", UUID.randomUUID().toString()).put("correlationToken", correlationToken))
                 .put("endpoint", newObject().put("endpointId", endpointId))
                 .put("payload", newObject().put("type", errorType.name()).put("message", errorMessage))
         ).object();

@@ -25,7 +25,8 @@ public class RelayClient {
             new DiscoveryHandler(),
             new ColorHandler(),
             new BrightnessHandler(),
-            new ModeHandler()
+            new ModeHandler(),
+            new AlexaHandler()
     };
 
     public static void main(String[] args) throws URISyntaxException, IOException {
@@ -65,6 +66,7 @@ public class RelayClient {
             String namespace = header.getString("namespace");
             String name = header.getString("name");
             String payloadVersion = header.getString("payloadVersion");
+            String corToken = header.getString("correlationToken");
 
             if (!payloadVersion.equals("3")) {
                 System.err.println(" ERR: Invalid payload version " + payloadVersion);
@@ -72,7 +74,9 @@ public class RelayClient {
             }
 
             String epId = object.getJSONObject("endpoint").getString("endpointId");
-            return handleMessage(namespace, name, epId, object.getJSONObject("payload"));
+            Request request = new Request(name, epId, corToken, object.getJSONObject("payload"));
+
+            return handleMessage(namespace, request);
 
         } catch (JSONException e) {
             System.out.println(" ERR: Message was malformed");
@@ -81,13 +85,13 @@ public class RelayClient {
         }
     }
 
-    private static String handleMessage(String namespace, String name, String endpoint, JSONObject payload) {
+    private static String handleMessage(String namespace, Request request) {
         for (IHandler handler : handlers) {
             if (Objects.equals(handler.getNamespace(), namespace)) {
-                return handler.handle(name, endpoint, payload, client).toJson().toString();
+                return handler.handle(request, client).toJson().toString();
             }
         }
-        System.out.println(" Couldn't figure out how to handle " + namespace + "::" + name);
+        System.out.println(" Couldn't figure out how to handle " + namespace + "::" + request.getAction());
         return "{\"error\": \"unknown_action\"}";
     }
 

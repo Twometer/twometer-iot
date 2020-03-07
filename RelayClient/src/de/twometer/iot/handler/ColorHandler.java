@@ -10,11 +10,12 @@ import org.json.JSONObject;
 
 public class ColorHandler implements IHandler {
     @Override
-    public IResponse handle(String action, String endpoint, JSONObject payload, BridgeClient client) {
-        JSONObject bridgePayload = payload.getJSONObject("color");
-        boolean ok = client.setProperty(endpoint, "Lamp.Color", new JsonValue(bridgePayload));
-        if (ok) return new StateUpdateResponse(getNamespace(), "color", bridgePayload);
-        else return new ErrorResponse(endpoint, ErrorType.ENDPOINT_UNREACHABLE, "Failed to set value on endpoint");
+    public IResponse handle(Request request, BridgeClient client) {
+        JSONObject bridgePayload = request.getPayload().getJSONObject("color");
+        boolean ok = client.setProperty(request.getEndpoint(), "Lamp.Color", new JsonValue(bridgePayload));
+        if (ok) return new StateUpdateResponse(request.getCorrelationToken(), getNamespace(), "color", bridgePayload);
+        else
+            return new ErrorResponse(request.getCorrelationToken(), request.getEndpoint(), ErrorType.ENDPOINT_UNREACHABLE, "Failed to set value on endpoint");
     }
 
     @Override

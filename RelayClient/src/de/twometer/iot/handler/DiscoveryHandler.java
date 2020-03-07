@@ -8,7 +8,6 @@ import de.twometer.iot.model.ModeProperty;
 import de.twometer.iot.model.Property;
 import de.twometer.iot.net.BridgeClient;
 import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +20,7 @@ import static de.twometer.iot.json.JSONStatic.newObject;
 public class DiscoveryHandler implements IHandler {
 
     @Override
-    public IResponse handle(String action, String endpoint, JSONObject payload, BridgeClient client) {
+    public IResponse handle(Request request, BridgeClient client) {
         Device[] deviceList = client.getDevices();
         List<Endpoint> endpoints = new ArrayList<>();
         for (Device device : deviceList) {
@@ -35,10 +34,10 @@ public class DiscoveryHandler implements IHandler {
         }
 
         try {
-            return new GenericResponse(getNamespace(), "Discover.Response", newObject().put("endpoints", new JSONArray(new ObjectMapper().writeValueAsString(endpoints))).object());
+            return new GenericResponse(request.getCorrelationToken(), getNamespace(), "Discover.Response", newObject().put("endpoints", new JSONArray(new ObjectMapper().writeValueAsString(endpoints))).object());
         } catch (JsonProcessingException e) {
             e.printStackTrace();
-            return new ErrorResponse(endpoint, ErrorType.INTERNAL_ERROR, e.toString());
+            return new ErrorResponse(request.getCorrelationToken(), request.getEndpoint(), ErrorType.INTERNAL_ERROR, e.toString());
         }
 
 

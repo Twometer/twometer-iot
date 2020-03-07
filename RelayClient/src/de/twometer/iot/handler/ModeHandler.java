@@ -6,16 +6,16 @@ import de.twometer.iot.alexa.IResponse;
 import de.twometer.iot.alexa.StateUpdateResponse;
 import de.twometer.iot.model.values.SimpleValue;
 import de.twometer.iot.net.BridgeClient;
-import org.json.JSONObject;
 
 public class ModeHandler implements IHandler {
 
     @Override
-    public IResponse handle(String action, String endpoint, JSONObject payload, BridgeClient client) {
-        String mode = payload.getString("mode");
-        boolean ok = client.setProperty(endpoint, "TV.InputChannel", new SimpleValue<>("mode", mode));
-        if (ok) return new StateUpdateResponse(getNamespace(), mode, mode);
-        else return new ErrorResponse(endpoint, ErrorType.ENDPOINT_UNREACHABLE, "Failed to set value on endpoint");
+    public IResponse handle(Request request, BridgeClient client) {
+        String mode = request.getPayload().getString("mode");
+        boolean ok = client.setProperty(request.getEndpoint(), "TV.InputChannel", new SimpleValue<>("mode", mode));
+        if (ok) return new StateUpdateResponse(request.getCorrelationToken(), getNamespace(), "TV.InputChannel", mode);
+        else
+            return new ErrorResponse(request.getCorrelationToken(), request.getEndpoint(), ErrorType.ENDPOINT_UNREACHABLE, "Failed to set value on endpoint");
     }
 
     @Override
