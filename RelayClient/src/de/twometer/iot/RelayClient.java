@@ -1,6 +1,7 @@
 package de.twometer.iot;
 
 import de.twometer.iot.handler.*;
+import de.twometer.iot.handler.base.IHandler;
 import de.twometer.iot.net.BridgeClient;
 import de.twometer.iot.net.BridgeDiscovery;
 import org.java_websocket.client.WebSocketClient;

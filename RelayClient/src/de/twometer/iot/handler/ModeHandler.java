@@ -5,6 +5,7 @@ import de.twometer.iot.alexa.response.ErrorResponse;
 import de.twometer.iot.alexa.response.IResponse;
 import de.twometer.iot.alexa.response.StateResponse;
 import de.twometer.iot.bridge.values.SimpleValue;
+import de.twometer.iot.handler.base.IHandler;
 import de.twometer.iot.net.BridgeClient;
 
 public class ModeHandler implements IHandler {

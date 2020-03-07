@@ -5,6 +5,7 @@ import de.twometer.iot.alexa.response.ErrorResponse;
 import de.twometer.iot.alexa.response.IResponse;
 import de.twometer.iot.alexa.response.StateResponse;
 import de.twometer.iot.bridge.Property;
+import de.twometer.iot.handler.base.IHandler;
 import de.twometer.iot.net.BridgeClient;
 import org.json.JSONObject;
 
