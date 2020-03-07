@@ -1,18 +1,35 @@
 #include <TwometerIoT.h>
+#include "HSBColor.h"
 
 TwometerIoT iot;
 
+bool hasChanged = true;
+bool currentPowerState = false;
+float currentBrightness = 1.0f;
+float currentH = 0.0f;
+float currentS = 1.0f;
+
 void setup() {
-  // First the name, then the type and finally the manufacturer
-  iot.describe({"LED Stripe", TYPE_LIGHTS_STRIPE, "Twometer Electronics"});
+  iot.describe("Smart LED Stripe", "Twometer Electronics", "A smart, fancy and colorful LED stripe light", TYPE_LIGHT);
 
-  iot.prop("color", DATA_COLOR_RGB)
-  .handle([](const Request & req) {
-    ColorRgb rgb = req.colorRgbVal();
+  iot.handle("Lamp.Brightness", [](const DynamicJsonDocument & payload) {
+    int brightness = payload["brightness"];
+    currentBrightness = (float)brightness / 100.0f;
+    hasChanged = true;
+    return true;
+  });
 
-    // TODO Update rgb outputs
+  iot.handle("Lamp.Color", [](const DynamicJsonDocument & payload) {
+    currentH = payload["hue"];
+    currentS = payload["saturation"];
+    hasChanged = true;
+    return true;
+  });
 
-    return rgb.b == 42;
+  iot.handle("Device.PowerState", [](const DynamicJsonDocument & payload) {
+    currentPowerState = payload["powerState"].as<bool>();
+    hasChanged = true;
+    return true;
   });
 
   iot.begin();
@@ -20,4 +37,15 @@ void setup() {
 
 void loop() {
   iot.update();
+
+  if (hasChanged) {
+    float h = currentH;
+    float s = curentS * 100.f;
+    float b = (currentPowerState ? currentBrightness : 0.0f) * 100.f;
+    int rgb[3];
+    H2R_HSBtoRGB(h, s, b, rgb);
+
+    // TODO Update RGB pins accordingly
+    hasChanged = false;
+  }
 }
