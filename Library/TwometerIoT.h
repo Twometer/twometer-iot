@@ -22,6 +22,8 @@ private:
 
     std::vector<Property*> properties;
 
+    unsigned long long lastPing;
+
 public:
     void describe(String modelName, String manufacturer, String description, String type) {
         String chipId = String(ESP.getChipId(), HEX);
@@ -54,6 +56,7 @@ public:
         this->server = new ESP8266WebServer(80);
 
         server->on("/ping", HTTP_GET, [&]() {
+            lastPing = millis();
             ok();
         });
 
@@ -153,6 +156,10 @@ public:
     void update() {
         server->handleClient();
         wifi.update();
+
+        if (millis() - lastPing > 120000) { // No ping for more than 2 minutes
+            wifi.reconnect(); // Upstream connection lost, try reconnecting
+        }
     }
 
 private:

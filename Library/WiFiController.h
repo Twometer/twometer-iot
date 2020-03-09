@@ -70,6 +70,14 @@ class WiFiController {
             lastWifiState = WiFi.status();
         }
 
+        void reconnect() {
+            if (WiFI.status() != WL_CONNECTED) {
+                WiFi.begin(WIFI_NAME_CTRL, wifiKey);
+                awaitConnected();
+            }
+            login();
+        }
+
     private:
         void login() {
             Serial.println("Login...");
