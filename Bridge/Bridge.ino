@@ -385,7 +385,7 @@ void updateDeviceList() {
   std::vector<ConnectedDevice>::iterator it = STORAGE.connectedDevices.begin();
   while (it != STORAGE.connectedDevices.end()) {
     String url = "http://" + it->ip + "/ping";
-    String reply = requestWithTimeout(url, 750);
+    String reply = requestWithTimeout(url, 1250);
     Serial.println("Reply: " + reply);
     if (!isOk(reply))
       it = STORAGE.connectedDevices.erase(it);
