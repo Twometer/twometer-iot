@@ -20,6 +20,10 @@ public class AlexaHandler implements IHandler {
     public IResponse handle(Request request, BridgeClient client) {
         if (request.getAction().equals("ReportState")) {
             List<Property> properties = client.getProperties(request.getEndpoint());
+            if (properties == null) {
+                return new ErrorResponse(request, ErrorType.ENDPOINT_UNREACHABLE, "Endpoint device is currently offline");
+            }
+
             List<StateResponse.PropertyItem> values = new ArrayList<>();
             for (Property property : properties) {
                 JSONObject value = client.getProperty(request.getEndpoint(), property.getName());
