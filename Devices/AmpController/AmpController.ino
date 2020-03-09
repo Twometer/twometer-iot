@@ -15,7 +15,7 @@ void setup() {
     } else if (mode == "InputChannel.Kino") {
       digitalWrite(3, HIGH);
       delay(500);
-      digitalWrite(3, LOW)
+      digitalWrite(3, LOW);
     } else return false;
 
     return true;

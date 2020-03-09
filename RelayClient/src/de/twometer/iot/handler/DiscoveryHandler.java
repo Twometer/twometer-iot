@@ -31,6 +31,8 @@ public class DiscoveryHandler implements IHandler {
         List<Endpoint> endpoints = new ArrayList<>();
         for (Device device : deviceList) {
             List<Property> properties = client.getProperties(device.getDeviceId());
+            if (properties == null)
+                continue;
             List<Capability> capabilities = new ArrayList<>();
 
             for (Property property : properties)

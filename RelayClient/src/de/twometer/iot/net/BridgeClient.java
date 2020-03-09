@@ -43,7 +43,10 @@ public class BridgeClient {
 
     public List<Property> getProperties(String deviceId) {
         try {
-            JSONArray properties = new JSONArray(doGet(bridgeUrl + "/capabilities?id=" + deviceId));
+            String deviceResponse = doGet(bridgeUrl + "/capabilities?id=" + deviceId);
+            if (deviceResponse.contains("device_offline"))
+                return null;
+            JSONArray properties = new JSONArray(deviceResponse);
             List<Property> result = new ArrayList<>();
             for (int i = 0; i < properties.length(); i++) {
                 JSONObject property = properties.getJSONObject(i);

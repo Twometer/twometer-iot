@@ -112,7 +112,20 @@ public:
         });
 
         server->on("/capabilities", HTTP_GET, [&]() {
-            int capacity = JSON_OBJECT_SIZE(properties.size()) + properties.size() * (JSON_OBJECT_SIZE(2) + 64);
+            // Calculate capacity of the JSON document
+            int capacity = JSON_OBJECT_SIZE(properties.size());
+            for (Property* prop : properties) {
+                if(prop->propertyType == PROPERTY_MODE) {
+                    ModeProperty* modeProp = (ModeProperty*) prop;
+                    capacity += JSON_OBJECT_SIZE(modeProp->entries.size() + 3) + 64; // Basic properties
+                    for (ModeEntry &entry : modeProp->entries) // Extended properties
+                      capacity += (entry.key.length() + entry.value.length());
+                } else {
+                    capacity += JSON_OBJECT_SIZE(2) + 32;
+                }
+            }
+
+            // Build JSON document
             DynamicJsonDocument doc(capacity);
             for (Property* prop : properties) {
                 if(prop->propertyType == PROPERTY_MODE) {
