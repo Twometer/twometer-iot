@@ -3,6 +3,11 @@
 
 TwometerIoT iot;
 
+#define PIN_R 0
+#define PIN_G 1
+#define PIN_B 2
+#define PIN_W 3
+
 bool hasChanged = true;
 bool currentPowerState = false;
 float currentBrightness = 1.0f;
@@ -45,7 +50,25 @@ void loop() {
     int rgb[3];
     H2R_HSBtoRGB(h, s, b, rgb);
 
-    // TODO Update RGB pins accordingly
+    if (s > 20) {
+      analogWrite(PIN_R, remapToPwm(rgb[0]);
+      analogWrite(PIN_G, remapToPwm(rgb[1]);
+      analogWrite(PIN_B, remapToPwm(rgb[2]);
+      analogWrite(PIN_W, 0);
+    } else {
+      analogWrite(PIN_R, 0);
+      analogWrite(PIN_G, 0);
+      analogWrite(PIN_B, 0);
+      analogWrite(PIN_W, int(b * 2.5f));
+    }
+
     hasChanged = false;
   }
+}
+
+// RGB is 0...255 but PWM is 0...1023 on ESP8266
+// Therefore, we have to remap this
+void remapToPwm(int colorVal) {
+  // 255 + 1 = 256; 256*4 = 1024; 1024-1 = 1023 => limits are OK
+  return (colorVal + 1) * 4 - 1;
 }
