@@ -158,8 +158,9 @@ public:
         server->handleClient();
         wifi.update();
 
-        if (millis() - lastPing > 120000) { // No ping for more than 2 minutes
+        if (millis() - lastPing > 60000) { // No ping for more than a minute (normally pings arrive every 30 secs)
             wifi.reconnect(); // Upstream connection lost, try reconnecting
+            lastPing = millis(); // Reset the last ping state to avoid login spam
         }
     }
 
