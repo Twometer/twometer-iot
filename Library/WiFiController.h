@@ -66,12 +66,13 @@ class WiFiController {
                 Serial.println("Done");
             } else if (lastWifiState == WL_CONNECTED && WiFi.status() != WL_CONNECTED) {
                 Serial.println("WiFi Connection lost");
+                WiFi.begin(WIFI_NAME_CTRL, wifiKey);
             }
             lastWifiState = WiFi.status();
         }
 
         void reconnect() {
-            if (WiFI.status() != WL_CONNECTED) {
+            if (WiFi.status() != WL_CONNECTED) {
                 WiFi.begin(WIFI_NAME_CTRL, wifiKey);
                 awaitConnected();
             }
@@ -129,10 +130,10 @@ class WiFiController {
 
             int strLen =  desc.deviceId.length() + 1
                         + desc.modelName.length() + 1
-                        + desc.manufacturer.length() + 1 
-                        + desc.description.length() + 1 
-                        + desc.type.length() + 1 
-                        + this->registerToken.length() + 1 
+                        + desc.manufacturer.length() + 1
+                        + desc.description.length() + 1
+                        + desc.type.length() + 1
+                        + this->registerToken.length() + 1
                         + 64;
 
             DynamicJsonDocument doc(JSON_OBJECT_SIZE(5) + strLen);
