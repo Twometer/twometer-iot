@@ -44,6 +44,7 @@ class WiFiController {
                 awaitConnected();
 
                 getKeys();
+                
                 WiFi.begin(WIFI_NAME_CTRL, wifiKey);
                 awaitConnected();
 
@@ -65,13 +66,17 @@ class WiFiController {
                 login();
                 Serial.println("Done");
             } else if (lastWifiState == WL_CONNECTED && WiFi.status() != WL_CONNECTED) {
-                Serial.println("WiFi Connection lost");
+                Serial.println("WiFi Connection lost, reconnecting...");
                 WiFi.begin(WIFI_NAME_CTRL, wifiKey);
             }
             lastWifiState = WiFi.status();
         }
 
         void reconnect() {
+            if (!initComplete) { // Don't try to reconnect before the initial connect
+                return;
+            }
+
             if (WiFi.status() != WL_CONNECTED) {
                 WiFi.begin(WIFI_NAME_CTRL, wifiKey);
                 awaitConnected();
