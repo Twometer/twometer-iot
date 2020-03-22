@@ -13,6 +13,7 @@
 
 #define UDP_PORT 38711
 #define HEARTBEAT_MISS_THRESHOLD 2
+#define HEARTBEAT_CHECK_DELAY 45000
 
 const char* NAME = "Twometer IoT Bridge";
 const char* VERSION = "2.0.1";
@@ -404,7 +405,7 @@ void updateDeviceList() {
 void loop() {
   httpServer.handleClient();
 
-  if (millis() - lastCheck > 30000) {
+  if (millis() - lastCheck > HEARTBEAT_CHECK_DELAY) {
     updateDeviceList();
     lastCheck = millis();
   }
