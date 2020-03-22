@@ -12,6 +12,7 @@
 #include "HttpLib.h"
 
 #define UDP_PORT 38711
+#define HEARTBEAT_MISS_THRESHOLD 2
 
 const char* NAME = "Twometer IoT Bridge";
 const char* VERSION = "2.0.1";
@@ -369,7 +370,7 @@ void setup() {
       obj["type"] = device.type;
       if (device.friendlyName != "")
         obj["friendly_name"] = device.friendlyName;
-        
+
       bool isOnline = findDevice(device.deviceId) != NULL;
       obj["online"] = isOnline;
     }
@@ -387,9 +388,14 @@ void updateDeviceList() {
     String url = "http://" + it->ip + "/ping";
     String reply = requestWithTimeout(url, 1250);
     Serial.println("Reply: " + reply);
-    if (!isOk(reply))
-      it = STORAGE.connectedDevices.erase(it);
-    else ++it;
+    if (!isOk(reply)) {
+      it->missedHeartbeats++;
+      if (it->missedHeartbeats > HEARTBEAT_MISS_THRESHOLD)
+        it = STORAGE.connectedDevices.erase(it);
+    } else {     
+      it->missedHeartbeats = 0;
+      ++it;
+    }
   }
   storage_write();
   Serial.println("* End device list update *");

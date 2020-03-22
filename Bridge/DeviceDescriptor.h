@@ -40,6 +40,7 @@ struct DeviceDescriptor {
 struct ConnectedDevice {
   String uuid;
   String ip;
+  int missedHeartbeats;
 
   bool operator==(const ConnectedDevice& b) {
     return this->uuid == b.uuid;
