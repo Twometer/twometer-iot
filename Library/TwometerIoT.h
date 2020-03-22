@@ -23,7 +23,6 @@ private:
     std::vector<Property*> properties;
 
     unsigned long long lastPing = 0;
-
 public:
     void describe(String modelName, String manufacturer, String description, String type) {
         String chipId = String(ESP.getChipId(), HEX);
@@ -51,7 +50,6 @@ public:
     void begin() {
         Serial.begin(9600);
         Serial.println("Twometer IoT Client Library v2");
-
         wifi.connect(this->descriptor);
         this->server = new ESP8266WebServer(80);
         this->lastPing = millis(); // Initialize last ping variable to avoid login spam before the WiFi is even connected

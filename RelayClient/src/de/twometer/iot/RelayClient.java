@@ -135,7 +135,7 @@ public class RelayClient {
 
         @Override
         public void onClose(int i, String s, boolean b) {
-            System.out.println("Upstream client shutdown");
+            System.out.println("Upstream client shutdown: " + s + ", " + i + ";  " + b);
 
             handleDisconnect();
         }
