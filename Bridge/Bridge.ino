@@ -13,10 +13,10 @@
 
 #define UDP_PORT 38711
 #define HEARTBEAT_MISS_THRESHOLD 2
-#define HEARTBEAT_CHECK_DELAY 45000
+#define HEARTBEAT_CHECK_DELAY 90000
 
 const char* NAME = "Twometer IoT Bridge";
-const char* VERSION = "2.0.1";
+const char* VERSION = "2.0.3";
 
 unsigned long long lastCheck = 0;
 bool schedule_exit_pair = false;
@@ -225,6 +225,13 @@ void setup() {
     }
 
     String ip = httpServer.client().remoteIP().toString();
+    std::vector<ConnectedDevice>::iterator it = STORAGE.connectedDevices.begin();
+    while (it != STORAGE.connectedDevices.end()) {
+        if (it->uuid == uuid || it->ip == ip)
+          it = STORAGE.connectedDevices.erase(it);
+        else
+          it++;
+    }
     STORAGE.connectedDevices.push_back({ uuid, ip });
     storage_write();
 
@@ -393,7 +400,8 @@ void updateDeviceList() {
       it->missedHeartbeats++;
       if (it->missedHeartbeats > HEARTBEAT_MISS_THRESHOLD)
         it = STORAGE.connectedDevices.erase(it);
-    } else {     
+      else ++it;
+    } else {
       it->missedHeartbeats = 0;
       ++it;
     }
