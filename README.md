@@ -1,6 +1,7 @@
 # Twometer's IoT system
+Open-source and low-cost IoT system that uses the [https://github.com/Twometer/nucleus-cloud](Nucleus Cloud Platform) for its secure worldwide access.
 
-## Repository:
+## Repository
 - AlexaSkill: Contains the python code for the AWS lambda hosting the skill
 - Bridge: Contains the C++ code for the ESP8266 hosting the IoT bridge
 - Devices: Contains various devices I made for the IoT system (C++/ESP)
@@ -9,7 +10,7 @@
 - RelayServer: Node between AlexaSkill and RelayClient, to avoid port forwarding
 - TwometerIotApp: Android app for managing the bridge and devices (on hold)
 
-## Protocol:
+## Protocol
 Protocol: REST (HTTP)
 Request content type: application/json
 
@@ -17,7 +18,7 @@ Bridge states:
  - Pairing: Opens /keys endpoint and pairing WiFi to distribute key material
  - Regular: Regular operation
 
-## Bridge endpoints:
+## Bridge endpoints
 ```
 GET /
  Returns version and name
@@ -54,7 +55,7 @@ GET /devices
  and if set, "friendly_name"
 ```
 
-## Device endpoints:
+## Device endpoints
 ```
 GET /
  Returns device descriptor (uuid, name, type, manufacturer)
