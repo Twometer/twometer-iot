@@ -1,5 +1,5 @@
 # Twometer's IoT system
-Open-source and low-cost IoT system that uses the [https://github.com/Twometer/nucleus-cloud](Nucleus Cloud Platform) for its secure worldwide access.
+Open-source and low-cost IoT system that uses the (https://github.com/Twometer/nucleus-cloud)[Nucleus Cloud Platform] for its secure worldwide access.
 
 ## Repository
 - AlexaSkill: Contains the python code for the AWS lambda hosting the skill
