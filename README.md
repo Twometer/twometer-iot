@@ -1,7 +1,7 @@
-Twometer's IoT system
+# Twometer's IoT system
+Open-source and low-cost IoT system that uses the [Nucleus Cloud Platform](https://github.com/Twometer/nucleus-cloud) for its secure worldwide access.
 
-Repository:
-===========
+## Repository
 - AlexaSkill: Contains the python code for the AWS lambda hosting the skill
 - Bridge: Contains the C++ code for the ESP8266 hosting the IoT bridge
 - Devices: Contains various devices I made for the IoT system (C++/ESP)
@@ -10,8 +10,7 @@ Repository:
 - RelayServer: Node between AlexaSkill and RelayClient, to avoid port forwarding
 - TwometerIotApp: Android app for managing the bridge and devices (on hold)
 
-Protocol:
-=========
+## Protocol
 Protocol: REST (HTTP)
 Request content type: application/json
 
@@ -19,8 +18,8 @@ Bridge states:
  - Pairing: Opens /keys endpoint and pairing WiFi to distribute key material
  - Regular: Regular operation
 
-Bridge endpoints:
------------------
+## Bridge endpoints
+```
 GET /
  Returns version and name
 
@@ -54,9 +53,10 @@ GET /prop
 GET /devices
  Get a list of devices, consisting of each a "uuid", "name", "type", "manufacturer",
  and if set, "friendly_name"
+```
 
-Device endpoints:
------------------
+## Device endpoints
+```
 GET /
  Returns device descriptor (uuid, name, type, manufacturer)
 
@@ -69,22 +69,21 @@ Returns a list of properties and their data types
 PUT /{prop}
 Sets the value of the property to the value supplied in body formatted
 as JSON.
+```
 
-
-Discovery:
-==========
+## Discover
 To discover a bridge in the network, send a UDP broadcast to your subnet (e.g. 192.168.1.255)
 on port 38711 consisting of the bytes "0x00 0x42 0x69". The bridge will reply to you with its
 IP address formatted as an ASCII string (e.g. 192.168.1.123).
 
 
-Alexa Integration:
-==================
-
+## Alexa Integration
 Alexa integration is done using the relay and the AlexaSkill. Communication is as following:
 
 Alexa => AlexaSkill (AWS Lambda) => RelayServer (Dedicated Server) => RelayClient (Translator
  within IoT network) => Bridge (ESP8266)
+
+> TODO: Switch to Nucleus
 
 Reasons for this complicated stuff:
 - The AWS lambda is required because Alexa skills REQUIRE an AWS Lambda as backend
