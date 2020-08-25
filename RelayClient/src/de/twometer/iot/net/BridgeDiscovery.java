@@ -12,7 +12,7 @@ public class BridgeDiscovery {
     private static final int DISCOVERY_PORT = 38711;
 
     public static String discover() throws IOException {
-        InetSocketAddress address = new InetSocketAddress("192.168.2.255", DISCOVERY_PORT);
+        InetSocketAddress address = new InetSocketAddress("10.0.2.255", DISCOVERY_PORT);
 
         DatagramSocket socket = new DatagramSocket();
         socket.setSoTimeout(25000);
