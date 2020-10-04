@@ -11,6 +11,8 @@ import de.twometer.iot.alexa.response.IResponse;
 import de.twometer.iot.bridge.Device;
 import de.twometer.iot.bridge.ModeProperty;
 import de.twometer.iot.bridge.Property;
+import de.twometer.iot.ext.ExtensionManager;
+import de.twometer.iot.ext.Scene;
 import de.twometer.iot.handler.base.IHandler;
 import de.twometer.iot.handler.util.PropertyMapper;
 import de.twometer.iot.net.BridgeClient;
@@ -26,7 +28,7 @@ import static de.twometer.iot.json.JSONStatic.newObject;
 public class DiscoveryHandler implements IHandler {
 
     @Override
-    public IResponse handle(Request request, BridgeClient client) {
+    public IResponse handle(Request request, BridgeClient client, ExtensionManager ext) {
         Device[] deviceList = client.getDevices();
         List<Endpoint> endpoints = new ArrayList<>();
         for (Device device : deviceList) {
@@ -38,7 +40,17 @@ public class DiscoveryHandler implements IHandler {
             for (Property property : properties)
                 capabilities.add(convert(property));
 
+            Capability capability = new Capability();
+            capability.setType("AlexaInterface");
+            capability.set_interface("Alexa");
+            capability.setVersion("3");
+            capabilities.add(capability);
+
             endpoints.add(new Endpoint(device.getDeviceId(), device.getManufacturer(), device.getDescription(), device.getPreferredName(), new String[]{device.getType()}, capabilities.toArray(new Capability[]{})));
+        }
+
+        for (Scene scene : ext.getScenes()) {
+            endpoints.add(buildSceneEndpoint(scene.id, scene.friendlyName, scene.description));
         }
 
         try {
@@ -49,6 +61,18 @@ public class DiscoveryHandler implements IHandler {
         }
 
 
+    }
+
+    private Endpoint buildSceneEndpoint(String endpointId, String friendlyName, String description) {
+        Capability.SceneCap c = new Capability.SceneCap();
+        c.setType("AlexaInterface");
+        c.set_interface("Alexa.SceneController");
+        c.setVersion("3");
+        c.supportsDeactivation = false;
+
+        Capability[] caps = new Capability[]{c};
+        Endpoint ep = new Endpoint(endpointId, "Twometer Applications", description, friendlyName, new String[]{"ACTIVITY_TRIGGER"}, caps);
+        return ep;
     }
 
     private Capability convert(Property property) {
@@ -78,7 +102,6 @@ public class DiscoveryHandler implements IHandler {
 
         return capability;
     }
-
 
 
     @Override

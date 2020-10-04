@@ -7,6 +7,12 @@ import java.util.List;
 
 public class Capability {
 
+    public static class SceneCap extends Capability {
+
+        public boolean supportsDeactivation = false;
+
+    }
+
     private String type;
 
     @JsonProperty("interface")

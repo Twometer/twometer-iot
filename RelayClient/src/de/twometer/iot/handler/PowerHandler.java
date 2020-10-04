@@ -5,6 +5,7 @@ import de.twometer.iot.alexa.response.ErrorResponse;
 import de.twometer.iot.alexa.response.IResponse;
 import de.twometer.iot.alexa.response.StateResponse;
 import de.twometer.iot.bridge.values.SimpleValue;
+import de.twometer.iot.ext.ExtensionManager;
 import de.twometer.iot.handler.base.IHandler;
 import de.twometer.iot.handler.util.PropertyProcessor;
 import de.twometer.iot.net.BridgeClient;
@@ -12,7 +13,7 @@ import de.twometer.iot.net.BridgeClient;
 public class PowerHandler implements IHandler {
 
     @Override
-    public IResponse handle(Request request, BridgeClient client) {
+    public IResponse handle(Request request, BridgeClient client, ExtensionManager ext) {
         boolean newState = request.getAction().equals("TurnOn");
         boolean ok = client.setProperty(request.getEndpoint(), "Device.PowerState", new SimpleValue<>("powerState", newState));
 

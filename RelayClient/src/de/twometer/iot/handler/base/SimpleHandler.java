@@ -6,15 +6,16 @@ import de.twometer.iot.alexa.response.IResponse;
 import de.twometer.iot.alexa.response.StateResponse;
 import de.twometer.iot.bridge.values.JsonValue;
 import de.twometer.iot.bridge.values.SimpleValue;
+import de.twometer.iot.ext.ExtensionManager;
 import de.twometer.iot.handler.Request;
 import de.twometer.iot.net.BridgeClient;
 import org.json.JSONObject;
 
 public abstract class SimpleHandler implements IHandler {
 
-    private String alexaPropertyName;
-    private String bridgePropertyName;
-    private ValueType valueType;
+    private final String alexaPropertyName;
+    private final String bridgePropertyName;
+    private final ValueType valueType;
 
     public SimpleHandler(String alexaPropertyName, String bridgePropertyName, ValueType valueType) {
         this.alexaPropertyName = alexaPropertyName;
@@ -23,7 +24,7 @@ public abstract class SimpleHandler implements IHandler {
     }
 
     @Override
-    public IResponse handle(Request request, BridgeClient client) {
+    public IResponse handle(Request request, BridgeClient client, ExtensionManager ext) {
         Object data = request.getPayload().get(alexaPropertyName);
 
         boolean ok;

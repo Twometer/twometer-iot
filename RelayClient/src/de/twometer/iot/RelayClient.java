@@ -1,5 +1,6 @@
 package de.twometer.iot;
 
+import de.twometer.iot.ext.ExtensionManager;
 import de.twometer.iot.handler.*;
 import de.twometer.iot.handler.base.IHandler;
 import de.twometer.iot.net.BridgeClient;
@@ -14,15 +15,15 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Objects;
 
-public class RelayClient {
+import static de.twometer.iot.security.Tokens.UPSTREAM_TOKEN;
 
-    private static final String UPSTREAM_TOKEN = "Rcddvfdnctvl8LU9a9LKOrilcfL859pSpnsRF11M";
+public class RelayClient {
 
     private static String bridgeUrl;
 
     private static BridgeClient client;
 
-    private static IHandler[] handlers = new IHandler[]{
+    private static final IHandler[] handlers = new IHandler[]{
             new DiscoveryHandler(),
             new ColorHandler(),
             new BrightnessHandler(),
@@ -30,6 +31,7 @@ public class RelayClient {
             new AlexaHandler(),
             new PowerHandler()
     };
+    private static ExtensionManager ext;
 
     public static void main(String[] args) throws URISyntaxException, IOException {
         if (bridgeUrl == null) {
@@ -91,7 +93,7 @@ public class RelayClient {
     private static String handleMessage(String namespace, Request request) {
         for (IHandler handler : handlers) {
             if (Objects.equals(handler.getNamespace(), namespace)) {
-                return handler.handle(request, client).toJson().toString();
+                return handler.handle(request, client, ext).toJson().toString();
             }
         }
         System.out.println(" Couldn't figure out how to handle " + namespace + "::" + request.getAction());
