@@ -5,14 +5,14 @@ import de.twometer.iot.alexa.response.ErrorResponse;
 import de.twometer.iot.alexa.response.IResponse;
 import de.twometer.iot.alexa.response.StateResponse;
 import de.twometer.iot.bridge.values.SimpleValue;
-import de.twometer.iot.ext.ExtensionManager;
 import de.twometer.iot.handler.base.IHandler;
 import de.twometer.iot.net.BridgeClient;
+import de.twometer.iot.scene.SceneManager;
 
 public class ModeHandler implements IHandler {
 
     @Override
-    public IResponse handle(Request request, BridgeClient client, ExtensionManager ext) {
+    public IResponse handle(Request request, BridgeClient client, SceneManager ext) {
         String mode = request.getPayload().getString("mode");
         boolean ok = client.setProperty(request.getEndpoint(), request.getInstance(), new SimpleValue<>("mode", mode));
 

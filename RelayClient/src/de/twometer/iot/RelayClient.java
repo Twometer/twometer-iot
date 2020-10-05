@@ -1,10 +1,12 @@
 package de.twometer.iot;
 
-import de.twometer.iot.ext.ExtensionManager;
 import de.twometer.iot.handler.*;
 import de.twometer.iot.handler.base.IHandler;
 import de.twometer.iot.net.BridgeClient;
 import de.twometer.iot.net.BridgeDiscovery;
+import de.twometer.iot.rest.RestServer;
+import de.twometer.iot.scene.Scene;
+import de.twometer.iot.scene.SceneManager;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 import org.json.JSONException;
@@ -29,9 +31,11 @@ public class RelayClient {
             new BrightnessHandler(),
             new ModeHandler(),
             new AlexaHandler(),
-            new PowerHandler()
+            new PowerHandler(),
+            new SceneHandler()
     };
-    private static ExtensionManager ext;
+    private static SceneManager sceneManager;
+    private static RestServer restServer;
 
     public static void main(String[] args) throws URISyntaxException, IOException {
         if (bridgeUrl == null) {
@@ -57,6 +61,40 @@ public class RelayClient {
                 e.printStackTrace();
             }
         };
+
+        if (restServer == null) {
+            sceneManager = new SceneManager();
+            restServer = new RestServer(8090);
+            restServer.host("GET", "/devices", request -> client.getDevices());
+            restServer.host("POST", "/scene", request -> {
+                Scene requestScene = request.getBody(Scene.class);
+                if (requestScene == null)
+                    return "bad request";
+                sceneManager.addScene(requestScene);
+                sceneManager.save();
+                return "ok";
+            });
+            restServer.host("DELETE", "/scene", request -> {
+                SceneDeleteRequest r = request.getBody(SceneDeleteRequest.class);
+                sceneManager.deleteScene(r.id);
+                sceneManager.save();
+                return "ok";
+            });
+            restServer.start();
+            System.out.println("REST API online");
+        }
+
+
+    }
+
+    private static String handleMessage(String namespace, Request request) {
+        for (IHandler handler : handlers) {
+            if (Objects.equals(handler.getNamespace(), namespace)) {
+                return handler.handle(request, client, sceneManager).toJson().toString();
+            }
+        }
+        System.out.println(" Couldn't figure out how to handle " + namespace + "::" + request.getAction());
+        return "{\"error\": \"unknown_action\"}";
     }
 
     private static String handleMessage(String message) {
@@ -90,14 +128,8 @@ public class RelayClient {
         }
     }
 
-    private static String handleMessage(String namespace, Request request) {
-        for (IHandler handler : handlers) {
-            if (Objects.equals(handler.getNamespace(), namespace)) {
-                return handler.handle(request, client, ext).toJson().toString();
-            }
-        }
-        System.out.println(" Couldn't figure out how to handle " + namespace + "::" + request.getAction());
-        return "{\"error\": \"unknown_action\"}";
+    private static class SceneDeleteRequest {
+        public String id;
     }
 
     private static class UpstreamClient extends WebSocketClient {

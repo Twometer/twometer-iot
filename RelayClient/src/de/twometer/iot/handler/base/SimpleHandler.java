@@ -6,9 +6,9 @@ import de.twometer.iot.alexa.response.IResponse;
 import de.twometer.iot.alexa.response.StateResponse;
 import de.twometer.iot.bridge.values.JsonValue;
 import de.twometer.iot.bridge.values.SimpleValue;
-import de.twometer.iot.ext.ExtensionManager;
 import de.twometer.iot.handler.Request;
 import de.twometer.iot.net.BridgeClient;
+import de.twometer.iot.scene.SceneManager;
 import org.json.JSONObject;
 
 public abstract class SimpleHandler implements IHandler {
@@ -24,7 +24,7 @@ public abstract class SimpleHandler implements IHandler {
     }
 
     @Override
-    public IResponse handle(Request request, BridgeClient client, ExtensionManager ext) {
+    public IResponse handle(Request request, BridgeClient client, SceneManager ext) {
         Object data = request.getPayload().get(alexaPropertyName);
 
         boolean ok;

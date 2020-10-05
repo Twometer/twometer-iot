@@ -11,11 +11,11 @@ import de.twometer.iot.alexa.response.IResponse;
 import de.twometer.iot.bridge.Device;
 import de.twometer.iot.bridge.ModeProperty;
 import de.twometer.iot.bridge.Property;
-import de.twometer.iot.ext.ExtensionManager;
-import de.twometer.iot.ext.Scene;
 import de.twometer.iot.handler.base.IHandler;
 import de.twometer.iot.handler.util.PropertyMapper;
 import de.twometer.iot.net.BridgeClient;
+import de.twometer.iot.scene.Scene;
+import de.twometer.iot.scene.SceneManager;
 import org.json.JSONArray;
 
 import java.util.ArrayList;
@@ -28,7 +28,7 @@ import static de.twometer.iot.json.JSONStatic.newObject;
 public class DiscoveryHandler implements IHandler {
 
     @Override
-    public IResponse handle(Request request, BridgeClient client, ExtensionManager ext) {
+    public IResponse handle(Request request, BridgeClient client, SceneManager ext) {
         Device[] deviceList = client.getDevices();
         List<Endpoint> endpoints = new ArrayList<>();
         for (Device device : deviceList) {
@@ -50,7 +50,7 @@ public class DiscoveryHandler implements IHandler {
         }
 
         for (Scene scene : ext.getScenes()) {
-            endpoints.add(buildSceneEndpoint(scene.id, scene.friendlyName, scene.description));
+            endpoints.add(buildSceneEndpoint(scene.getId(), scene.getFriendlyName(), scene.getDescription(), scene.isCanSwitchOff()));
         }
 
         try {
@@ -63,12 +63,12 @@ public class DiscoveryHandler implements IHandler {
 
     }
 
-    private Endpoint buildSceneEndpoint(String endpointId, String friendlyName, String description) {
+    private Endpoint buildSceneEndpoint(String endpointId, String friendlyName, String description, boolean canDeactivate) {
         Capability.SceneCap c = new Capability.SceneCap();
         c.setType("AlexaInterface");
         c.set_interface("Alexa.SceneController");
         c.setVersion("3");
-        c.supportsDeactivation = false;
+        c.supportsDeactivation = canDeactivate;
 
         Capability[] caps = new Capability[]{c};
         Endpoint ep = new Endpoint(endpointId, "Twometer Applications", description, friendlyName, new String[]{"ACTIVITY_TRIGGER"}, caps);

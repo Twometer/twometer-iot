@@ -5,11 +5,11 @@ import de.twometer.iot.alexa.response.ErrorResponse;
 import de.twometer.iot.alexa.response.IResponse;
 import de.twometer.iot.alexa.response.StateResponse;
 import de.twometer.iot.bridge.Property;
-import de.twometer.iot.ext.ExtensionManager;
 import de.twometer.iot.handler.base.IHandler;
 import de.twometer.iot.handler.util.PropertyMapper;
 import de.twometer.iot.handler.util.PropertyProcessor;
 import de.twometer.iot.net.BridgeClient;
+import de.twometer.iot.scene.SceneManager;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -18,7 +18,7 @@ import java.util.List;
 public class AlexaHandler implements IHandler {
 
     @Override
-    public IResponse handle(Request request, BridgeClient client, ExtensionManager ext) {
+    public IResponse handle(Request request, BridgeClient client, SceneManager ext) {
         if (request.getAction().equals("ReportState")) {
             List<Property> properties = client.getProperties(request.getEndpoint());
             if (properties == null) {
