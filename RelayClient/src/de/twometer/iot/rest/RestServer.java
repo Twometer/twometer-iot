@@ -39,7 +39,7 @@ public class RestServer {
             String response;
             ObjectMapper mapper = new ObjectMapper();
             try {
-                Object reply = handler.handle(new HttpRequest(req));
+                Object reply = handler.handle(new HttpRequest(req, httpExchange.getRequestURI().getQuery()));
                 response = mapper.writeValueAsString(reply);
             } catch (Throwable t) {
 

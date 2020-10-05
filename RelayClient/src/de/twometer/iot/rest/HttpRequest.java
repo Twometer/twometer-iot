@@ -8,8 +8,15 @@ public class HttpRequest {
 
     private final String body;
 
-    public HttpRequest(String body) {
+    private final String query;
+
+    public HttpRequest(String body, String query) {
         this.body = body;
+        this.query = query;
+    }
+
+    public String getQuery() {
+        return query;
     }
 
     public String getBody() {

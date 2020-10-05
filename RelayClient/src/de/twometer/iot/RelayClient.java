@@ -66,6 +66,10 @@ public class RelayClient {
             sceneManager = new SceneManager();
             restServer = new RestServer(8090);
             restServer.host("GET", "/devices", request -> client.getDevices());
+            restServer.host("GET", "/properties", request -> {
+
+                return client.getProperties(request.getQuery().substring("device=".length()));
+            });
             restServer.host("POST", "/scene", request -> {
                 Scene requestScene = request.getBody(Scene.class);
                 if (requestScene == null)
