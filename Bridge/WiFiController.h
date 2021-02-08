@@ -21,7 +21,7 @@ class WiFiController {
         STORAGE.wifiKey = GenerateKey(32);
         storage_write();
       }
-      WiFi.softAP(WIFI_NAME_CTRL, STORAGE.wifiKey);
+      WiFi.softAP(WIFI_NAME_CTRL, STORAGE.wifiKey, 2, 0, 8);
       Connect();
 
       digitalWrite(LED_ONLINE, HIGH);
