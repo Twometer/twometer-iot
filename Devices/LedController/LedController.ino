@@ -3,10 +3,10 @@
 
 TwometerIoT iot;
 
-#define PIN_R 5
-#define PIN_G 4
+#define PIN_R 13
+#define PIN_G 12
 #define PIN_B 14
-#define PIN_W 12
+#define PIN_W 4
 
 struct Color {
   float h;
