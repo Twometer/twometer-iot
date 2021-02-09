@@ -1,5 +1,5 @@
 # Twometer's IoT system
-Open-source and low-cost IoT system that uses the [Nucleus Cloud Platform](https://github.com/Twometer/nucleus-cloud) for its secure worldwide access.
+
 
 ## Repository
 - AlexaSkill: Contains the python code for the AWS lambda hosting the skill
@@ -82,8 +82,6 @@ Alexa integration is done using the relay and the AlexaSkill. Communication is a
 
 Alexa => AlexaSkill (AWS Lambda) => RelayServer (Dedicated Server) => RelayClient (Translator
  within IoT network) => Bridge (ESP8266) => Device (ESP8266)
-
-> TODO: Switch to Nucleus
 
 Reasons for this complicated stuff:
 - The AWS lambda is required because Alexa skills REQUIRE an AWS Lambda as backend
