@@ -81,7 +81,7 @@ IP address formatted as an ASCII string (e.g. 192.168.1.123).
 Alexa integration is done using the relay and the AlexaSkill. Communication is as following:
 
 Alexa => AlexaSkill (AWS Lambda) => RelayServer (Dedicated Server) => RelayClient (Translator
- within IoT network) => Bridge (ESP8266)
+ within IoT network) => Bridge (ESP8266) => Device (ESP8266)
 
 > TODO: Switch to Nucleus
 
@@ -90,3 +90,9 @@ Reasons for this complicated stuff:
 - The RelayServer is required to avoid port forwarding in the local network
 - The RelayClient is required because I can't run it directly on the ESP8266 because it does
   not have enough cores for a server and a client (single-core system)
+
+## Rebuild Roadmap
+
+5 hops for turning on a single LED is not exactly efficient, so lets fix that and make it 4
+
+Alexa => Skill (AWS) => Fiber (Server) => Bridge (RPi) => Device (ESP8266)

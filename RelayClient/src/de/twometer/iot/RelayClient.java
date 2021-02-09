@@ -15,9 +15,9 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
-
-import static de.twometer.iot.security.Tokens.UPSTREAM_TOKEN;
 
 public class RelayClient {
 
@@ -45,7 +45,10 @@ public class RelayClient {
             System.out.println("Discovered: " + bridgeUrl);
         }
 
-        UpstreamClient upstreamClient = new UpstreamClient(new URI("wss://iot.twometer.de/websocket"));
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Authorization", "X-FiberAuth token_here");
+
+        UpstreamClient upstreamClient = new UpstreamClient(new URI("wss://fibers.twometer.de/twometer-iot/subscribe"), headers);
         upstreamClient.connect();
 
         upstreamClient.disconnectListener = () -> {
@@ -101,12 +104,12 @@ public class RelayClient {
         return "{\"error\": \"unknown_action\"}";
     }
 
-    private static String handleMessage(String message) {
+    private static JSONObject handleMessage(JSONObject message) {
         System.out.println("Handling message:");
         System.out.println(" " + message);
 
         try {
-            JSONObject object = new JSONObject(message).getJSONObject("directive");
+            JSONObject object = message.getJSONObject("directive");
             JSONObject header = object.getJSONObject("header");
 
             String namespace = header.getString("namespace");
@@ -117,18 +120,18 @@ public class RelayClient {
 
             if (!payloadVersion.equals("3")) {
                 System.err.println(" ERR: Invalid payload version " + payloadVersion);
-                return "";
+                return new JSONObject();
             }
 
             String endpoint = object.has("endpoint") ? object.getJSONObject("endpoint").getString("endpointId") : "";
             Request request = new Request(name, endpoint, instance, corToken, object.getJSONObject("payload"));
 
-            return handleMessage(namespace, request);
+            return new JSONObject(handleMessage(namespace, request));
 
         } catch (JSONException e) {
             System.out.println(" ERR: Message was malformed");
             e.printStackTrace();
-            return "{\"error\": \"malformed_request\"}";
+            return new JSONObject("{\"error\": \"malformed_request\"}");
         }
     }
 
@@ -140,14 +143,14 @@ public class RelayClient {
 
         public Runnable disconnectListener;
 
-        public UpstreamClient(URI serverUri) {
-            super(serverUri);
+        public UpstreamClient(URI serverUri, Map<String, String> headers) {
+            super(serverUri, headers);
         }
 
         @Override
         public void onOpen(ServerHandshake serverHandshake) {
             System.out.println("Upstream client online");
-            send(UPSTREAM_TOKEN);
+            // send(UPSTREAM_TOKEN);
         }
 
         @Override
@@ -158,22 +161,22 @@ public class RelayClient {
                 System.out.println("Status changed: " + object.get("status"));
             } else {
                 // It's a business message
-                String messageId = object.getString("uuid");
-                String payload = object.getString("message");
-                String reply = handleMessage(payload);
+                String messageId = object.getString("id");
+                JSONObject payload = object.getJSONObject("payload");
+                JSONObject reply = handleMessage(payload);
 
                 System.out.println(" Sending reply: " + reply);
 
                 JSONObject replyObject = new JSONObject();
-                replyObject.put("uuid", messageId);
-                replyObject.put("response", reply);
+                replyObject.put("id", messageId);
+                replyObject.put("payload", reply);
                 send(replyObject.toString());
             }
         }
 
         @Override
-        public void onClose(int i, String s, boolean b) {
-            System.out.println("Upstream client shutdown: " + s + ", " + i + ";  " + b);
+        public void onClose(int code, String reason, boolean remote) {
+            System.out.println("Upstream client shutdown: reason=" + reason + "; code=" + code + "; remote=" + remote);
 
             handleDisconnect();
         }

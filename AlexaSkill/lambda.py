@@ -4,8 +4,8 @@ import json
 import uuid
 import requests
 
-RELAIS_SERVER = "https://iot.twometer.de/api/relay/"
-RELAIS_SERVER_AUTH = "X-TokenAuth U4UE8ytYa4CMAWIwNZQ8Hu3CGhiYGuh7XrMVv42J"
+RELAIS_SERVER = "https://fibers.twometer.de/twometer-iot/publish/"
+RELAIS_SERVER_AUTH = "X-FiberAuth $token$"
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
