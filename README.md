@@ -1,10 +1,12 @@
-# Twometer's IoT system
+# ✨Luminosity IoT system
 
-# ✨3.x Development Branch
+Luminosity is a DIY open source IoT and smart home system.
+
+> **This is the version 3 development branch**
 
 
 
-## Repository
+## Repository layout
 
 - AlexaSkill: Contains the python code for the AWS lambda hosting the skill
 - Bridge: Contains the C++ code for the ESP8266 hosting the IoT bridge
