@@ -2,6 +2,8 @@
 
 This page describes the legacy version 2 API. Version 3 servers must be backwards-compatible with version 2 devices. 
 
+Note that version 1 and 2 were called "Twometer IoT" instead of "Luminosity". Therefore, some legacy documentation and/or code may still use the o
+
 ## Protocol
 
 Protocol: REST (HTTP)

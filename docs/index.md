@@ -1,3 +1,3 @@
-# Twometer IoT
+# ✨Luminosity IoT
 
-A diy Internet of Things system.
+Luminosity is a DIY open source IoT and smart home system.
