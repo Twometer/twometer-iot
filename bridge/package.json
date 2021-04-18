@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/Twometer/luminosity#readme",
   "dependencies": {
+    "axios": "^0.21.1",
     "xa": "^2.4.0"
   }
 }
