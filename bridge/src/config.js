@@ -6,6 +6,7 @@ const Config = {
     FIBER_KEY: '',
     FIBER_URL: '',
     REST_PORT: 0,
+    MONGO_URL: ''
 };
 
 function parseValue(string, type) {
