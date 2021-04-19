@@ -7,6 +7,10 @@ const fiber = require('./alexa/fiber')
 const config = require('./config')
 const logger = require('xa')
 
+logger.success = function (text) {
+    logger.custom('OKAY', text, {backgroundColor: 'green'});
+}
+
 async function main() {
     logger.info(`Staring ${packageInfo.name} v${packageInfo.version}...`);
     config.load();
