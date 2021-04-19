@@ -4,7 +4,8 @@ const ENV_PREFIX = 'LUMI_';
 
 const Config = {
     FIBER_KEY: '',
-    FIBER_URL: ''
+    FIBER_URL: '',
+    REST_PORT: 0,
 };
 
 function parseValue(string, type) {
