@@ -3,9 +3,9 @@
 const ENV_PREFIX = 'LUMI_';
 
 const Config = {
+    REST_PORT: 0,
     FIBER_KEY: '',
     FIBER_URL: '',
-    REST_PORT: 0,
     MONGO_URL: ''
 };
 
