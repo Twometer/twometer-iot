@@ -20,4 +20,7 @@ async function main() {
 }
 
 main().then(() => logger.success('Startup complete'))
-    .catch(e => logger.error(`Startup failed: ${e}`));
+    .catch(e => {
+        logger.error(e.stack);
+        process.exit(1);
+    });
