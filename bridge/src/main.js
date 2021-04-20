@@ -2,7 +2,7 @@
 
 const packageInfo = require('../package.json')
 
-const alexaHandler = require('./alexa/handler')
+const alexaHandler = require('./alexa/handlers')
 const database = require('./db/database')
 const webapp = require('./rest/webapp')
 const config = require('./config')
