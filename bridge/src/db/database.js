@@ -24,7 +24,7 @@ module.exports.Device = mongoose.model('Device', {
     friendlyName: String,
     manufacturer: String,
     description: String,
-    capabilities: [{key: String, type: String, direction: String, friendlyName: String, valueRange: String}],
+    properties: [{key: String, type: String, direction: String, friendlyName: String, valueRange: String}],
     currentState: [{key: String, value: String}]
 });
 
@@ -32,5 +32,5 @@ module.exports.Scene = mongoose.model('Scene', {
     _id: String,
     name: String,
     description: String,
-    actions: [{deviceId: String, capKey: String, capValue: String}]
+    actions: [{deviceId: String, propertyKey: String, propertyValue: String}]
 })
