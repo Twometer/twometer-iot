@@ -1,9 +1,9 @@
 'use strict';
 
-function handleDiscover(request) {
+const db = require('../database')
 
-
-
+async function handleDiscover(request) {
+    
 }
 
 module.exports = {

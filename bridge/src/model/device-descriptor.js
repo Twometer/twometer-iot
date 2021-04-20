@@ -1,6 +1,6 @@
 'use strict';
 
-function Device(id, modelName, manufacturer, description, type) {
+function DeviceDescriptor(id, modelName, manufacturer, description, type) {
     this.id = id;
     this.modelName = modelName;
     this.friendlyName = modelName;
@@ -9,4 +9,4 @@ function Device(id, modelName, manufacturer, description, type) {
     this.type = type;
 }
 
-module.exports = Device;
+module.exports = DeviceDescriptor;

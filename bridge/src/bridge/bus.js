@@ -1,6 +1,6 @@
 'use strict';
 
-const db = require('../db/database')
+const db = require('../database')
 
 const BusDirection = {
     Upstream: 'up',

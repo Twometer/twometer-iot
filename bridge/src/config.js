@@ -6,7 +6,11 @@ const Config = {
     REST_PORT: 0,
     FIBER_KEY: '',
     FIBER_URL: '',
-    MONGO_URL: ''
+    MONGO_URL: '',
+    PING_WAVE_INTERVAL: 0,
+    PAIRING_WIFI_SSID: '',
+    WIFI_SSID: '',
+    WIFI_PASS: '',
 };
 
 function parseValue(string, type) {

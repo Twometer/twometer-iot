@@ -2,8 +2,9 @@
 
 const packageInfo = require('../package.json')
 
+const deviceManager = require('./bridge/device-manager')
 const alexaHandler = require('./alexa/handlers')
-const database = require('./db/database')
+const database = require('./database')
 const webapp = require('./rest/webapp')
 const config = require('./config')
 const logger = require('xa')
@@ -15,6 +16,7 @@ logger.success = function (text) {
 async function main() {
     logger.info(`Staring ${packageInfo.name} v${packageInfo.version}...`);
     config.load();
+    await deviceManager.initialize();
     await alexaHandler.initialize();
     await database.connect();
     await webapp.start();
