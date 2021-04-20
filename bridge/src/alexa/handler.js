@@ -1,24 +1,19 @@
 'use strict';
 
 const fiber = require('./fiber')
-const { v4: uuid } = require('uuid');
+const Message = require('./message')
 
 async function initialize() {
     await fiber.connect();
     fiber.setHandler(fiberHandler);
 }
 
-async function fiberHandler(message) {
-    if (message.payloadVersion !== '3') {
-        return;
+async function fiberHandler(request) {
+    if (request.payloadVersion !== '3') {
+        return Message.createErrorResponse(request, Message.ErrorType.InvalidDirective, 'Unsupported payload version.');
     }
 
-    let response = {};
-
-
-
-
-    return response;
+    return {};
 }
 
 module.exports = {initialize}
