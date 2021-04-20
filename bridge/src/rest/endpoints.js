@@ -1,8 +1,8 @@
 'use strict';
 
 const endpoints = [
-    require('./default-endpoint'),
-    require('./scenes-endpoint')
+    require('./endpoint-default'),
+    require('./endpoint-scenes')
 ];
 
 function registerEndpoint(app, endpoint) {
