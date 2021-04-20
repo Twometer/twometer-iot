@@ -15,4 +15,14 @@ function connect() {
     });
 }
 
+module.exports.Device = mongoose.model('Device', {
+    _id: String,
+    modelName: String,
+    friendlyName: String,
+    manufacturer: String,
+    description: String,
+    type: String,
+    values: []
+});
+
 module.exports = {connection: mongoose.connection, connect}
