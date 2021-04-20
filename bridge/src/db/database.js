@@ -15,14 +15,22 @@ function connect() {
     });
 }
 
+module.exports = {connection: mongoose.connection, connect}
+
 module.exports.Device = mongoose.model('Device', {
     _id: String,
+    type: String,
     modelName: String,
     friendlyName: String,
     manufacturer: String,
     description: String,
-    type: String,
-    values: []
+    capabilities: [{key: String, type: String, direction: String, friendlyName: String, valueRange: String}],
+    currentState: [{key: String, value: String}]
 });
 
-module.exports = {connection: mongoose.connection, connect}
+module.exports.Scene = mongoose.model('Scene', {
+    _id: String,
+    name: String,
+    description: String,
+    actions: [{deviceId: String, capKey: String, capValue: String}]
+})
