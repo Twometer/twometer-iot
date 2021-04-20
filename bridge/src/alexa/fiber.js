@@ -33,9 +33,10 @@ module.exports = {
             });
             socket.on('message', msg => {
                 if (!this.handler) return;
-                let response = this.handler(JSON.parse(msg));
-                if (!response) return;
-                socket.send(JSON.stringify(response));
+                Promise.resolve(this.handler(JSON.parse(msg))).then(response => {
+                    if (!response) return;
+                    this.send(response);
+                });
             });
         })
     },
