@@ -8,18 +8,16 @@ Luminosity is a DIY open source IoT and smart home system.
 
 ## Repository layout
 
-- AlexaSkill: Contains the python code for the AWS lambda hosting the skill
-- Bridge: Contains the C++ code for the ESP8266 hosting the IoT bridge
-- Devices: Contains various devices I made for the IoT system (C++/ESP)
-- Library: Client library to facilitate device building (C++/ESP)
-- ~~RelayClient: Client for the RelayServer, translates between Alexa and the bridge~~
-- ~~RelayServer: Node between AlexaSkill and RelayClient, to avoid port forwarding~~
-- ~~TwometerIotApp: Android app for managing the bridge and devices (on hold)~~
+- bridge: Node.js application designed for Raspberry Pi which hosts the IoT bridge
+- devices: Contains a collection of IoT device implementations
+- docs: The mkdocs documentation for the project
+- lambda: The AWS lambda which connects the bridge to Alexa.
+- library: Arduino library for easy building of client devices.
 
 
+## Data flow
+`Alexa` -> `AWS Lambda` -> `fibers` -> `Bridge (RPi)` -> `Device (ESP8266)`
 
-## Rebuild Roadmap
+Fibers is my [message passing service](https://github.com/Twometer/fibers)
 
-5 hops for turning on a single LED is not exactly efficient, so lets fix that and make it 4
-
-Alexa => Skill (AWS) => Fiber (Server) => Bridge (RPi) => Device (ESP8266)
+The bridge can be controlled and configured using clients in the same local network, without any use of Amazon components.
