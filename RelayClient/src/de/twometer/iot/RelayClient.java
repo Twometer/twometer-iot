@@ -46,9 +46,9 @@ public class RelayClient {
         }
 
         Map<String, String> headers = new HashMap<>();
-        headers.put("Authorization", "X-FiberAuth token_here");
+        headers.put("Authorization", "X-FiberAuth key_here");
 
-        UpstreamClient upstreamClient = new UpstreamClient(new URI("wss://fibers.twometer.de/twometer-iot/subscribe"), headers);
+        UpstreamClient upstreamClient = new UpstreamClient(new URI("wss://fibers.twometer.de/twometer-iot/stream"), headers);
         upstreamClient.connect();
 
         upstreamClient.disconnectListener = () -> {
@@ -69,10 +69,7 @@ public class RelayClient {
             sceneManager = new SceneManager();
             restServer = new RestServer(8090);
             restServer.host("GET", "/devices", request -> client.getDevices());
-            restServer.host("GET", "/properties", request -> {
-
-                return client.getProperties(request.getQuery().substring("device=".length()));
-            });
+            restServer.host("GET", "/properties", request -> client.getProperties(request.getQuery().substring("device=".length())));
             restServer.host("POST", "/scene", request -> {
                 Scene requestScene = request.getBody(Scene.class);
                 if (requestScene == null)
@@ -156,6 +153,13 @@ public class RelayClient {
         @Override
         public void onMessage(String s) {
             JSONObject object = new JSONObject(s);
+            if (object.getString("type").equals("ping")) {
+                JSONObject replyObject = new JSONObject();
+                replyObject.put("id", object.getString("id"));
+                replyObject.put("type", "pong");
+                return;
+            }
+
             if (object.has("status")) {
                 // It's a status message
                 System.out.println("Status changed: " + object.get("status"));
@@ -169,6 +173,7 @@ public class RelayClient {
 
                 JSONObject replyObject = new JSONObject();
                 replyObject.put("id", messageId);
+                replyObject.put("type", "response");
                 replyObject.put("payload", reply);
                 send(replyObject.toString());
             }
