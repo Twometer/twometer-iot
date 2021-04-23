@@ -34,7 +34,8 @@ module.exports = {
     async initialize() {
         setInterval(this._sendPingWave, config.PING_WAVE_INTERVAL)
 
-        for (let proto of protocols) {
+        for (let protoId in protocols) {
+            let proto = protocols[protoId];
             await proto.initialize();
             proto.setCallback(this._onDeviceAdded);
         }

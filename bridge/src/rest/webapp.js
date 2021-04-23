@@ -1,6 +1,6 @@
 'use strict';
 
-const logger = require('xa')
+const logger = require('cutelog.js')
 const express = require('express')
 const config = require('../config')
 const bodyParser = require('body-parser')
@@ -12,9 +12,9 @@ const app = express();
 app.use(bodyParser.json());
 
 function startServer() {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
         server = app.listen(config.REST_PORT, () => {
-            logger.success(`REST server started on port ${config.REST_PORT}`);
+            logger.okay(`REST server started on port ${config.REST_PORT}`);
             resolve();
         });
     })

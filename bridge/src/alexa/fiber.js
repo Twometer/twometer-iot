@@ -2,7 +2,7 @@
 
 const config = require('../config')
 const WebSocket = require('ws')
-const logger = require('xa')
+const logger = require('cutelog.js')
 
 let socket;
 
@@ -25,7 +25,7 @@ module.exports = {
             });
 
             socket.on('open', () => {
-                logger.success("Connected to the fiber.")
+                logger.okay("Connected to the fiber.")
                 resolve();
             });
             socket.on('error', e => {

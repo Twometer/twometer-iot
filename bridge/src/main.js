@@ -7,11 +7,7 @@ const alexaHandler = require('./alexa/handlers')
 const database = require('./database')
 const webapp = require('./rest/webapp')
 const config = require('./config')
-const logger = require('xa')
-
-logger.success = function (text) {
-    logger.custom('OKAY', text, {backgroundColor: 'green'});
-}
+const logger = require('cutelog.js')
 
 async function main() {
     logger.info(`Staring ${packageInfo.name} v${packageInfo.version}...`);
@@ -22,7 +18,7 @@ async function main() {
     await webapp.start();
 }
 
-main().then(() => logger.success('Startup complete'))
+main().then(() => logger.okay('Startup complete'))
     .catch(e => {
         logger.error(e.stack);
         process.exit(1);
