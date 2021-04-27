@@ -16,7 +16,7 @@ Luminosity is a DIY open source IoT and smart home system.
 
 
 ## Data flow
-`Alexa` -> `AWS Lambda` -> `fibers` -> `Bridge (RPi)` -> `Device (ESP8266)`
+`Alexa` -> `AWS Lambda` -> `Fibers` -> `Bridge (RPi)` -> `Device (ESP8266)`
 
 Fibers is my [message passing service](https://github.com/Twometer/fibers)
 
