@@ -4,19 +4,19 @@ module.exports = {
 
     // TODO
 
-    open() {
+    async open() {
 
     },
 
-    setSSID(ssid) {
+    async setSSID(ssid) {
 
     },
 
-    setPassword(password) {
+    async setPassword(password) {
 
     },
 
-    close() {
+    async close() {
 
     }
 

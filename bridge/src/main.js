@@ -14,7 +14,7 @@ async function main() {
     config.load();
 
     // Initialize the main controller
-    bridgeController.initialize();
+    await bridgeController.initialize();
 
     // Connect to various services
     await alexaClient.connect();
