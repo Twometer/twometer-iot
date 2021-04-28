@@ -10,7 +10,7 @@ const config = require('./config')
 const logger = require('cutelog.js')
 
 async function main() {
-    logger.info(`Staring ${packageInfo.name} v${packageInfo.version}...`);
+    logger.info(`Starting ${packageInfo.name} v${packageInfo.version}...`);
     config.load();
     await deviceManager.initialize();
     await alexaHandler.initialize();
