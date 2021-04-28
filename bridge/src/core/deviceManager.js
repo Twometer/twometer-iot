@@ -2,12 +2,7 @@
 
 const config = require('../config')
 
-const protocols = {
-    2: require('../net/protocol-v2'),
-    3: require('../net/protocol-v3')
-}
-
-let devices = {}
+let connectedDevices = [];
 
 module.exports = {
 
@@ -23,14 +18,6 @@ module.exports = {
         devices = onlineDevices;
     },
 
-    _onDeviceAdded(deviceDescriptor, protocolVersion, endpoint) {
-        devices[deviceDescriptor.id] = {
-            descriptor: deviceDescriptor,
-            protocolVersion,
-            endpoint
-        };
-    },
-
     async initialize() {
         setInterval(this._sendPingWave, config.PING_WAVE_INTERVAL)
 
@@ -39,6 +26,13 @@ module.exports = {
             await proto.initialize();
             proto.setCallback(this._onDeviceAdded);
         }
+    },
+
+    addDevice(deviceDescriptor, ipAddress) {
+        devices[deviceDescriptor.id] = {
+            descriptor: deviceDescriptor,
+            ipAddress
+        };
     },
 
     async isReachable(deviceId) {

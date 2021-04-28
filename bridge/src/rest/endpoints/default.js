@@ -1,6 +1,6 @@
 'use strict';
 
-const packageInfo = require('../../package.json')
+const packageInfo = require('../../../package.json')
 const express = require('express');
 const router = express.Router();
 

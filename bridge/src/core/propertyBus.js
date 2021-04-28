@@ -26,9 +26,6 @@ module.exports = {
         let device = await db.Device.findOne({_id: deviceId}).exec();
         if (device != null) {
             listeners.forEach(listener => listener(deviceId, property, value, BusDirection.Downstream));
-
-            // TODO Update property on the device
-
         }
     },
 

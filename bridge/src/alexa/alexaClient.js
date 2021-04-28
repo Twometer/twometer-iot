@@ -1,6 +1,6 @@
 'use strict';
 
-const FiberStream = require('./fiber-stream')
+const FiberStream = require('./fiberStream')
 const Message = require('./directives')
 const logger = require('cutelog.js')
 const config = require('../config')
@@ -8,13 +8,13 @@ const config = require('../config')
 let fiber;
 
 let handlers = [
-    require('./handler-alexa'),
-    require('./handler-discovery'),
-    require('./handler-brightness'),
-    require('./handler-color'),
-    require('./handler-mode'),
-    require('./handler-power'),
-    require('./handler-scene')
+    require('./handlers/alexa'),
+    require('./handlers/discovery'),
+    require('./handlers/brightness'),
+    require('./handlers/color'),
+    require('./handlers/mode'),
+    require('./handlers/power'),
+    require('./handlers/scene')
 ];
 
 async function initialize() {
@@ -50,4 +50,4 @@ async function fiberHandler({directive}) {
     return Message.createErrorResponse(directive, Message.ErrorType.InvalidDirective, `Don't know how to handle ${directive.header.namespace}::${directive.header.name}.`);
 }
 
-module.exports = {initialize}
+module.exports = {connect: initialize}

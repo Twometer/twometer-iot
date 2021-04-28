@@ -2,15 +2,17 @@
 
 module.exports = {
 
+    // TODO
+
     open() {
 
     },
 
-    enterPairingMode() {
+    setSSID(ssid) {
 
     },
 
-    leavePairingMode() {
+    setPassword(password) {
 
     },
 

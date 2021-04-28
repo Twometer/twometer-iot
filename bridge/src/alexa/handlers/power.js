@@ -1,7 +1,7 @@
 'use strict';
 
-const Directives = require('./directives')
-const db = require('../database')
+const Directives = require('../directives')
+const db = require('../../database')
 
 module.exports = {
     namespace: 'Alexa.PowerController',

@@ -1,20 +1,26 @@
 'use strict';
 
 const packageInfo = require('../package.json')
-
-const deviceManager = require('./bridge/device-manager')
-const alexaHandler = require('./alexa/handlers')
-const database = require('./database')
-const webapp = require('./rest/webapp')
 const config = require('./config')
 const logger = require('cutelog.js')
+
+const bridgeController = require('./core/bridgeController')
+const alexaClient = require('./alexa/alexaClient')
+const database = require('./database')
+const webapp = require('./rest/webapp')
 
 async function main() {
     logger.info(`Starting ${packageInfo.name} v${packageInfo.version}...`);
     config.load();
-    await deviceManager.initialize();
-    await alexaHandler.initialize();
+
+    // Initialize the main controller
+    bridgeController.initialize();
+
+    // Connect to various services
+    await alexaClient.connect();
     await database.connect();
+
+    // Start the REST server
     await webapp.start();
 }
 

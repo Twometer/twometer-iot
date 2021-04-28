@@ -1,7 +1,7 @@
 'use strict';
 
-const db = require('../database')
-const Directives = require("./directives");
+const db = require('../../database')
+const Directives = require("../directives");
 
 module.exports = {
     namespace: 'Alexa.ModeController',
