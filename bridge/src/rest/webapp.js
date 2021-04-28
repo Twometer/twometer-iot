@@ -5,11 +5,13 @@ const express = require('express')
 const config = require('../config')
 const bodyParser = require('body-parser')
 const endpoints = require('./endpoints')
+const expressWs = require('express-ws')
 
 let server;
 
 const app = express();
 app.use(bodyParser.json());
+expressWs(app)
 
 function startServer() {
     return new Promise((resolve) => {
