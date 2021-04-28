@@ -1,7 +1,11 @@
 'use strict';
 
-const fiber = require('./fiber')
+const FiberStream = require('./fiber-stream')
 const Message = require('./message')
+const logger = require('cutelog.js')
+const config = require('../config')
+
+let fiber;
 
 let handlers = [
     require('./handler-alexa'),
@@ -9,25 +13,36 @@ let handlers = [
 ];
 
 async function initialize() {
-    await fiber.connect();
-    fiber.setHandler(fiberHandler);
+    fiber = new FiberStream(config.FIBER_URL, config.FIBER_KEY, 'relay')
+    await fiber.open();
+    fiber.on('message', fiberHandler);
+
+    fiber.on('close', e => {
+        logger.error(`Lost connection to the socket [error ${e}]`)
+        setTimeout(fiber.open, 10000);
+    })
+
+    fiber.on('error', e => {
+        logger.error(`Connection to the socket failed [error ${e}]`)
+    })
 }
 
-async function fiberHandler(request) {
-    if (request.payloadVersion !== '3') {
-        return Message.createErrorResponse(request, Message.ErrorType.InvalidDirective, 'Unsupported payload version.');
+async function fiberHandler({directive}) {
+    if (directive.header.payloadVersion !== '3') {
+        return Message.createErrorResponse(directive, Message.ErrorType.InvalidDirective, 'Unsupported payload version.');
     }
 
     for (let handler of handlers) {
-        if (handler.namespace === request.header.namespace) {
-            let handlerFunc = handler.handlers[request.header.name];
+        if (handler.namespace === directive.header.namespace) {
+            let handlerFunc = handler.handlers[directive.header.name];
             if (handlerFunc !== null) {
-                return await Promise.resolve(handlerFunc(request));
+                return await Promise.resolve(handlerFunc(directive));
             }
         }
     }
 
-    return Message.createErrorResponse(request, Message.ErrorType.InvalidDirective, `Don't know how to handle ${request.header.namespace}::${request.header.name}.`);
+    logger.warn(`Received unknown directive ${directive.header.namespace}::${directive.header.name}`)
+    return Message.createErrorResponse(directive, Message.ErrorType.InvalidDirective, `Don't know how to handle ${directive.header.namespace}::${directive.header.name}.`);
 }
 
 module.exports = {initialize}
