@@ -22,11 +22,8 @@ module.exports = {
      * @param value     The new value of the property
      * @returns {Promise<void>}
      */
-    async changeProperty(deviceId, property, value) {
-        let device = await db.Device.findOne({_id: deviceId}).exec();
-        if (device != null) {
-            listeners.forEach(listener => listener(deviceId, property, value, BusDirection.Downstream));
-        }
+    changeProperty(deviceId, property, value) {
+        listeners.forEach(listener => listener(deviceId, property, value, BusDirection.Downstream));
     },
 
     /**
@@ -36,7 +33,7 @@ module.exports = {
      * @param value     The new value of the property
      * @returns {Promise<void>}
      */
-    async valueReported(deviceId, property, value) {
+    valueReported(deviceId, property, value) {
         listeners.forEach(listener => listener(deviceId, property, value, BusDirection.Upstream));
     },
 

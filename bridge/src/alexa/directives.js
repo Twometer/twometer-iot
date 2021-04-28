@@ -14,6 +14,12 @@ const ErrorType = {
     NoSuchEndpoint: 'NO_SUCH_ENDPOINT'
 };
 
+const DefaultProperties = {
+    'Alexa.BrightnessController': 'Light.Brightness',
+    'Alexa.ColorController': 'Light.Color',
+    'Alexa.PowerController': 'Device.Power'
+}
+
 function createErrorResponse(request, errorType, errorMessage) {
     return {
         event: {
@@ -41,7 +47,7 @@ function newMessageId() {
 
 function parseDirectiveMeta(directive) {
     return {
-        property: directive.header.instance,
+        property: directive.header.instance || DefaultProperties[directive.header.namespace],
         deviceId: directive.endpoint.endpointId
     }
 }
