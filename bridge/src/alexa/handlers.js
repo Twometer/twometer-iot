@@ -9,7 +9,8 @@ let fiber;
 
 let handlers = [
     require('./handler-alexa'),
-    require('./handler-discovery')
+    require('./handler-discovery'),
+    require('./handler-power')
 ];
 
 async function initialize() {
