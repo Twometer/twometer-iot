@@ -39,4 +39,11 @@ function newMessageId() {
     return uuid();
 }
 
-module.exports = {ErrorType, newMessageId, createErrorResponse}
+function parseDirectiveMeta(directive) {
+    return {
+        property: directive.header.instance,
+        deviceId: directive.endpoint.endpointId
+    }
+}
+
+module.exports = {ErrorType, newMessageId, createErrorResponse, parseDirectiveMeta}

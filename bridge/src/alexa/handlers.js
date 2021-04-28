@@ -1,7 +1,7 @@
 'use strict';
 
 const FiberStream = require('./fiber-stream')
-const Message = require('./message')
+const Message = require('./directives')
 const logger = require('cutelog.js')
 const config = require('../config')
 
@@ -10,7 +10,11 @@ let fiber;
 let handlers = [
     require('./handler-alexa'),
     require('./handler-discovery'),
-    require('./handler-power')
+    require('./handler-brightness'),
+    require('./handler-color'),
+    require('./handler-mode'),
+    require('./handler-power'),
+    require('./handler-scene')
 ];
 
 async function initialize() {
