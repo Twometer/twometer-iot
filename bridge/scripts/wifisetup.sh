@@ -41,9 +41,8 @@ dhcp-range=192.168.0.100,192.168.0.255,255.255.255.0,24h
 # hostapd config
 echo "
 interface=wlan0
-country_code=DE
 hw_mode=g
-channel=0
+channel=7
 wmm_enabled=0
 macaddr_acl=0
 auth_algs=1
@@ -52,13 +51,25 @@ wpa=2
 wpa_key_mgmt=WPA-PSK
 wpa_pairwise=TKIP
 rsn_pairwise=CCMP
-ssid=__ssid__
-wpa_passphrase=__password__
+ssid=Luminosity
+wpa_passphrase=uwu
 " > /etc/hostapd/hostapd.conf
 
 # apply config
-sed -i 's/#DAEMON_CONF=/DAEMON_CONF="\/etc\/hostapd\/hostapd.conf" #/' /etc/default/hostapd
+sed -i 's/#DAEMON_CONF=""/DAEMON_CONF="\/etc\/hostapd\/hostapd.conf"/' /etc/default/hostapd
 
-echo "You should now restart the system."
+# work around glitchy raspi wifi
+iw wlan0 set power_save off
+
+# enable hostapd
+
+systemctl unmask hostapd.service
+systemctl enable hostapd.service
+
+systemctl start hostapd
+systemctl start dnsmasq
+
+echo "You should now restart your system."
+
 
 echo "done"
