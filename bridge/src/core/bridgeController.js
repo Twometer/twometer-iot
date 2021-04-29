@@ -10,7 +10,6 @@ let pairingModeTimeoutId = null;
 function propertyChangeHandler(deviceId, property, value, direction) {
     if (direction === PropertyBus.BusDirection.Downstream) {
         logger.info(`[${direction}] Changing property '${property}' on device '${deviceId}' to '${value}'.`)
-
     }
 }
 
@@ -21,10 +20,7 @@ async function initialize() {
 
 async function enterPairingMode() {
     pairingModeTimeoutId = setTimeout(leavePairingMode, 60000);
-    await WiFi.close();
-    await WiFi.setSSID(Config.PAIRING_WIFI_SSID);
-    await WiFi.setPassword('');
-    await WiFi.open();
+    await WiFi.update(Config.PAIRING_WIFI_SSID, '')
 }
 
 async function leavePairingMode() {
@@ -36,10 +32,7 @@ async function leavePairingMode() {
 }
 
 async function resetWifi() {
-    await WiFi.close();
-    await WiFi.setSSID(Config.WIFI_SSID);
-    await WiFi.setPassword(Config.WIFI_PASS);
-    await WiFi.open();
+    await WiFi.update(Config.WIFI_SSID, Config.WIFI_PASS);
 }
 
 module.exports = {initialize, enterPairingMode, leavePairingMode}

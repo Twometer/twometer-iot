@@ -24,6 +24,7 @@ module.exports.Device = mongoose.model('Device', {
     friendlyName: String,
     manufacturer: String,
     description: String,
+    accessToken: String,
     properties: [{key: String, type: String, friendlyName: String, valueRange: String, currentValue: String}]
 });
 

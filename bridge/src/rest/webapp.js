@@ -4,7 +4,6 @@ const logger = require('cutelog.js')
 const express = require('express')
 const config = require('../config')
 const bodyParser = require('body-parser')
-const endpoints = require('./endpoints')
 const expressWs = require('express-ws')
 
 let server;
@@ -27,7 +26,7 @@ async function start() {
     await startServer();
 
     logger.info("Registering endpoints...");
-    endpoints.register(app);
+    require('./endpoints').register(app);
 }
 
 module.exports = {app, start}

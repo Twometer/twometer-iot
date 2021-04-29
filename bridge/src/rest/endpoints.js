@@ -2,6 +2,7 @@
 
 const endpoints = [
     require('./endpoints/default'),
+    require('./endpoints/devices'),
     require('./endpoints/scenes')
 ];
 
