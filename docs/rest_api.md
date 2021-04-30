@@ -31,7 +31,7 @@ POST /admin
 ```json
 POST /pair
 {
-    "deviceId": "ffffff"
+    "device": device_descriptor
 }
 ```
 
@@ -45,8 +45,14 @@ POST /pair
 ## List Devices
 
 ```
-GET /devices
+GET /device
 ```
 
 
+
+## List Scenes
+
+```
+GET /scene
+```
 
