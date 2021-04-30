@@ -3,13 +3,17 @@
 const packageInfo = require('../package.json')
 const config = require('./config')
 const logger = require('cutelog.js')
+const chalk = require('chalk')
 
 const bridgeController = require('./core/bridgeController')
 const alexaClient = require('./alexa/alexaClient')
+const discovery = require('./udp/discovery')
 const database = require('./database')
 const webapp = require('./rest/webapp')
 
 async function main() {
+    logger.configure('debug', chalk.gray)
+
     logger.info(`Starting ${packageInfo.name} v${packageInfo.version}...`);
     config.load();
 
@@ -20,7 +24,8 @@ async function main() {
     await alexaClient.connect();
     await database.connect();
 
-    // Start the REST server
+    // Start the server
+    await discovery.start();
     await webapp.start();
 }
 

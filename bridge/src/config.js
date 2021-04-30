@@ -11,6 +11,8 @@ const Config = {
     PAIRING_WIFI_SSID: '',
     WIFI_SSID: '',
     WIFI_PASS: '',
+    UDP_PORT: 0,
+    NET_IFACE: ''
 };
 
 function parseValue(string, type) {
