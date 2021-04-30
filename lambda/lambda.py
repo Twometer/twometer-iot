@@ -26,8 +26,10 @@ def lambda_handler(request, context):
         directive_ver = get_directive_version(request)
         if directive_ver != "3":
             logger.error(f'Cannot handle directive version {directive_ver}')
-        else:
-            response = handle_directive(request)
+            return 
+
+        
+        response = requests.post(FIBER_URL, headers={'Authorization': f'X-Fiber-Auth {FIBER_KEY}'}, json=request)
 
         if response.status_code != requests.codes.ok:
             logger.error("Failed to call fiber")
@@ -44,10 +46,7 @@ def lambda_handler(request, context):
         logger.error(error)
         raise
 
-# Alexa parsers
-def handle_directive(request):
-    return requests.post(FIBER_URL, headers= {'Authorization': f'X-Fiber-Auth {FIBER_KEY}'}, json=request)
-
+# Alexa parser
 def get_directive_version(request):
     try:
         return request["directive"]["header"]["payloadVersion"]
