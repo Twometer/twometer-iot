@@ -63,12 +63,12 @@ private:
         while (true)
         {
             response = HTTP::Post(pairingUrl, deviceDescription);
-            if (response.success)
+            if (response.success && response.statusCode == 200)
                 break;
             else
             {
                 Serial.printf("Pairing failed (status code %d)\n", response.statusCode);
-                delay(500);
+                delay(1000);
             }
         }
 

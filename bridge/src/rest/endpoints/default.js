@@ -48,7 +48,15 @@ router.post('/pair', async (req, res) => {
         manufacturer: descriptor.manufacturer,
         description: descriptor.description,
         accessToken: deviceToken,
-        properties: descriptor.properties
+        properties: descriptor.properties.map(p => {
+            return {
+                name: p.name || '',
+                type: p.type || '',
+                friendlyName: p.friendlyName || '',
+                valueRange: p.valueRange || '',
+                currentValue: ''
+            }
+        }).filter(p => p.name.length !== 0)
     });
     await device.save();
     await controller.leavePairingMode();
