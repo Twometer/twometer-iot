@@ -17,24 +17,24 @@ void setup()
         .addOption("HDMI2", "Sat receiver");
 
     /* Set handlers */
-    iot.on("Device.PowerState", [](const Message &message) {
+    iot.on("Device.PowerState", [](Message &message) {
         bool powerState = message.readBool();
         Serial.printf("Set power state to: %d\n", powerState);
     });
 
-    iot.on("Light.Brightness", [](const Message &message) {
+    iot.on("Light.Brightness", [](Message &message) {
         int brightness = message.readInt();
-        Serial.printf("Set light brightness to %d\n", brightness)
+        Serial.printf("Set light brightness to %d\n", brightness);
     });
 
-    iot.on("Light.Color", [](const Message &message) {
+    iot.on("Light.Color", [](Message &message) {
         Color color = message.readColor();
         Serial.printf("Set light color to [h=%d, s=%d, b=%d]\n", color.h, color.s, color.b);
     });
 
-    iot.on("TV.InputChannel", [](const Message &message) {
+    iot.on("TV.InputChannel", [](Message &message) {
         String mode = message.readString();
-        Serial.printf("Set input channel to [%s]\n", mode);
+        Serial.printf("Set input channel to [%s]\n", mode.c_str());
     });
 
     /* Initialize */
@@ -47,13 +47,13 @@ void loop()
 {
     iot.update();
 
-    if (millis() - lastReport > 10_000)
+    if (millis() - lastReport > 10000)
     {
         lastReport = millis();
 
         /* Report a dummy value */
         Message message{};
         message.writeInt(42);
-        iot.report("Button.Clicked" message);
+        iot.report("Button.Clicked", message);
     }
 }

@@ -7,7 +7,7 @@ struct DeviceDescriptor {
     String deviceId;
     String type;
     String modelName;
-    String manufacturer
+    String manufacturer;
     String description;
 };
 

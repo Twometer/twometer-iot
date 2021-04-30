@@ -25,7 +25,7 @@ module.exports.Device = mongoose.model('Device', {
     manufacturer: String,
     description: String,
     accessToken: String,
-    properties: [{key: String, type: String, friendlyName: String, valueRange: String, currentValue: String}]
+    properties: [{name: String, type: String, friendlyName: String, valueRange: String, currentValue: String}]
 });
 
 module.exports.Scene = mongoose.model('Scene', {
