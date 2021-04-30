@@ -9,7 +9,6 @@ Furthermore, the full device information is stored in a so-called _device descri
     deviceId: "",
     type: "",
     modelName: "",
-    friendlyName: "",
     manufacturer: "",
     description: "",
     properties: [{key: "", type: "", friendlyName: "", valueRange: ""}]
@@ -29,3 +28,20 @@ Uses the same device types that [Amazon Alexa](https://developer.amazon.com/en-U
 - `NUMBER`: A decimal number
 - `COLOR`: A color with the properties `hue`, `saturation`, `brightness`
 - `MODE`: A property that describes one of many modes.
+
+
+
+## Default Properties
+
+Devices have various defined default properties, that Alexa controllers are mapped to:
+
+| Property            | Property type | Alexa controller           | Device type |
+| ------------------- | ------------- | -------------------------- | ----------- |
+| `Device.PowerState` | `BOOLEAN`     | PowerController            | any         |
+| `Device.PowerLevel` | `NUMBER`      | PowerLevelController       | any         |
+| `Light.Brightness`  | `NUMBER`      | BrightnessController       | `LIGHT`     |
+| `Light.Color`       | `COLOR`       | ColorController            | `LIGHT`     |
+| `Light.Temp`        | `NUMBER`      | ColorTemperatureController | `LIGHT`     |
+
+
+
