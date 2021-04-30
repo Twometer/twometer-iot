@@ -17,7 +17,7 @@ function connect() {
 
 module.exports = {connection: mongoose.connection, connect}
 
-module.exports.Device = mongoose.model('Device', {
+module.exports.Device = mongoose.model('Device', new Schema({
     _id: String,
     type: String,
     modelName: String,
@@ -26,7 +26,7 @@ module.exports.Device = mongoose.model('Device', {
     description: String,
     accessToken: String,
     properties: [{name: String, type: String, friendlyName: String, valueRange: String, currentValue: String}]
-});
+}, {typeKey: '$type'}));
 
 module.exports.Scene = mongoose.model('Scene', {
     _id: String,
