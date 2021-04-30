@@ -35,4 +35,4 @@ async function resetWifi() {
     await WiFi.update(Config.WIFI_SSID, Config.WIFI_PASS);
 }
 
-module.exports = {initialize, enterPairingMode, leavePairingMode}
+module.exports = {initialize, enterPairingMode, leavePairingMode, isInPairingMode: () => pairingModeTimeoutId != null}

@@ -3,8 +3,11 @@
 const packageInfo = require('../../../package.json')
 const controller = require('../../core/bridgeController')
 const Config = require('../../config')
+const logger = require('cutelog.js');
 const express = require('express');
 const {v4: uuid} = require('uuid');
+const db = require('../../database')
+
 const router = express.Router();
 
 router.get('/', (req, res) => {
@@ -12,7 +15,7 @@ router.get('/', (req, res) => {
         name: packageInfo.name,
         version: packageInfo.version,
         devices: 0,
-        status: 'online'
+        status: controller.isInPairingMode() ? 'pair' : 'online'
     });
 });
 
@@ -31,9 +34,26 @@ router.post('/admin', async (req, res) => {
 });
 
 router.post('/pair', async (req, res) => {
-    let deviceId = req.body.deviceId;
+    let descriptor = req.body.device;
+    if (!descriptor) {
+        return res.status(400).send();
+    }
+
     let deviceToken = uuid();
-    // TODO Add device to database
+    let device = new db.Device({
+        _id: descriptor.deviceId,
+        type: descriptor.type,
+        modelName: descriptor.modelName,
+        friendlyName: descriptor.modelName,
+        manufacturer: descriptor.manufacturer,
+        description: descriptor.description,
+        accessToken: deviceToken,
+        properties: descriptor.properties
+    });
+    await device.save();
+    await controller.leavePairingMode();
+
+    logger.info(`New device ${descriptor.deviceId} ('${descriptor.modelName}') connected.`)
 
     return res.json({
         wifiKey: Config.WIFI_PASS,
