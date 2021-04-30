@@ -20,7 +20,7 @@ Note that `valueRange` is only accepted when the property is of type `MODE`
 
 ## Device Types
 
-Uses the same device types that Amazon Alexa uses.
+Uses the same device types that [Amazon Alexa](https://developer.amazon.com/en-US/docs/alexa/device-apis/alexa-discovery.html#display-categories) uses.
 
 ## Property types
 
