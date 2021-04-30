@@ -7,7 +7,7 @@ const chalk = require('chalk')
 
 const bridgeController = require('./core/bridgeController')
 const alexaClient = require('./alexa/alexaClient')
-const discovery = require('./udp/discovery')
+const udpListener = require('./udp/listener')
 const database = require('./database')
 const webapp = require('./rest/webapp')
 
@@ -24,8 +24,8 @@ async function main() {
     await alexaClient.connect();
     await database.connect();
 
-    // Start the server
-    await discovery.start();
+    // Start the servers
+    await udpListener.start();
     await webapp.start();
 }
 
