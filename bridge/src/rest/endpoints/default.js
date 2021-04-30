@@ -34,8 +34,8 @@ router.post('/admin', async (req, res) => {
 });
 
 router.post('/pair', async (req, res) => {
-    let descriptor = req.body.device;
-    if (!descriptor) {
+    let descriptor = req.body;
+    if (!descriptor.deviceId) {
         return res.status(400).send();
     }
 
