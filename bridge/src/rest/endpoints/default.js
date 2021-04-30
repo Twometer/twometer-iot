@@ -51,7 +51,11 @@ router.post('/pair', async (req, res) => {
         properties: descriptor.properties
     });
     await device.save();
-    await controller.leavePairingMode();
+
+
+    setTimeout(() => {
+        controller.leavePairingMode();
+    }, 5000);
 
     logger.info(`New device ${descriptor.deviceId} ('${descriptor.modelName}') connected.`)
 
