@@ -1,43 +1,52 @@
+import requests
 import logging
 import time
 import json
 import uuid
-import requests
+import os
 
-RELAIS_SERVER = "https://fibers.twometer.de/twometer-iot/publish/"
-RELAIS_SERVER_AUTH = "X-FiberAuth $token$"
+# Configuration
+DEBUG_MODE = False
+FIBER_URL = os.environ['FIBER_URL']
+FIBER_KEY = os.environ['FIBER_KEY']
 
+# Logger
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
+# Main Handler
 def lambda_handler(request, context):
-    logger.info("Lambda was called")
+    logger.info('Handling IoT request')
 
     try:
-        logger.info("Directive:")
-        logger.info(json.dumps(request, indent=4, sort_keys=True))
+        if DEBUG_MODE:
+            logger.info('Directive:')
+            logger.info(json.dumps(request, indent=4, sort_keys=True))
 
         directive_ver = get_directive_version(request)
         if directive_ver != "3":
-            logger.error("Cannot handle directive V" + directive_ver)
+            logger.error(f'Cannot handle directive version {directive_ver}')
         else:
             response = handle_directive(request)
 
         if response.status_code != requests.codes.ok:
-            logger.error("Failed to call relay")
+            logger.error("Failed to call fiber")
             return
         
         responseJson = response.json()
 
-        logger.info("Response:")
-        logger.info(json.dumps(responseJson, indent=4, sort_keys=True))
+        if DEBUG_MODE:
+            logger.info('Response:')
+            logger.info(json.dumps(responseJson, indent=4, sort_keys=True))
+
         return responseJson
     except ValueError as error:
         logger.error(error)
         raise
 
+# Alexa parsers
 def handle_directive(request):
-    return requests.post(RELAIS_SERVER, headers= {'Authorization': RELAIS_SERVER_AUTH}, json=request)
+    return requests.post(FIBER_URL, headers= {'Authorization': f'X-Fiber-Auth {FIBER_KEY}'}, json=request)
 
 def get_directive_version(request):
     try:
