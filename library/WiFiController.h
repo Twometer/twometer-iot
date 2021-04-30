@@ -57,7 +57,29 @@ private:
     void pair(const String &deviceDescription)
     {
         String pairingUrl = "http://" + bridgeIp + "/pair";
-        HTTP::Post(pairingUrl, deviceDescription);
+
+        HTTPResponse response;
+
+        while (true)
+        {
+            response = HTTP::Post(pairingUrl, deviceDescription);
+            if (response.success)
+                break;
+            else
+            {
+                Serial.printf("Pairing failed (status code %d)\n", response.statusCode);
+                delay(500);
+            }
+        }
+
+        StaticJsonDocument<192> doc;
+        deserializeJson(doc, response.body);
+
+        const char *wifiPassword = doc["wifiKey"];
+        const char *authToken = doc["authToken"];
+        this->wifiPassword = String(wifiPassword);
+        this->authToken = String(authToken);
+        saveStorage();
     }
 
     bool loadStorage()

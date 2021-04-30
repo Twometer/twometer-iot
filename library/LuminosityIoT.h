@@ -48,8 +48,7 @@ public:
     {
         Serial.begin(115200);
         Serial.println("Luminosity IoT System version 3.0.0");
-        Serial.println(serializeDeviceDescription());
-        //wiFiController.connect(controlSsid, pairingSsid, );
+        wiFiController.connect(controlSsid, pairingSsid, serializeDeviceDescription());
     }
     void update()
     {
