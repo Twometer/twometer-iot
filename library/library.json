@@ -1,7 +1,7 @@
 {
-  "name": "Twometer IoT",
-  "description": "A library to easily create Twometer IoT compatible devices",
-  "keywords": "iot, twometer-iot",
+  "name": "Luminosity IoT",
+  "description": "A library to easily create Luminosity IoT compatible devices",
+  "keywords": "iot, twometer-iot, luminosity-iot",
   "authors":
   {
     "name": "Twometer"
@@ -9,9 +9,9 @@
   "repository":
   {
     "type": "git",
-    "url": "https://github.com/Twometer/twometer-iot"
+    "url": "https://github.com/Twometer/luminosity"
   },
-  "version": "2.0.0",
+  "version": "3.0.0",
   "frameworks": [
         "esp8266"
   ],

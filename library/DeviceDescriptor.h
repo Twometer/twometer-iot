@@ -1,14 +1,14 @@
-#ifndef devicedescriptor_h
-#define devicedescriptor_h
+#ifndef _DEVICE_DESCRIPTOR_H
+#define _DEVICE_DESCRIPTOR_H
+
+#include <Arduino.h>
 
 struct DeviceDescriptor {
-    
     String deviceId;
-    String modelName;
-    String manufacturer;
-    String description;
     String type;
-
+    String modelName;
+    String manufacturer
+    String description;
 };
 
 #endif
