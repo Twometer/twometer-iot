@@ -1,6 +1,8 @@
 const PacketType = {
     Discovery: 'DISCOV',
-    BridgeFound: 'BFOUND'
+    BridgeHello: 'BHELLO',
+    UpdateProperty: 'UPDATE',
+    ReportChange: 'REPORT'
 }
 
 function parseMessage(buffer) {

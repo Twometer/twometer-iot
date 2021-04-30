@@ -1,13 +1,14 @@
 'use strict';
 
 const Config = require('../config')
-const dgram = require('dgram')
-const server = dgram.createSocket('udp4')
-const logger = require('cutelog.js')
-const os = require('os')
 const Proto = require('./protocol')
+const logger = require('cutelog.js')
+const dgram = require('dgram')
+const os = require('os')
 
-server.on('message', (buffer, remote) => {
+const socket = dgram.createSocket('udp4')
+
+socket.on('message', (buffer, remote) => {
     let msg = Proto.parseMessage(buffer);
     if (!msg) return;
 
@@ -19,8 +20,8 @@ server.on('message', (buffer, remote) => {
                 return;
             }
 
-            server.send(
-                Proto.createMessage(Proto.MsgType.BridgeFound, getIpAddress()),
+            socket.send(
+                Proto.createMessage(Proto.MsgType.BridgeHello, getIpAddress()),
                 remote.port, remote.address
             )
 
@@ -34,8 +35,8 @@ server.on('message', (buffer, remote) => {
 function start() {
     logger.info('Starting UDP server...')
     return new Promise((resolve, reject) => {
-        server.on('error', reject);
-        server.bind(Config.UDP_PORT);
+        socket.on('error', reject);
+        socket.bind(Config.UDP_PORT);
 
         logger.okay(`UDP listener started on port ${Config.UDP_PORT}`);
         resolve();
