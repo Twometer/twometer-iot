@@ -17,7 +17,7 @@ function connect() {
 
 module.exports = {connection: mongoose.connection, connect}
 
-module.exports.Device = mongoose.model('Device', new Schema({
+module.exports.Device = mongoose.model('Device', new mongoose.Schema({
     _id: String,
     type: String,
     modelName: String,
