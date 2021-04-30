@@ -15,7 +15,7 @@ module.exports = {
             let command = `/bin/bash ${__dirname}/../../scripts/wifiupdate.sh "${ssid}" "${password}"`
             let child = childProcess.exec(command);
 
-            logger.debug('debug', `Updating WiFi SSID: ${ssid}`)
+            logger.custom('debug', `Updating WiFi SSID: ${ssid}`)
             child.on('exit', code => {
                 if (code === 0)
                     resolve();
