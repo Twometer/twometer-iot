@@ -14,10 +14,9 @@ socket.on('message', (buffer, remote) => {
 
     switch (msg.type) {
         case Proto.MsgType.Discovery:
-            let signature = msg.params[0];
-            if (signature !== 'LumiIoT.Bridge') {
-                logger.warn(`Invalid discovery signature ${signature}`)
-                return;
+            let target = msg.params[0];
+            if (target !== 'LumiIoT.Bridge') {
+                break;
             }
 
             socket.send(
@@ -25,10 +24,18 @@ socket.on('message', (buffer, remote) => {
                 remote.port, remote.address
             )
 
-            return;
+            break;
+
+        case Proto.MsgType.ReportChange:
+            let deviceId = msg.params[0];
+            let authToken = msg.params[1];
+            let property = msg.params[2];
+            let value = msg.params[3];
+
+            break;
         default:
             logger.warn(`Received invalid packet ${msg.type}`)
-            return;
+            break;
     }
 });
 
