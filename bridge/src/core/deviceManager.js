@@ -11,7 +11,7 @@ let onlineDevices = [];
 module.exports = {
 
     _sendPingWave() {
-        for (let device in onlineDevices) {
+        for (let device of onlineDevices) {
             UdpServer.sendMessage(Proto.createMessage(Proto.MsgType.Ping), device.ipAddress);
         }
         onlineDevices = onlineDevices.filter(dev => (Date.now() - dev.lastPong) < 15000);
