@@ -49,6 +49,17 @@ public:
         }
     }
 
+    void checkConnection()
+    {
+        if (WiFi.status() != WL_CONNECTED)
+        {
+            Serial.println("Lost connection to the WiFi!");
+            WiFi.reconnect();
+            awaitConnection();
+            Serial.println("Reconnected");
+        }
+    }
+
     const String &getAuthToken()
     {
         return authToken;

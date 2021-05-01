@@ -78,6 +78,8 @@ public:
     }
     void update()
     {
+        wiFiController.checkConnection();
+
         int len = udpClient.readPacket(receiveBuffer, RECVBUFSIZE);
         receiveBuffer[len] = 0x00;
 
