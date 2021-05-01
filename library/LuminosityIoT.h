@@ -1,33 +1,48 @@
 #ifndef _LUMINOSITY_IOT_H
 #define _LUMINOSITY_IOT_H
 
+#include <map>
+#include <stdint.h>
 #include <Arduino.h>
 #include <ArduinoJson.h>
 
 #include "Color.h"
+#include "Config.h"
 #include "Message.h"
 #include "Property.h"
 #include "DeviceTypes.h"
 #include "MessageTypes.h"
 #include "PropertyTypes.h"
+
+#include "UdpClient.h"
 #include "WiFiController.h"
 #include "DeviceDescriptor.h"
+
+#define RECVBUFSIZE 256
+
+typedef std::function<void(Message &)> PropertyHandler;
 
 class LuminosityIoT
 {
 private:
+    int udpPort;
     String controlSsid;
     String pairingSsid;
 
+    UdpClient udpClient;
     WiFiController wiFiController;
     DeviceDescriptor deviceDescriptor;
     std::vector<Property *> properties;
+    std::map<String, PropertyHandler> propertyHandlers;
+
+    uint8_t *receiveBuffer;
 
 public:
-    void setupWifi(const String &controlSsid, const String &pairingSsid)
+    void configure(const String &controlSsid, const String &pairingSsid, int udpPort)
     {
         this->controlSsid = controlSsid;
         this->pairingSsid = pairingSsid;
+        this->udpPort = udpPort;
     }
     void describe(const String &modelName, const String &manufacturer, const String &description, const String &type)
     {
@@ -40,8 +55,9 @@ public:
         properties.push_back(property);
         return *property;
     }
-    void on(const String &property, std::function<void(Message &)> handler)
+    void on(const String &property, PropertyHandler handler)
     {
+        propertyHandlers[property] = handler;
     }
 
     void begin()
@@ -49,12 +65,36 @@ public:
         Serial.begin(115200);
         Serial.println("Luminosity IoT System version 3.0.0");
         wiFiController.connect(controlSsid, pairingSsid, serializeDeviceDescription());
+        Serial.println("Connected to the WiFi");
+
+        udpClient.begin(WiFi.gatewayIP(), udpPort);
+        Serial.println("Connected to the UDP server");
+
+        sayHello();
+        Serial.println("Said the bridge hello");
+
+        receiveBuffer = new uint8_t[RECVBUFSIZE];
+        memset(receiveBuffer, 0, RECVBUFSIZE);
     }
     void update()
     {
+        int len = udpClient.readPacket(receiveBuffer, RECVBUFSIZE);
+        receiveBuffer[len] = 0x00;
+
+        if (len == 0)
+            return;
+
+        Message message;
+        message.parse((const char *) receiveBuffer);
+
+        Serial.println("Received message of type " + message.getType());
     }
-    void report(const String &property, const Message &value)
+    void send(const Message &value)
     {
+        String data = value.toString();
+        udpClient.beginPacket();
+        udpClient.writeRaw(data.c_str(), data.length());
+        udpClient.endPacket();
     }
 
 private:
@@ -94,6 +134,14 @@ private:
         String serialized;
         serializeJson(doc, serialized);
         return serialized;
+    }
+
+    void sayHello()
+    {
+        Message loginMessage(MESSAGE_TYPE_DHELLO);
+        loginMessage.writeString(deviceDescriptor.deviceId);
+        loginMessage.writeString(wiFiController.getAuthToken());
+        send(loginMessage);
     }
 };
 

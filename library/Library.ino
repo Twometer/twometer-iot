@@ -5,7 +5,7 @@ LuminosityIoT iot;
 void setup()
 {
     /* Set up device properties */
-    iot.setupWifi("uwunet", "uwunet pair");
+    iot.configure("uwunet", "uwunet pair", 11210);
     iot.describe("IoT Test Device", "GlowTec Industries", "A test device that exposes all types of properties and raises the test event every 10 seconds.", DEVICE_TYPE_LIGHT);
     iot.expose("Device.PowerState", PROPERTY_TYPE_BOOLEAN);
     iot.expose("Light.Brightness", PROPERTY_TYPE_NUMBER);
@@ -52,8 +52,9 @@ void loop()
         lastReport = millis();
 
         /* Report a dummy value */
-        Message message{};
+        Message message(MESSAGE_TYPE_REPORT);
+        message.writeString("Button.Clicked");
         message.writeInt(42);
-        iot.report("Button.Clicked", message);
+        iot.send(message);
     }
 }

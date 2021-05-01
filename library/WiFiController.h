@@ -2,6 +2,7 @@
 #define _WIFI_CONTROLLER_H
 
 #include <Arduino.h>
+#include <ESP8266WiFi.h>
 
 #include "HTTP.h"
 #include "StorageBuf.h"
@@ -26,6 +27,8 @@ public:
         if (hasData)
         {
             Serial.println("EEPROM has data, connecting to WiFi...");
+            Serial.setDebugOutput(true);
+            WiFi.printDiag(Serial);
             WiFi.begin(controlSsid, wifiPassword);
             awaitConnection();
         }
@@ -43,12 +46,18 @@ public:
         }
     }
 
+    const String &getAuthToken()
+    {
+        return authToken;
+    }
+
 private:
     void awaitConnection()
     {
         Serial.println("Connecting to " + WiFi.SSID() + "...");
         while (WiFi.status() != WL_CONNECTED)
         {
+            Serial.println(WiFi.status());
             delay(100);
         }
         bridgeIp = WiFi.gatewayIP().toString();

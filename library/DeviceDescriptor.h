@@ -3,7 +3,8 @@
 
 #include <Arduino.h>
 
-struct DeviceDescriptor {
+struct DeviceDescriptor
+{
     String deviceId;
     String type;
     String modelName;
