@@ -1,5 +1,6 @@
 'use strict';
 
+const DeviceManager = require('../core/deviceManager');
 const Config = require('../config')
 const Proto = require('./protocol')
 const logger = require('cutelog.js')
@@ -26,7 +27,7 @@ socket.on('message', (buffer, remote) => {
 
             break;
 
-        case Proto.MsgType.ReportChange:
+        case Proto.MsgType.ReportChange: {
             let deviceId = msg.params[0];
             let authToken = msg.params[1];
             let property = msg.params[2];
@@ -35,11 +36,28 @@ socket.on('message', (buffer, remote) => {
             console.log(`Device ${deviceId} changed ${property} to ${value} using ${authToken}`);
 
             break;
+        }
+        case Proto.MsgType.DeviceHello: {
+            let deviceId = msg.params[0];
+            let authToken = msg.params[1];
+            DeviceManager.addDevice(deviceId, remote.address);
+            break;
+        }
+        case Proto.MsgType.Pong: {
+            let deviceId = msg.params[0];
+            let authToken = msg.params[1];
+            DeviceManager.pongReceived(deviceId);
+            break;
+        }
         default:
             logger.warn(`Received unknown packet ${msg.type}`)
             break;
     }
 });
+
+function sendMessage(msg, ip) {
+    socket.send(msg, Config.UDP_PORT, ip);
+}
 
 function start() {
     logger.info('Starting UDP server...')
@@ -58,4 +76,4 @@ function getIpAddress() {
         .address;
 }
 
-module.exports = {start}
+module.exports = {start, sendMessage}

@@ -6,6 +6,7 @@ const logger = require('cutelog.js')
 const chalk = require('chalk')
 
 const bridgeController = require('./core/bridgeController')
+const deviceManager = require('./core/deviceManager')
 const alexaClient = require('./alexa/alexaClient')
 const udpListener = require('./udp/listener')
 const database = require('./database')
@@ -19,6 +20,7 @@ async function main() {
 
     // Initialize the main controller
     await bridgeController.initialize();
+    deviceManager.initialize();
 
     // Connect to various services
     await alexaClient.connect();

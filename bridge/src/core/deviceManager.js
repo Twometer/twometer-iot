@@ -1,43 +1,36 @@
 'use strict';
 
+const logger = require('cutelog.js')
+const proto = require('../udp/protocol')
+const udp = require('../udp/listener');
 const config = require('../config')
 
-let connectedDevices = [];
+let onlineDevices = [];
 
 module.exports = {
 
-    async _sendPingWave() {
-        let onlineDevices = {};
-
-        for (let deviceId in devices) {
-            if (await this.isReachable(deviceId)) {
-                onlineDevices[deviceId] = devices[deviceId];
-            }
+    _sendPingWave() {
+        for (let device in onlineDevices) {
+            udp.sendMessage(proto.createMessage(proto.MsgType.Ping), device.ipAddress);
         }
-
-        devices = onlineDevices;
+        onlineDevices = onlineDevices.filter(dev => (Date.now() - dev.lastPong) < 15000);
     },
 
-    async initialize() {
+    initialize() {
         setInterval(this._sendPingWave, config.PING_WAVE_INTERVAL)
-
-        for (let protoId in protocols) {
-            let proto = protocols[protoId];
-            await proto.initialize();
-            proto.setCallback(this._onDeviceAdded);
-        }
     },
 
-    addDevice(deviceDescriptor, ipAddress) {
-        devices[deviceDescriptor.id] = {
-            descriptor: deviceDescriptor,
-            ipAddress
+    addDevice(deviceId, ipAddress) {
+        onlineDevices[deviceId] = {
+            deviceId: deviceId,
+            ipAddress: ipAddress,
+            lastPong: Date.now()
         };
+        logger.info(`Device ${deviceId} connected at ${ipAddress}.`)
     },
 
-    async isReachable(deviceId) {
-        let device = devices[deviceId];
-        return await protocols[device.protocolVersion].ping();
+    pongReceived(deviceId) {
+        onlineDevices[deviceId].lastPong = Date.now();
     }
 
 }
