@@ -36,6 +36,7 @@ private:
     std::map<String, PropertyHandler> propertyHandlers;
 
     uint8_t *receiveBuffer;
+    unsigned long lastPing;
 
 public:
     void configure(const String &controlSsid, const String &pairingSsid, int udpPort)
@@ -73,12 +74,14 @@ public:
         send(createMessage(MESSAGE_TYPE_DHELLO));
         Serial.println("Reported as online to the bridge.");
 
+        lastPing = millis();
         receiveBuffer = new uint8_t[RECVBUFSIZE];
         memset(receiveBuffer, 0, RECVBUFSIZE);
     }
     void update()
     {
         wiFiController.checkConnection();
+        checkPingTimeout();
 
         int len = udpClient.readPacket(receiveBuffer, RECVBUFSIZE);
         receiveBuffer[len] = 0x00;
@@ -91,6 +94,7 @@ public:
 
         if (message.getType() == MESSAGE_TYPE_PING)
         {
+            lastPing = millis();
             send(createMessage(MESSAGE_TYPE_PONG));
         }
         else
@@ -159,6 +163,15 @@ private:
         String serialized;
         serializeJson(doc, serialized);
         return serialized;
+    }
+
+    void checkPingTimeout()
+    {
+        if (millis() - lastPing > 15000)
+        {
+            lastPing = millis();
+            send(createMessage(MESSAGE_TYPE_DHELLO));
+        }
     }
 };
 
