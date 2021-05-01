@@ -18,6 +18,7 @@ The message format is very basic:
 
 - `DISCOV`: Broadcast, and the bridge will reply with `BHELLO` and its IP address
 - `BHELLO`: Reply to `DISCOV`, contains the IP address in arg1
+- `DHELLO`: Device hello to notify the bridge that a device is online
 - `UPDATE`: Sent from the bridge to the device to update a property
 - `REPORT`: Sent from the device to the bridge to report a value has changed (e.g. a sensor that updated)
 - `PING`: Keepalive from the bridge to the device. 

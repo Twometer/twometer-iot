@@ -32,9 +32,11 @@ socket.on('message', (buffer, remote) => {
             let property = msg.params[2];
             let value = msg.params[3];
 
+            console.log(`Device ${deviceId} changed ${property} to ${value} using ${authToken}`);
+
             break;
         default:
-            logger.warn(`Received invalid packet ${msg.type}`)
+            logger.warn(`Received unknown packet ${msg.type}`)
             break;
     }
 });

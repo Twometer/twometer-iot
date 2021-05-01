@@ -1,6 +1,7 @@
 const PacketType = {
     Discovery: 'DISCOV',
     BridgeHello: 'BHELLO',
+    DeviceHello: 'DHELLO',
     UpdateProperty: 'UPDATE',
     ReportChange: 'REPORT',
     Ping: 'PING',
