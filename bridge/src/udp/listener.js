@@ -1,6 +1,6 @@
 'use strict';
 
-const DeviceManager = require('../core/deviceManager');
+const Bus = require('../core/deviceBus')
 const Config = require('../config')
 const Proto = require('./protocol')
 const logger = require('cutelog.js')
@@ -40,13 +40,13 @@ socket.on('message', (buffer, remote) => {
         case Proto.MsgType.DeviceHello: {
             let deviceId = msg.params[0];
             let authToken = msg.params[1];
-            DeviceManager.addDevice(deviceId, remote.address);
+            Bus.deviceLogin(deviceId, remote.address);
             break;
         }
         case Proto.MsgType.Pong: {
             let deviceId = msg.params[0];
             let authToken = msg.params[1];
-            DeviceManager.pongReceived(deviceId);
+            Bus.deviceHeartbeat(deviceId);
             break;
         }
         default:

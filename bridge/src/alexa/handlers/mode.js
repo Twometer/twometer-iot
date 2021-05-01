@@ -1,6 +1,6 @@
 'use strict';
 
-const PropertyBus = require('../../core/propertyBus')
+const DeviceBus = require('../../core/deviceBus')
 const Directives = require("../directives");
 
 module.exports = {
@@ -9,7 +9,7 @@ module.exports = {
         SetMode(directive) {
             let meta = Directives.parseDirectiveMeta(directive);
             let value = directive.payload.mode;
-            PropertyBus.changeProperty(meta.deviceId, meta.property, value);
+            DeviceBus.changeProperty(meta.deviceId, meta.property, value);
         }
     }
 }

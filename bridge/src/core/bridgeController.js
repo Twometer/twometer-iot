@@ -3,19 +3,19 @@
 const logger = require('cutelog.js')
 const WiFi = require('./wifi')
 const Config = require('../config')
-const PropertyBus = require('./propertyBus')
+const DeviceBus = require('./deviceBus')
 
 let pairingModeTimeoutId = null;
 
 function propertyChangeHandler(deviceId, property, value, direction) {
-    if (direction === PropertyBus.BusDirection.Downstream) {
+    if (direction === DeviceBus.BusDirection.Downstream) {
         logger.info(`[${direction}] Changing property '${property}' on device '${deviceId}' to '${value}'.`)
     }
 }
 
 async function initialize() {
     await resetWifi();
-    PropertyBus.registerChangeListener(propertyChangeHandler)
+    DeviceBus.emitter.on('change', propertyChangeHandler);
 }
 
 async function enterPairingMode() {

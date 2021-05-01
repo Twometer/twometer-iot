@@ -1,9 +1,10 @@
 'use strict';
 
 const logger = require('cutelog.js')
-const proto = require('../udp/protocol')
-const udp = require('../udp/listener');
-const config = require('../config')
+const UdpServer = require('../udp/listener');
+const Proto = require('../udp/protocol')
+const Config = require('../config')
+const Bus = require('../core/deviceBus')
 
 let onlineDevices = [];
 
@@ -11,13 +12,15 @@ module.exports = {
 
     _sendPingWave() {
         for (let device in onlineDevices) {
-            udp.sendMessage(proto.createMessage(proto.MsgType.Ping), device.ipAddress);
+            UdpServer.sendMessage(Proto.createMessage(Proto.MsgType.Ping), device.ipAddress);
         }
         onlineDevices = onlineDevices.filter(dev => (Date.now() - dev.lastPong) < 15000);
     },
 
     initialize() {
-        setInterval(this._sendPingWave, config.PING_WAVE_INTERVAL)
+        setInterval(this._sendPingWave, Config.PING_WAVE_INTERVAL);
+        Bus.emitter.on('login', this.addDevice);
+        Bus.emitter.on('heartbeat', this.pongReceived);
     },
 
     addDevice(deviceId, ipAddress) {

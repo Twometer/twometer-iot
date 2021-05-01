@@ -1,6 +1,6 @@
 'use strict';
 
-const PropertyBus = require('../../core/propertyBus')
+const DeviceBus = require('../../core/deviceBus')
 const Directives = require("../directives");
 
 module.exports = {
@@ -9,7 +9,7 @@ module.exports = {
         SetBrightness(directive) {
             let meta = Directives.parseDirectiveMeta(directive);
             let brightness = directive.payload.brightness;
-            PropertyBus.changeProperty(meta.deviceId, meta.property, brightness);
+            DeviceBus.changeProperty(meta.deviceId, meta.property, brightness);
         },
 
         AdjustBrightness(directive) {

@@ -1,12 +1,13 @@
 'use strict';
 
-const db = require('../database')
+const events = require('events');
 
 const BusDirection = {
     Upstream: 'up',
     Downstream: 'down'
 }
 
+const emitter = new events.EventEmitter();
 const listeners = [];
 
 /**
@@ -23,7 +24,7 @@ module.exports = {
      * @returns {Promise<void>}
      */
     changeProperty(deviceId, property, value) {
-        listeners.forEach(listener => listener(deviceId, property, value, BusDirection.Downstream));
+        emitter.emit('change', deviceId, property, value, BusDirection.Upstream);
     },
 
     /**
@@ -34,20 +35,27 @@ module.exports = {
      * @returns {Promise<void>}
      */
     valueReported(deviceId, property, value) {
-        listeners.forEach(listener => listener(deviceId, property, value, BusDirection.Upstream));
+        emitter.emit('change', deviceId, property, value, BusDirection.Upstream);
     },
 
     /**
-     * Registers a value change listener on the bus
-     * @param listener A function with the signature (deviceId, property, value, direction)
+     * Reports that a new device has logged in
+     * @param deviceId  The ID of the device
+     * @param ip        The address of the device
      */
-    registerChangeListener(listener) {
-        if (listener == null || typeof listener !== 'function')
-            return;
-
-        listeners.push(listener);
+    deviceLogin(deviceId, ip) {
+        emitter.emit('login', deviceId, ip);
     },
 
+    /**
+     * Reports that a device sent its PONG hearbeat
+     * @param deviceId The ID of the device
+     */
+    deviceHeartbeat(deviceId) {
+        emitter.emit('heartbeat', deviceId);
+    },
+
+    emitter,
     BusDirection
 
 }

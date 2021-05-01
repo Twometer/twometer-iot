@@ -1,6 +1,6 @@
 'use strict';
 
-const PropertyBus = require('../../core/propertyBus')
+const DeviceBus = require('../../core/deviceBus')
 const Directives = require("../directives");
 
 module.exports = {
@@ -9,7 +9,7 @@ module.exports = {
         SetColor(directive) {
             let meta = Directives.parseDirectiveMeta(directive);
             let hsbColor = directive.payload.color;
-            PropertyBus.changeProperty(meta.deviceId, meta.property, hsbColor);
+            DeviceBus.changeProperty(meta.deviceId, meta.property, hsbColor);
         }
     }
 }
