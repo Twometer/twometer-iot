@@ -97,17 +97,22 @@ public:
             lastPing = millis();
             send(createMessage(MESSAGE_TYPE_PONG));
         }
-        else
+        else if (message.getType() == MESSAGE_TYPE_UPDATE)
         {
-            auto iterator = propertyHandlers.find(message.getType());
+            auto property = message.readString();
+            auto iterator = propertyHandlers.find(property);
             if (iterator != propertyHandlers.end())
             {
                 iterator->second(message);
             }
             else
             {
-                Serial.println("Unhandled message of type " + message.getType());
+                Serial.println("No handler for changed property " + property);
             }
+        }
+        else
+        {
+            Serial.println("Received unknown message type " + message.getType());
         }
     }
     void send(const Message &value)
