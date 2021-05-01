@@ -13,9 +13,15 @@ module.exports = {
     _sendPingWave() {
         for (let deviceId in onlineDevices) {
             let device = onlineDevices[deviceId];
+            if (!device)
+                continue;
+
             UdpServer.sendMessage(Proto.createMessage(Proto.MsgType.Ping), device.ipAddress);
+            if (Date.now() - device.lastPong > Config.PING_WAVE_INTERVAL * 2) {
+                onlineDevices[deviceId] = undefined;
+                logger.info(`Device ${device.deviceId} timed out`);
+            }
         }
-        onlineDevices = onlineDevices.filter(dev => (Date.now() - dev.lastPong) < 15000);
     },
 
     initialize() {
@@ -34,7 +40,9 @@ module.exports = {
     },
 
     pongReceived(deviceId) {
-        onlineDevices[deviceId].lastPong = Date.now();
+        let device = onlineDevices[deviceId];
+        if (!device) return;
+        device.lastPong = Date.now();
     }
 
 }
