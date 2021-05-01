@@ -6,7 +6,7 @@ class Message
 private:
     String type;
     String data;
-    int index;
+    int index = 0;
 
 public:
     Message()
@@ -41,14 +41,16 @@ public:
 
     String readString()
     {
-        String str;
-
-        while (!eof() && data[index] != ':')
+        String str{};
+        while (!eof())
         {
-            str += data[index];
+            char c = data[index];
             index++;
+            if (c == ':')
+                break;
+            else
+                str += c;
         }
-
         return str;
     }
 
@@ -77,7 +79,7 @@ public:
 private:
     bool eof() const
     {
-        return index < data.length();
+        return index >= data.length();
     }
 
     bool writeSeparator()

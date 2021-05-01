@@ -84,10 +84,10 @@ public:
         checkPingTimeout();
 
         int len = udpClient.readPacket(receiveBuffer, RECVBUFSIZE);
-        receiveBuffer[len] = 0x00;
-
-        if (len == 0)
+        if (len <= 0)
             return;
+
+        receiveBuffer[len] = 0x00;
 
         Message message;
         message.parse((const char *)receiveBuffer);
