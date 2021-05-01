@@ -70,8 +70,8 @@ public:
         udpClient.begin(WiFi.gatewayIP(), udpPort);
         Serial.println("Connected to the UDP server");
 
-        sayHello();
-        Serial.println("Said the bridge hello");
+        send(createMessage(MESSAGE_TYPE_DHELLO));
+        Serial.println("Reported as online to the bridge.");
 
         receiveBuffer = new uint8_t[RECVBUFSIZE];
         memset(receiveBuffer, 0, RECVBUFSIZE);
@@ -95,6 +95,13 @@ public:
         udpClient.beginPacket();
         udpClient.writeRaw(data.c_str(), data.length());
         udpClient.endPacket();
+    }
+
+    Message createMessage(const String &type) {
+        Message message(type);
+        message.writeString(deviceDescriptor.deviceId);
+        message.writeString(wiFiController.getAuthToken());
+        return message;
     }
 
 private:
@@ -136,13 +143,6 @@ private:
         return serialized;
     }
 
-    void sayHello()
-    {
-        Message loginMessage(MESSAGE_TYPE_DHELLO);
-        loginMessage.writeString(deviceDescriptor.deviceId);
-        loginMessage.writeString(wiFiController.getAuthToken());
-        send(loginMessage);
-    }
 };
 
 #endif

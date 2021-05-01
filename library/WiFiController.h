@@ -8,6 +8,7 @@
 #include "StorageBuf.h"
 
 #define EEPROM_MAGIC 0xE2
+#define DEBUG_MODE 0
 
 class WiFiController
 {
@@ -27,8 +28,10 @@ public:
         if (hasData)
         {
             Serial.println("EEPROM has data, connecting to WiFi...");
+#if DEBUG_MODE
             Serial.setDebugOutput(true);
             WiFi.printDiag(Serial);
+#endif
             WiFi.begin(controlSsid, wifiPassword);
             awaitConnection();
         }
@@ -57,7 +60,6 @@ private:
         Serial.println("Connecting to " + WiFi.SSID() + "...");
         while (WiFi.status() != WL_CONNECTED)
         {
-            Serial.println(WiFi.status());
             delay(100);
         }
         bridgeIp = WiFi.gatewayIP().toString();

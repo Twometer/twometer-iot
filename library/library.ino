@@ -52,7 +52,7 @@ void loop()
         lastReport = millis();
 
         /* Report a dummy value */
-        Message message(MESSAGE_TYPE_REPORT);
+        Message message = iot.createMessage(MESSAGE_TYPE_REPORT);
         message.writeString("Button.Clicked");
         message.writeInt(42);
         iot.send(message);
