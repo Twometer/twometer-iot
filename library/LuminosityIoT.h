@@ -85,9 +85,24 @@ public:
             return;
 
         Message message;
-        message.parse((const char *) receiveBuffer);
+        message.parse((const char *)receiveBuffer);
 
-        Serial.println("Received message of type " + message.getType());
+        if (message.getType() == MESSAGE_TYPE_PING)
+        {
+            send(createMessage(MESSAGE_TYPE_PONG));
+        }
+        else
+        {
+            auto iterator = propertyHandlers.find(message.getType());
+            if (iterator != propertyHandlers.end())
+            {
+                iterator->second(message);
+            }
+            else
+            {
+                Serial.println("Unhandled message of type " + message.getType());
+            }
+        }
     }
     void send(const Message &value)
     {
@@ -97,7 +112,8 @@ public:
         udpClient.endPacket();
     }
 
-    Message createMessage(const String &type) {
+    Message createMessage(const String &type)
+    {
         Message message(type);
         message.writeString(deviceDescriptor.deviceId);
         message.writeString(wiFiController.getAuthToken());
@@ -142,7 +158,6 @@ private:
         serializeJson(doc, serialized);
         return serialized;
     }
-
 };
 
 #endif
