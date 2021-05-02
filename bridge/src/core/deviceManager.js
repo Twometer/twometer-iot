@@ -3,6 +3,7 @@
 const logger = require('cutelog.js')
 const UdpServer = require('../udp/listener');
 const Proto = require('../udp/protocol')
+const Properties = require('./properties')
 const Config = require('../config')
 const Bus = require('../core/deviceBus')
 
@@ -32,12 +33,7 @@ module.exports = {
         Bus.emitter.on('change', (deviceId, property, value, direction) => {
             let device = onlineDevices[deviceId];
             if (device && direction === Bus.BusDirection.Downstream) {
-                let message;
-                if (typeof value === 'object') {  // Is a color
-                    message = Proto.createMessage(Proto.MsgType.UpdateProperty, property, value.h, value.s, value.b);
-                } else { // Can be serialized directly
-                    message = Proto.createMessage(Proto.MsgType.UpdateProperty, property, value);
-                }
+                let message = Properties.serialize(property, value);
                 UdpServer.sendMessage(message, device.ipAddress);
             }
         })

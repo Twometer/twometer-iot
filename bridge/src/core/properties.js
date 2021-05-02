@@ -1,3 +1,7 @@
+'use strict';
+
+const Proto = require('../udp/protocol')
+
 function getDefaultValue(property) {
     switch (property.type) {
         case 'EVENT':
@@ -32,4 +36,14 @@ function validate(property, value) {
     }
 }
 
-module.exports = {getDefaultValue, validate}
+function serialize(property, value) {
+    let message;
+    if (typeof value === 'object') {  // Is a color
+        message = Proto.createMessage(Proto.MsgType.UpdateProperty, property, value.h, value.s, value.b);
+    } else { // Can be serialized directly
+        message = Proto.createMessage(Proto.MsgType.UpdateProperty, property, value);
+    }
+    return message;
+}
+
+module.exports = {getDefaultValue, validate, serialize}
