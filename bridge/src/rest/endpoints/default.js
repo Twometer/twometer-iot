@@ -33,10 +33,29 @@ router.post('/admin', async (req, res) => {
     }
 });
 
+function getDefaultValue(property) {
+    switch (property.type) {
+        case 'EVENT':
+            return '';
+        case 'BOOLEAN':
+            return false;
+        case 'NUMBER':
+            return 0;
+        case 'COLOR':
+            return {h: 0, s: 0, b: 0};
+        case 'MODE':
+            return Object.values(JSON.parse(property.valueRange))[0];
+    }
+}
+
 router.post('/pair', async (req, res) => {
     let descriptor = req.body;
     if (!descriptor.deviceId) {
         return res.status(400).send();
+    }
+
+    for (let property of descriptor.properties) {
+        property.currentValue = getDefaultValue(property);
     }
 
     let deviceToken = uuid();
