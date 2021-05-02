@@ -3,7 +3,7 @@
 const mongoose = require('mongoose')
 const config = require('./config')
 const logger = require('cutelog.js');
-const Bus = require('core/deviceBus')
+const Bus = require('./core/deviceBus')
 
 function connect() {
     return new Promise((resolve) => {
@@ -62,6 +62,6 @@ Bus.emitter.on('login', async (deviceId) => {
         return;
 
     for (let prop of device.properties) {
-        Bus.changeProperty(deviceId, prop.propertyKey, prop.currentValue);
+        Bus.changeProperty(deviceId, prop.name, JSON.parse(prop.currentValue));
     }
 })
