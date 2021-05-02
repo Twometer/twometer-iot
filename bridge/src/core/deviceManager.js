@@ -28,6 +28,17 @@ module.exports = {
         setInterval(this._sendPingWave, Config.PING_WAVE_INTERVAL);
         Bus.emitter.on('login', this.addDevice);
         Bus.emitter.on('heartbeat', this.pongReceived);
+
+        Bus.emitter.on('change', (deviceId, property, value, direction) => {
+            let device = onlineDevices[deviceId];
+            if (device && direction === Bus.BusDirection.Downstream) {
+                if (typeof value === 'object') {  // Is a color
+                    Proto.createMessage(Proto.MsgType.UpdateProperty, property, value.h, value.s, value.b);
+                } else { // Can be serialized directly
+                    Proto.createMessage(Proto.MsgType.UpdateProperty, property, value);
+                }
+            }
+        })
     },
 
     addDevice(deviceId, ipAddress) {
