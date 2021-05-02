@@ -1,5 +1,6 @@
 'use strict';
 
+const PropertyMapper = require('./propertyMapper')
 const {v4: uuid} = require('uuid');
 
 const ErrorType = {
@@ -13,12 +14,6 @@ const ErrorType = {
     InvalidValue: 'INVALID_VALUE',
     NoSuchEndpoint: 'NO_SUCH_ENDPOINT'
 };
-
-const DefaultProperties = {
-    'Alexa.BrightnessController': 'Light.Brightness',
-    'Alexa.ColorController': 'Light.Color',
-    'Alexa.PowerController': 'Device.Power'
-}
 
 function createErrorResponse(request, errorType, errorMessage) {
     return {
@@ -41,15 +36,58 @@ function createErrorResponse(request, errorType, errorMessage) {
     }
 }
 
+function createPropertyResponse(directive, value) {
+    return {
+        event: {
+            header: {
+                namespace: 'Alexa',
+                name: 'Response',
+                payloadVersion: '3',
+                messageId: newMessageId(),
+                correlationToken: directive.header.correlationToken
+            },
+            endpoint: {
+                endpointId: directive.endpoint.endpointId
+            },
+            payload: {}
+        },
+        context: {
+            properties: [
+                {
+                    namespace: directive.header.namespace,
+                    name: PropertyMapper.getByNamespace(directive.header.namespace).alexaProperty,
+                    value: value,
+                    timeOfSample: new Date().toISOString(),
+                    uncertaintyInMilliseconds: 500
+                }
+            ]
+        }
+    }
+}
+
+function createBaseResponse(directive, namespace, name) {
+    return {
+        event: {
+            header: {
+                namespace,
+                name,
+                payloadVersion: '3',
+                messageId: newMessageId(),
+            },
+            payload: {}
+        }
+    };
+}
+
 function newMessageId() {
     return uuid();
 }
 
 function parseDirectiveMeta(directive) {
     return {
-        property: directive.header.instance || DefaultProperties[directive.header.namespace],
+        property: directive.header.instance || PropertyMapper.getByNamespace(directive.header.namespace).lumiProperty,
         deviceId: directive.endpoint.endpointId
     }
 }
 
-module.exports = {ErrorType, newMessageId, createErrorResponse, parseDirectiveMeta}
+module.exports = {ErrorType, createPropertyResponse, createErrorResponse, createBaseResponse, parseDirectiveMeta}

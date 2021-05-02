@@ -9,11 +9,13 @@ module.exports = {
         TurnOn(directive) {
             let meta = Directives.parseDirectiveMeta(directive);
             DeviceBus.changeProperty(meta.deviceId, meta.property, true);
+            return Directives.createPropertyResponse(directive, 'ON');
         },
 
         TurnOff(directive) {
             let meta = Directives.parseDirectiveMeta(directive);
             DeviceBus.changeProperty(meta.deviceId, meta.property, false);
+            return Directives.createPropertyResponse(directive, 'OFF');
         }
     }
 }

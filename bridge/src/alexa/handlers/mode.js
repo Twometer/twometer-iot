@@ -10,6 +10,7 @@ module.exports = {
             let meta = Directives.parseDirectiveMeta(directive);
             let value = directive.payload.mode;
             DeviceBus.changeProperty(meta.deviceId, meta.property, value);
+            return Directives.createPropertyResponse(directive, value);
         }
     }
 }

@@ -41,7 +41,7 @@ async function fiberHandler({directive}) {
         if (handler.namespace === directive.header.namespace) {
             let handlerFunc = handler.handlers[directive.header.name];
             if (handlerFunc !== null) {
-                return await Promise.resolve(handlerFunc(directive));
+                return await handlerFunc(directive);
             }
         }
     }

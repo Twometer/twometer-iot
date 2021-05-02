@@ -43,6 +43,18 @@ module.exports.getProperties = async function (deviceId) {
     return device.properties;
 }
 
+module.exports.getPropertyValue = async function (deviceId, propertyName) {
+    let device = (await module.exports.Device.find({_id: deviceId}))[0];
+    if (!device)
+        return null;
+
+    let property = device.properties.filter(prop => prop.name === propertyName)[0];
+    if (!property)
+        return null;
+
+    return property.currentValue;
+}
+
 Bus.emitter.on('change', async (deviceId, propertyName, value) => {
     let device = (await module.exports.Device.find({_id: deviceId}))[0];
     if (!device)

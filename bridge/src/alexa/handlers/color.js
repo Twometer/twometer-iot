@@ -10,6 +10,7 @@ module.exports = {
             let meta = Directives.parseDirectiveMeta(directive);
             let hsbColor = directive.payload.color;
             DeviceBus.changeProperty(meta.deviceId, meta.property, hsbColor);
+            return Directives.createPropertyResponse(directive, hsbColor);
         }
     }
 }

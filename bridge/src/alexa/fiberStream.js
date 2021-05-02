@@ -32,10 +32,10 @@ class FiberStream {
         this.handlers = {};
     }
 
-    _raiseEvent(event, value) {
+    async _raiseEvent(event, value) {
         let handler = this.handlers[event];
         if (handler)
-            return handler(value);
+            return await handler(value);
         return null;
     }
 
@@ -66,7 +66,7 @@ class FiberStream {
                 this._raiseEvent(EventType.close, e);
             });
 
-            this.webSocket.on('message', messageString => {
+            this.webSocket.on('message', async messageString => {
                 let message = JSON.parse(messageString);
 
                 // Handle KeepAlive requests
@@ -75,7 +75,7 @@ class FiberStream {
                     return;
                 }
 
-                let response = this._raiseEvent(EventType.message, message.payload);
+                let response = await this._raiseEvent(EventType.message, message.payload);
                 if (this.mode === OperatingMode.relay && response)
                     this._send({id: message.id, type: 'response', payload: response});
             });
