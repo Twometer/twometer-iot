@@ -39,7 +39,7 @@ function validate(property, value) {
 function serialize(property, value) {
     let message;
     if (typeof value === 'object') {  // Is a color
-        message = Proto.createMessage(Proto.MsgType.UpdateProperty, property, value.hue, value.saturation, value.brightness);
+        message = Proto.createMessage(Proto.MsgType.UpdateProperty, property, value.hue, value.saturation * 255, value.brightness * 255);
     } else { // Can be serialized directly
         message = Proto.createMessage(Proto.MsgType.UpdateProperty, property, value);
     }
