@@ -32,11 +32,13 @@ module.exports = {
         Bus.emitter.on('change', (deviceId, property, value, direction) => {
             let device = onlineDevices[deviceId];
             if (device && direction === Bus.BusDirection.Downstream) {
+                let message;
                 if (typeof value === 'object') {  // Is a color
-                    Proto.createMessage(Proto.MsgType.UpdateProperty, property, value.h, value.s, value.b);
+                    message = Proto.createMessage(Proto.MsgType.UpdateProperty, property, value.h, value.s, value.b);
                 } else { // Can be serialized directly
-                    Proto.createMessage(Proto.MsgType.UpdateProperty, property, value);
+                    message = Proto.createMessage(Proto.MsgType.UpdateProperty, property, value);
                 }
+                UdpServer.sendMessage(message, device.ipAddress);
             }
         })
     },
