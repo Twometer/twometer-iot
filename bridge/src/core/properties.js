@@ -11,7 +11,7 @@ function getDefaultValue(property) {
         case 'NUMBER':
             return 0;
         case 'COLOR':
-            return {h: 0, s: 0, b: 0};
+            return {hue: 0, saturation: 0, brightness: 0};
         case 'MODE':
             return Object.keys(JSON.parse(property.valueRange))[0];
     }
@@ -27,7 +27,7 @@ function validate(property, value) {
             return !isNaN(value);
         case 'COLOR':
             try {
-                return !isNaN(value.h) && !isNaN(value.s) && !isNaN(value.b);
+                return !isNaN(value.hue) && !isNaN(value.saturation) && !isNaN(value.brightness);
             } catch (e) {
                 return false;
             }
@@ -39,7 +39,7 @@ function validate(property, value) {
 function serialize(property, value) {
     let message;
     if (typeof value === 'object') {  // Is a color
-        message = Proto.createMessage(Proto.MsgType.UpdateProperty, property, value.h, value.s, value.b);
+        message = Proto.createMessage(Proto.MsgType.UpdateProperty, property, value.hue, value.saturation, value.brightness);
     } else { // Can be serialized directly
         message = Proto.createMessage(Proto.MsgType.UpdateProperty, property, value);
     }

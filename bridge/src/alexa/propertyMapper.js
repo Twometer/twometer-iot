@@ -42,6 +42,4 @@ module.exports = {
     getByProperty(lumiName) {
         return PropertyMap.filter(entry => entry.lumiProperty === lumiName)[0]
     }
-
-
 }

@@ -40,6 +40,7 @@ class FiberStream {
     }
 
     _send(message) {
+        console.log("-------------\n",JSON.stringify(message, null, 4));
         this.webSocket.send(JSON.stringify(message));
     }
 

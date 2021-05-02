@@ -73,6 +73,7 @@ function createBaseResponse(directive, namespace, name) {
                 name,
                 payloadVersion: '3',
                 messageId: newMessageId(),
+                correlationToken: directive.header.correlationToken
             },
             payload: {}
         }

@@ -44,7 +44,6 @@ module.exports = {
     handlers: {
         async Discover(directive) {
             let devices = await Database.Device.find();
-
             let response = Directives.createBaseResponse(directive, 'Alexa.Discovery', 'Discover.Response');
             response.event.payload.endpoints = devices.map(convertToEndpoint);
             return response;
