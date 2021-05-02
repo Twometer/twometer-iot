@@ -44,7 +44,7 @@ function getDefaultValue(property) {
         case 'COLOR':
             return {h: 0, s: 0, b: 0};
         case 'MODE':
-            return Object.values(JSON.parse(property.valueRange))[0];
+            return Object.keys(JSON.parse(property.valueRange))[0];
     }
 }
 
