@@ -6,10 +6,17 @@ const Database = require('../../database')
 
 function convertToCapability(property) {
     let map = PropertyMapper.getByProperty(property.name);
-    if (!map)
+    if (!map && property.type !== 'MODE')
         return undefined;
 
-    return {
+    if (!map) {
+        map = {
+            alexaNamespace: 'Alexa.ModeController',
+            alexaProperty: 'mode'
+        }
+    }
+
+    let capability = {
         type: "AlexaInterface",
         version: "3",
         interface: map.alexaNamespace,
@@ -21,7 +28,52 @@ function convertToCapability(property) {
             retrievable: true
         }
     }
+
+    if (property.type === 'MODE') {
+        let valueRange = JSON.parse(property.valueRange);
+
+        capability.properties.nonControllable = false;
+        capability.instance = property.name;
+        capability.capabilityResources = {
+            friendlyNames: [{
+                '@type': 'text',
+                value: {
+                    text: property.friendlyName,
+                    locale: 'de-DE'
+                }
+            }],
+        };
+        capability.configuration = {
+            ordered: false,
+            supportedModes: []
+        }
+
+        for (let key in valueRange) {
+            if (!valueRange.hasOwnProperty(key))
+                continue;
+            if (key === '_id')
+                continue;
+
+            let friendlyName = valueRange[key];
+
+            capability.configuration.supportedModes.push({
+                value: key,
+                modeResources: {
+                    friendlyNames: [{
+                        '@type': 'text',
+                        value: {
+                            text: friendlyName,
+                            locale: 'de-DE'
+                        }
+                    }]
+                }
+            })
+        }
+    }
+
+    return capability;
 }
+
 
 function convertToEndpoint(device) {
     return {
