@@ -55,7 +55,7 @@ router.post('/pair', async (req, res) => {
     }
 
     for (let property of descriptor.properties) {
-        property.currentValue = getDefaultValue(property);
+        property.currentValue = JSON.stringify(getDefaultValue(property));
     }
 
     let deviceToken = uuid();
