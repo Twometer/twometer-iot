@@ -8,9 +8,8 @@ const DeviceBus = require('./deviceBus')
 let pairingModeTimeoutId = null;
 
 function propertyChangeHandler(deviceId, property, value, direction) {
-    if (direction === DeviceBus.BusDirection.Downstream) {
-        logger.info(`[${direction}] Changing property '${property}' on device '${deviceId}' to '${value}'.`)
-    }
+    logger.info(`[${direction}] Changing property '${property}' on device '${deviceId}' to '${value}'.`)
+    // if (direction === DeviceBus.BusDirection.Downstream) {}
 }
 
 async function initialize() {

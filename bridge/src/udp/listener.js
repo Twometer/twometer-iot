@@ -32,9 +32,7 @@ socket.on('message', (buffer, remote) => {
             let authToken = msg.params[1];
             let property = msg.params[2];
             let value = msg.params[3];
-
-            console.log(`Device ${deviceId} changed ${property} to ${value} using ${authToken}`);
-
+            Bus.valueReported(deviceId, property, value);
             break;
         }
         case Proto.MsgType.DeviceHello: {
