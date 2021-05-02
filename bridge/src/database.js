@@ -3,6 +3,7 @@
 const mongoose = require('mongoose')
 const config = require('./config')
 const logger = require('cutelog.js');
+const Bus = require('core/deviceBus')
 
 function connect() {
     return new Promise((resolve) => {
@@ -34,3 +35,33 @@ module.exports.Scene = mongoose.model('Scene', {
     description: String,
     actions: [{deviceId: String, propertyKey: String, propertyValue: String}]
 });
+
+module.exports.getProperties = async function (deviceId) {
+    let device = (await module.exports.Device.find({_id: deviceId}))[0];
+    if (!device)
+        return [];
+    return device.properties;
+}
+
+Bus.emitter.on('change', async (deviceId, propertyName, value) => {
+    let device = (await module.exports.Device.find({_id: deviceId}))[0];
+    if (!device)
+        return;
+
+    let property = device.properties.filter(prop => prop.name === propertyName)[0];
+    if (!property)
+        return;
+
+    property.currentValue = JSON.stringify(value);
+    await device.save();
+})
+
+Bus.emitter.on('login', async (deviceId) => {
+    let device = (await module.exports.Device.find({_id: deviceId}))[0];
+    if (!device)
+        return;
+
+    for (let prop of device.properties) {
+        Bus.changeProperty(deviceId, prop.propertyKey, prop.currentValue);
+    }
+})
