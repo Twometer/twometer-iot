@@ -5,7 +5,7 @@ LuminosityIoT iot;
 void setup()
 {
     /* Set up device properties */
-    iot.configure("uwunet", "uwunet pair", 11210);
+    iot.configure("Twometer IoT", "Twometer IoT Pair", 11210);
     iot.describe("IoT Test Device", "GlowTec Industries", "A test device that exposes all types of properties and raises the test event every 10 seconds.", DEVICE_TYPE_LIGHT);
     iot.expose("Device.PowerState", PROPERTY_TYPE_BOOLEAN);
     iot.expose("Light.Brightness", PROPERTY_TYPE_NUMBER);
