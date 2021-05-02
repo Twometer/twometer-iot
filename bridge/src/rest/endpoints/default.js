@@ -2,6 +2,7 @@
 
 const packageInfo = require('../../../package.json')
 const controller = require('../../core/bridgeController')
+const Properties = require('../../core/properties')
 const Config = require('../../config')
 const logger = require('cutelog.js');
 const express = require('express');
@@ -33,20 +34,7 @@ router.post('/admin', async (req, res) => {
     }
 });
 
-function getDefaultValue(property) {
-    switch (property.type) {
-        case 'EVENT':
-            return '';
-        case 'BOOLEAN':
-            return false;
-        case 'NUMBER':
-            return 0;
-        case 'COLOR':
-            return {h: 0, s: 0, b: 0};
-        case 'MODE':
-            return Object.keys(JSON.parse(property.valueRange))[0];
-    }
-}
+
 
 router.post('/pair', async (req, res) => {
     let descriptor = req.body;
@@ -55,7 +43,7 @@ router.post('/pair', async (req, res) => {
     }
 
     for (let property of descriptor.properties) {
-        property.currentValue = JSON.stringify(getDefaultValue(property));
+        property.currentValue = JSON.stringify(Properties.getDefaultValue(property));
     }
 
     let deviceToken = uuid();

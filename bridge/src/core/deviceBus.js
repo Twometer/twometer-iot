@@ -8,7 +8,6 @@ const BusDirection = {
 }
 
 const emitter = new events.EventEmitter();
-const listeners = [];
 
 /**
  * This module provides the message bus for changing properties, reporting values etc.
@@ -24,7 +23,7 @@ module.exports = {
      * @returns {Promise<void>}
      */
     changeProperty(deviceId, property, value) {
-        emitter.emit('change', deviceId, property, value, BusDirection.Upstream);
+        emitter.emit('change', deviceId, property, value, BusDirection.Downstream);
     },
 
     /**

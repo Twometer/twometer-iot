@@ -20,6 +20,6 @@ router.put('/:sceneId', (req, res) => {
 })
 
 module.exports = {
-    path: '/scene',
+    path: '/scenes',
     router
 }
