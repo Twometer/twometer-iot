@@ -1,49 +1,56 @@
-#include <TwometerIoT.h>
+#include <LuminosityIoT.h>
 
-TwometerIoT iot;
+LuminosityIoT iot;
 
-void setup() {
-  pinMode(2, OUTPUT);
-  delay(2000);
-  digitalWrite(2, HIGH);
-  delay(500);
-  digitalWrite(2, LOW);
-  
-  iot.describe("Smart Audio Amplifier", "Twometer Electronics", "A controller attached to the Twometer Cinema sound system", TYPE_MUSIC_SYSTEM);
-
-  iot.handleMode("Amp.InputChannel", [](const DynamicJsonDocument & payload) {
-    String mode = payload["mode"];
-
-    if (mode == "InputChannel.Music") {
-      digitalWrite(2, HIGH);
-      delay(500);
-      digitalWrite(2, LOW);
-    } else if (mode == "InputChannel.Cinema") {
-      digitalWrite(3, HIGH);
-      delay(500);
-      digitalWrite(3, LOW);
-    } else return false;
-
-    return true;
-  })
-  .setFriendlyName("Kanal")
-  .addMode("InputChannel.Music", "Musik")
-  .addMode("InputChannel.Cinema", "Kino");
-
-  iot.begin();
-
-  pinMode(2, OUTPUT);
-  pinMode(3, FUNCTION_3);
-  pinMode(3, OUTPUT);
-  digitalWrite(2, LOW);
-  digitalWrite(3, LOW);
-
-  // Initialize the amp to music mode
-  digitalWrite(2, HIGH);
-  delay(500);
-  digitalWrite(2, LOW);
+void hwInit()
+{
+    pinMode(2, OUTPUT);
+    pinMode(3, FUNCTION_3);
+    pinMode(3, OUTPUT);
+    digitalWrite(2, LOW);
+    digitalWrite(3, LOW);
 }
 
-void loop() {
-  iot.update();
+void musicMode()
+{
+    digitalWrite(2, HIGH);
+    delay(500);
+    digitalWrite(2, LOW);
+}
+
+void cinemaMode()
+{
+    digitalWrite(3, HIGH);
+    delay(500);
+    digitalWrite(3, LOW);
+}
+
+void setup()
+{
+    hwInit();
+    delay(2000);
+    musicMode();
+
+    iot.configure("Twometer IoT", "Twometer IoT Pair", 11210);
+    iot.describe("Audio Amplifier", "Twometer Electronics", "Channel switcher attached to the Twometer Cinema sound system", TYPE_MUSIC_SYSTEM);
+    iot.expose("Amp.InputChannel", PROPERTY_TYPE_MODE)
+        .setFriendlyName("Kanal")
+        .addOption("InputChannel.Music", "Musik")
+        .addOption("InputChannel.Cinema", "Kino");
+
+    iot.on("Amp.InputChannel", [](Message &message) {
+        String channel = message.readString();
+        if (channel == "InputChannel.Music")
+            musicMode();
+        else if (channel == "InputChannel.Cinema")
+            cinemaMode();
+    });
+    iot.begin();
+
+    musicMode();
+}
+
+void loop()
+{
+    iot.update();
 }
