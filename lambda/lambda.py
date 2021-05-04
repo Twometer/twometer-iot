@@ -29,10 +29,10 @@ def lambda_handler(request, context):
             return 
 
         
-        response = requests.post(FIBER_URL, headers={'Authorization': f'X-Fiber-Auth {FIBER_KEY}'}, json=request)
+        response = requests.post(FIBER_URL, headers={'Authorization': f'X-FiberAuth {FIBER_KEY}'}, json=request)
 
         if response.status_code != requests.codes.ok:
-            logger.error("Failed to call fiber")
+            logger.error(f'Failed to call fiber (Code {response.status_code})')
             return
         
         responseJson = response.json()
