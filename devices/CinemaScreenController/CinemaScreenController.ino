@@ -25,7 +25,7 @@ void setup()
     hwInit();
 
     iot.configure("Twometer IoT", "Twometer IoT Pair", 11210);
-    iot.describe("Cinema Screen", "Twometer Electronics", "Screen controller for the Twometer Cinema system", TYPE_INTERIOR_BLIND);
+    iot.describe("Cinema Screen", "Twometer Electronics", "Screen controller for the Twometer Cinema system", DEVICE_TYPE_INTERIOR_BLIND);
     iot.expose("Blinds.Position", PROPERTY_TYPE_MODE)
         .setFriendlyName("Position")
         .addOption("Position.Up", "Hoch")

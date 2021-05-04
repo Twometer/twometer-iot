@@ -32,7 +32,7 @@ void setup()
     musicMode();
 
     iot.configure("Twometer IoT", "Twometer IoT Pair", 11210);
-    iot.describe("Audio Amplifier", "Twometer Electronics", "Channel switcher attached to the Twometer Cinema sound system", TYPE_MUSIC_SYSTEM);
+    iot.describe("Audio Amplifier", "Twometer Electronics", "Channel switcher attached to the Twometer Cinema sound system", DEVICE_TYPE_MUSIC_SYSTEM);
     iot.expose("Amp.InputChannel", PROPERTY_TYPE_MODE)
         .setFriendlyName("Kanal")
         .addOption("InputChannel.Music", "Musik")

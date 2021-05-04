@@ -7,7 +7,7 @@ TwometerIoT iot;
 int curPwm = 1023;
 
 void setup() {
-  iot.describe("Desk LEDs", "Twometer Electronics", "Desk underglow LEDs", TYPE_LIGHT);
+  iot.describe("Desk LEDs", "Twometer Electronics", "Desk underglow LEDs", DEVICE_TYPE_LIGHT);
 
   iot.handle("Device.PowerState", [](const DynamicJsonDocument & payload) {
     int nextPwm = payload["powerState"].as<bool>() ? 1023 : 0;
