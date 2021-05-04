@@ -74,6 +74,8 @@ Bus.emitter.on('login', async (deviceId) => {
         return;
 
     for (let prop of device.properties) {
+        if (prop.name.endsWith('Stream'))
+            continue;
         Bus.changeProperty(deviceId, prop.name, JSON.parse(prop.currentValue));
     }
 })
