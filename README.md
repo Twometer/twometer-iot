@@ -2,8 +2,6 @@
 
 Luminosity is a DIY open source IoT and smart home system.
 
-> **This is the version 3 development branch**
-
 
 
 ## Repository layout
