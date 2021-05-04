@@ -3,10 +3,19 @@
 
 LuminosityIoT iot;
 
+#define PINOUT_VERSION 2
+
+#if PINOUT_VERSION == 3     // PCB
 #define PIN_R 13
 #define PIN_G 12
 #define PIN_B 14
 #define PIN_W 4
+#elif PINOUT_VERSION == 2   // D
+#define PIN_R 5
+#define PIN_G 4
+#define PIN_B 14
+#define PIN_W 12
+#endif
 
 bool hasChanged = true;
 bool currentPowerState = false;
@@ -69,9 +78,9 @@ void loop()
 
     if (hasChanged)
     {
-        hsv newColor = { currentSetting.h,
-                         currentSetting.s,
-                         (currentPowerState ? currentSetting.v : 0.0f) };
+        hsv newColor = {currentSetting.h,
+                        currentSetting.s,
+                        (currentPowerState ? currentSetting.v : 0.0f)};
 
         // Fade animation to new color
         for (float i = 0.0f; i <= 1.0f; i += 0.01f)
