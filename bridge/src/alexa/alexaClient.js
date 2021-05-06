@@ -1,6 +1,6 @@
 'use strict';
 
-const FiberStream = require('./fiberStream')
+const FiberStream = require('@twometer/fiberlib')
 const Message = require('./directives')
 const logger = require('cutelog.js')
 const config = require('../config')
