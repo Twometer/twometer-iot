@@ -2,6 +2,7 @@
 
 const WebSocket = require('ws');
 const {v4: uuidv4} = require('uuid');
+const logger = require('cutelog.js');
 
 const OperatingMode = {
     bus: 'bus',
@@ -30,6 +31,7 @@ class FiberStream {
         this.key = key;
         this.mode = mode;
         this.handlers = {};
+        this.lastPing = Date.now();
     }
 
     async _raiseEvent(event, value) {
@@ -40,13 +42,37 @@ class FiberStream {
     }
 
     _send(message) {
-        // console.log("-------------\n",JSON.stringify(message, null, 4));
         this.webSocket.send(JSON.stringify(message));
+    }
+
+    _startWatchdog() {
+        if (this.watchdogInterval)
+            return;
+
+        logger.info('Starting ping watchdog');
+        this.watchdogInterval = setInterval(async () => {
+            if (Date.now() - this.lastPing > 30000) {
+                logger.info('No ping for more than 30 seconds, reconnecting.');
+                await this.open();
+                logger.info('Reconnect successful.')
+            }
+        }, 5000);
     }
 
     open() {
         return new Promise((resolve, reject) => {
+            this._startWatchdog();
 
+            // Close any pre-existing websockets
+            if (this.webSocket) {
+                try {
+                    this.webSocket.close(1000);
+                } catch (e) {
+                    logger.warn('Socket close failed ' + e);
+                }
+            }
+
+            // Connect to the server
             this.webSocket = new WebSocket(this.url, {
                 headers: {
                     Authorization: `X-FiberAuth ${this.key}`
@@ -54,8 +80,9 @@ class FiberStream {
             });
 
             this.webSocket.on('open', () => {
-                resolve();
+                this.lastPing = Date.now();
                 this._raiseEvent(EventType.open);
+                resolve();
             });
 
             this.webSocket.on('error', e => {
@@ -70,12 +97,16 @@ class FiberStream {
             this.webSocket.on('message', async messageString => {
                 let message = JSON.parse(messageString);
 
+                // When receiving any message from the server, reset the timeout
+                this.lastPing = Date.now();
+
                 // Handle KeepAlive requests
                 if (message.type === 'ping') {
                     this._send({id: message.id, type: 'pong'});
                     return;
                 }
 
+                // Handly any other type of message
                 let response = await this._raiseEvent(EventType.message, message.payload);
                 if (this.mode === OperatingMode.relay && response)
                     this._send({id: message.id, type: 'response', payload: response});

@@ -23,12 +23,11 @@ async function initialize() {
     fiber.on('message', fiberHandler);
 
     fiber.on('close', e => {
-        logger.error(`Lost connection to the socket [error ${e}]`)
-        setTimeout(fiber.open, 10000);
+        logger.error(`Lost connection to the socket [status: ${e}]`)
     })
 
     fiber.on('error', e => {
-        logger.error(`Connection to the socket failed [error ${e}]`)
+        logger.error(`Connection to the socket failed [error: ${e}]`)
     })
 }
 
