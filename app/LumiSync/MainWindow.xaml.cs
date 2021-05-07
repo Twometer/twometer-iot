@@ -32,7 +32,7 @@ namespace LumiSync
             Initialize();
         }
 
-        public async void Initialize()
+        private async void Initialize()
         {
             var controller = await this.ShowProgressAsync("Connecting...", "Please wait while LumiSync is contacting the IoT bridge...");
             controller.SetIndeterminate();
@@ -44,10 +44,22 @@ namespace LumiSync
             };
 
             bridge = await BridgeDiscovery.Discover();
-            await Task.Delay(250); // Wait for dialog to show
             await controller.CloseAsync();
 
             StatusLabel.Content = $"Connected to bridge at {bridge.IpAddress}";
+            RefreshData();
+        }
+
+        private async void RefreshData()
+        {
+            var devices = await bridge.GetDevices();
+            DeviceListView.ItemsSource = devices;
+            MusicSyncDeviceSelectorListView.ItemsSource = devices;
+        }
+
+        private void RefreshButton_Click(object sender, RoutedEventArgs e)
+        {
+            RefreshData();
         }
     }
 }

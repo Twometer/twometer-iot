@@ -328,6 +328,7 @@
   <ItemGroup>
     <Compile Include="Net\Bridge.cs" />
     <Compile Include="Net\BridgeDiscovery.cs" />
+    <Compile Include="Net\Device.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
