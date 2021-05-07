@@ -4,10 +4,48 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
-        xmlns:local="clr-namespace:LumiSync"
-        mc:Ignorable="d"
-        Title="LumiSync" Height="450" Width="800">
+
+        xmlns:local="clr-namespace:LumiSync" xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+                 mc:Ignorable="d"
+        GlowBrush="{DynamicResource MahApps.Brushes.Accent}"
+        Title="LumiSync" Height="525" Width="850" ResizeMode="CanMinimize">
+
+    <mah:MetroWindow.RightWindowCommands>
+        <mah:WindowCommands>
+            <Button ToolTip="Refresh">
+                <iconPacks:PackIconModern Width="22"
+                                  Height="22"
+                                  Kind="Refresh" />
+            </Button>
+        </mah:WindowCommands>
+    </mah:MetroWindow.RightWindowCommands>
+
     <Grid>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+
+        <mah:MetroAnimatedSingleRowTabControl HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <TabItem Header="Bridge">
+
+            </TabItem>
+            <TabItem Header="Devices">
+
+            </TabItem>
+            <TabItem Header="Scenes">
+
+            </TabItem>
+            <TabItem Header="MusicSync">
+
+            </TabItem>
+        </mah:MetroAnimatedSingleRowTabControl>
+
+        <StatusBar Grid.Row="1">
+            <StatusBarItem HorizontalAlignment="Right" x:Name="StatusLabel" Content="Connecting..."/>
+        </StatusBar>
+
 
     </Grid>
 </mah:MetroWindow>

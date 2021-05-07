@@ -1,8 +1,10 @@
-﻿using MahApps.Metro.Controls;
+﻿using LumiSync.Net;
+using MahApps.Metro.Controls;
 using MahApps.Metro.Controls.Dialogs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -22,6 +24,8 @@ namespace LumiSync
     /// </summary>
     public partial class MainWindow : MetroWindow
     {
+        private Bridge bridge;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -38,6 +42,12 @@ namespace LumiSync
             {
                 controller.CloseAsync();
             };
+
+            bridge = await BridgeDiscovery.Discover();
+            await Task.Delay(250); // Wait for dialog to show
+            await controller.CloseAsync();
+
+            StatusLabel.Content = $"Connected to bridge at {bridge.IpAddress}";
         }
     }
 }
