@@ -6,6 +6,7 @@ Luminosity is a DIY open source IoT and smart home system.
 
 ## Repository layout
 
+- app: LumiSync desktop application for controlling the IoT network
 - bridge: Node.js application designed for Raspberry Pi which hosts the IoT bridge
 - devices: Contains a collection of IoT device implementations
 - docs: The mkdocs documentation for the project
