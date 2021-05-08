@@ -80,6 +80,7 @@ namespace LumiSync
         private SoundInSource source;
         private SpectrumAnalyzer spectrumAnalyzer;
         private bool syncActive = false;
+        private Color lastColor;
 
         private void SoundSyncToggleButton_Click(object sender, RoutedEventArgs e)
         {
@@ -105,9 +106,21 @@ namespace LumiSync
                     {
                         var strat = (ISoundLinkStrategy)SyncTypeBox.SelectedItem;
                         var color = strat.Update(spectrumAnalyzer);
+                        var wpfcolor = Color.FromRgb(color.R, color.G, color.B);
                         PowerMeterBar.Value = power;
-                        PowerMeterBar.Foreground = new SolidColorBrush(color);
-                        // TODO update color
+                        PowerMeterBar.Foreground = new SolidColorBrush(wpfcolor);
+
+                        if (wpfcolor != lastColor)
+                        {
+                            foreach (var itm in MusicSyncDeviceSelectorListView.SelectedItems)
+                            {
+                                if (itm is Device device && device.Type == "LIGHT")
+                                {
+                                    bridge.SetColor(device.DeviceId, "Light.ColorStream", color);
+                                }
+                            }
+                        }
+                        lastColor = wpfcolor;
                     });
                 };
 

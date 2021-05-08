@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -38,6 +39,38 @@ namespace LumiSync.Net
             }
         }
 
+        public async Task SetColor(string device, string property, Color color)
+        {
+            try
+            {
+                var request = WebRequest.CreateHttp($"{baseUrl}devices/{device}/{property}");
+                request.Method = "PUT";
+                request.ContentType = "application/json";
+
+                var payload = new
+                {
+                    value = new
+                    {
+                        hue = color.GetHue(),
+                        saturation = color.GetSaturation(),
+                        brightness = color.GetBrightness()
+                    }
+                };
+
+                //Console.WriteLine(JsonConvert.SerializeObject(payload));
+
+                var requestStream = await request.GetRequestStreamAsync();
+                var writer = new StreamWriter(requestStream);
+                writer.Write(JsonConvert.SerializeObject(payload));
+                writer.Flush();
+
+                await request.GetResponseAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+        }
 
     }
 }
