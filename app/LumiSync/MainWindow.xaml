@@ -65,7 +65,7 @@
             </TabItem>
             <TabItem Header="Scenes" Padding="15,5" >
                 <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch"  Margin="5">
-                    
+
                 </Grid>
             </TabItem>
             <TabItem Header="SoundLink" Padding="15,5">
@@ -86,18 +86,19 @@
                     </StackPanel>
                     <ListView Grid.Row="2" x:Name="MusicSyncDeviceSelectorListView" Margin="5" ItemTemplate="{StaticResource DeviceTemplate}" SelectionMode="Multiple" BorderThickness="1" BorderBrush="#555"/>
 
-                    <TextBlock Grid.Column="1" Grid.RowSpan="3" Padding="15" Margin="0,35" HorizontalAlignment="Center" FontSize="25" FontWeight="Thin">
-                        Sync disabled
-                    </TextBlock>
-
+                    <TextBlock Name="SyncStatusText" Grid.Column="1" Grid.RowSpan="3" Padding="15" Margin="0,35" HorizontalAlignment="Center" FontSize="25" FontWeight="Thin">Sync disabled</TextBlock>
+                    
+                    
+                    
                     <ComboBox x:Name="SyncTypeBox" Grid.Column="1" Grid.RowSpan="3" Margin="0,85" HorizontalAlignment="Center" Width="150" FontWeight="Thin" VerticalAlignment="Bottom">
                     </ComboBox>
 
-                    <Button x:Name="SoundSyncToggleButton" Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.RowSpan="3" Width="64" Height="64" Style="{DynamicResource MahApps.Styles.Button.Circle}">
+                    <Button x:Name="SoundSyncToggleButton" Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.RowSpan="3" Width="64" Height="64" Style="{DynamicResource MahApps.Styles.Button.Circle}" Click="SoundSyncToggleButton_Click">
                         <iconPacks:PackIconModern Width="22"
                                   Height="22"
                                   Kind="Power" />
                     </Button>
+                    <mah:MetroProgressBar x:Name="PowerMeterBar" Margin="5" HorizontalAlignment="Stretch" Height="10" Grid.Column="1" Grid.Row="3" VerticalAlignment="Bottom"/>
 
 
                 </Grid>

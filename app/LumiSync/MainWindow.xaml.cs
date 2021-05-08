@@ -1,4 +1,9 @@
-﻿using LumiSync.Net;
+﻿using CSCore;
+using CSCore.DSP;
+using CSCore.SoundIn;
+using CSCore.Streams;
+using LumiSync.Audio;
+using LumiSync.Net;
 using MahApps.Metro.Controls;
 using MahApps.Metro.Controls.Dialogs;
 using System;
@@ -61,5 +66,47 @@ namespace LumiSync
         {
             RefreshData();
         }
+
+        private WasapiCapture capture;
+        private SoundInSource source;
+        private SpectrumAnalyzer spectrumAnalyzer;
+        private bool syncActive = false;
+
+        private void SoundSyncToggleButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (capture == null)
+            {
+                capture = new WasapiLoopbackCapture();
+                capture.Initialize();
+                capture.Start();
+
+                source = new SoundInSource(capture);
+                spectrumAnalyzer = new SpectrumAnalyzer(source.ToSampleSource());
+
+                source.DataAvailable += (_, args) =>
+                {
+                    if (!syncActive)
+                        return;
+
+                    spectrumAnalyzer.Update();
+
+                    Dispatcher.Invoke(() =>
+                    {
+                        PowerMeterBar.Value = spectrumAnalyzer.GetFft() * 10000;
+                    });
+                };
+
+                Console.WriteLine("Opened capture device");
+            }
+
+            syncActive = !syncActive;
+
+            if (syncActive)
+                SyncStatusText.Text = "Sync enabled";
+            else
+                SyncStatusText.Text = "Sync disabled";
+        }
+
+
     }
 }
