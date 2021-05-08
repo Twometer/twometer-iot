@@ -4,6 +4,7 @@ using CSCore.SoundIn;
 using CSCore.Streams;
 using LumiSync.Audio;
 using LumiSync.Net;
+using LumiSync.SoundLink;
 using MahApps.Metro.Controls;
 using MahApps.Metro.Controls.Dialogs;
 using System;
@@ -31,10 +32,18 @@ namespace LumiSync
     {
         private Bridge bridge;
 
+        private List<ISoundLinkStrategy> strategies = new List<ISoundLinkStrategy>()
+        {
+            new ColorCycleStrategy()
+        };
+
         public MainWindow()
         {
             InitializeComponent();
             Initialize();
+
+            SyncTypeBox.ItemsSource = strategies;
+            SyncTypeBox.SelectedIndex = 0;
         }
 
         private async void Initialize()
@@ -90,9 +99,15 @@ namespace LumiSync
 
                     spectrumAnalyzer.Update();
 
+                    float power = Math.Min(spectrumAnalyzer.BandFilter(4)[0], 100);
+
                     Dispatcher.Invoke(() =>
                     {
-                        PowerMeterBar.Value = spectrumAnalyzer.GetFft() * 10000;
+                        var strat = (ISoundLinkStrategy)SyncTypeBox.SelectedItem;
+                        var color = strat.Update(spectrumAnalyzer);
+                        PowerMeterBar.Value = power;
+                        PowerMeterBar.Foreground = new SolidColorBrush(color);
+                        // TODO update color
                     });
                 };
 

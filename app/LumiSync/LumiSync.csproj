@@ -315,6 +315,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="SoundLink\ISoundLinkStrategy.cs" />
+    <Compile Include="SoundLink\ColorCycleStrategy.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -323,6 +325,8 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Audio\PeakDetector.cs" />
+    <Compile Include="Audio\RollingAverage.cs" />
     <Compile Include="Audio\SpectrumAnalyzer.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
