@@ -31,7 +31,7 @@ void setup()
         .addOption("Position.Up", "Hoch")
         .addOption("Position.Down", "Runter");
 
-    iot.on("Blinds.Position", [](const Message &message) {
+    iot.on("Blinds.Position", [](Message &message) {
         String position = message.readString();
         if (position == "Position.Up")
         {
